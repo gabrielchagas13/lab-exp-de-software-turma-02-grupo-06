@@ -47,8 +47,8 @@ Board: GitHub Projects (v2) do grupo (link a preencher).
 | [#2](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/2) | Setup do script base de consulta GraphQL (auth, sessão, rate limit) | Marcus Vinicius | ✅ Pronto |
 | [#3](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/3) | RQ01 — Idade do repositório | Marcus Vinicius | ✅ Pronto |
 | [#4](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/4) | RQ02 — Total de pull requests aceitas | Marcus Vinicius | ✅ Pronto |
-| [#5](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/5) | RQ03 — Total de releases | Guilherme Lana | ⬜ Não iniciado |
-| [#6](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/6) | RQ04 — Tempo até a última atualização | Guilherme Lana | ⬜ Não iniciado |
+| [#5](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/5) | RQ03 — Total de releases | Guilherme Lana | ✅ Pronto (validado em amostra de 10 repositórios) |
+| [#6](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/6) | RQ04 — Tempo até a última atualização | Guilherme Lana | ✅ Pronto (validado em amostra de 10 repositórios) |
 | [#7](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/7) | RQ05 — Linguagem primária (+ fonte de "linguagens mais populares") | Gabriel Chagas | ✅ Pronto |
 | [#8](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/8) | RQ06 — Percentual de issues fechadas | Gabriel Chagas | ✅ Pronto |
 | [#9](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/9) | RQ07 — Cruzamento por linguagem (depende de #4, #5, #6) | Gabriel Chagas | ⬜ Bloqueada (aguardando #5 e #6) |
@@ -90,9 +90,11 @@ Board: GitHub Projects (v2) do grupo (link a preencher).
 ```
 scripts/
   fetch_repos_rq1_rq2.py   # RQ01 (idade) + RQ02 (PRs aceitas)
+  fetch_repos_rq3_rq4.py   # RQ03 (total de releases) + RQ04 (tempo até última atualização)
   fetch_repos_rq5_rq6.py   # RQ05 (linguagem) + RQ06 (% issues fechadas)
 data/
   repos.csv                # saída RQ01/RQ02 (100 repositórios)
+  repos_rq3_rq4.csv        # saída RQ03/RQ04 (100 repositórios)
   repos_rq5_rq6.csv        # saída RQ05/RQ06 (100 repositórios)
 ```
 
