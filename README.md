@@ -61,12 +61,16 @@ Board: GitHub Projects (v2) do grupo (link a preencher).
 
 ### Sprint 2 — Lab01S02 (4 pontos)
 
-- [ ] Ajustar script para paginar até 1000 repositórios
-- [ ] Cada integrante valida individualmente, na sua parte de RQs, a consistência dos dados nos 1000 repositórios (distribuição, outliers, valores ausentes)
-- [ ] Cada integrante escreve, em Issue própria, a hipótese informal da sua parte
-- [ ] Gerar CSV final com 1000 repositórios
-- [ ] Primeira versão do relatório (introdução + hipóteses)
-- [ ] Rodar script de snapshot do board (GraphQL) e exportar CSV do status das issues
+| Issue | Tarefa | Responsável | Status |
+|---|---|---|---|
+| [#12](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/12) | Paginação para 1000 repositórios | Marcus Vinicius | ⬜ Backlog |
+| [#13](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/13) | Validação RQ01/RQ02 nos 1000 repositórios + hipótese informal | Marcus Vinicius | ⬜ Backlog |
+| [#14](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/14) | Validação RQ03/RQ04 nos 1000 repositórios + hipótese informal | Guilherme Lana | ⬜ Backlog |
+| [#15](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/15) | Rodar snapshot do board e exportar CSV | Guilherme Lana | ⬜ Backlog |
+| [#16](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/16) | Validação RQ05/RQ06/RQ07 nos 1000 repositórios + hipótese informal | Gabriel Chagas | ⬜ Backlog |
+| [#17](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/17) | Primeira versão do relatório (introdução + hipóteses) | Gabriel Chagas | ⬜ Backlog |
+
+**Dependência:** #13, #14 e #16 (validação em 1000 repositórios) dependem de #12 (paginação) estar pronta primeiro.
 
 ### Sprint 3 — Lab01S03 (4 pontos)
 
