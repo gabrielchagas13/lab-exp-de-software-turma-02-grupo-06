@@ -63,8 +63,8 @@ Board: GitHub Projects (v2) do grupo (link a preencher).
 
 | Issue | Tarefa | Responsável | Status |
 |---|---|---|---|
-| [#12](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/12) | Paginação para 1000 repositórios | Marcus Vinicius | ⬜ Backlog |
-| [#13](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/13) | Validação RQ01/RQ02 nos 1000 repositórios + hipótese informal | Marcus Vinicius | ⬜ Backlog |
+| [#12](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/12) | Paginação para 1000 repositórios | Marcus Vinicius | ✅ Pronto (`data/repos_1000.csv`, 990/1000 — a query pesada de releases atinge timeout do gateway do GitHub em paginação profunda; `data/repos_rq1_rq2_1000.csv` completou os 1000/1000) |
+| [#13](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/13) | Validação RQ01/RQ02 nos 1000 repositórios + hipótese informal | Marcus Vinicius | ✅ Pronto (validado em `data/repos_rq1_rq2_1000.csv` — sem ausentes/duplicatas; hipóteses registradas na issue) |
 | [#14](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/14) | Validação RQ03/RQ04 nos 1000 repositórios + hipótese informal | Guilherme Lana | ⬜ Backlog |
 | [#15](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/15) | Rodar snapshot do board e exportar CSV | Guilherme Lana | ⬜ Backlog |
 | [#16](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/16) | Validação RQ05/RQ06/RQ07 nos 1000 repositórios + hipótese informal | Gabriel Chagas | ⬜ Backlog |
@@ -103,6 +103,8 @@ data/
   repos.csv                 # saída individual RQ01/RQ02 (100 repositórios)
   repos_rq3_rq4_sample.csv  # saída individual RQ03/RQ04 (amostra de validação, 10 repositórios)
   repos_rq5_rq6.csv         # saída individual RQ05/RQ06 (100 repositórios)
+  repos_1000.csv            # saída do script único — RQ01-RQ06 (990/1000, ver nota da issue #12)
+  repos_rq1_rq2_1000.csv    # saída individual RQ01/RQ02 (1000 repositórios, validação da issue #13)
 ```
 
 ## Setup

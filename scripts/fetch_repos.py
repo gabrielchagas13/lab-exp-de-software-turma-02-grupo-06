@@ -77,32 +77,54 @@ def fetch_repos(token: str, count: int) -> list[dict]:
 
     # "sort:stars-desc" dentro da propria query de busca ordena os resultados
     # por numero de estrelas, igual ao usado na busca web do GitHub.
-    search_query = "stars:>1 sort:stars-desc"
+    min_stars = 1
 
-    repos = []
+    repos: list[dict] = []
+    seen = set()
     cursor = None
     while len(repos) < count:
+        search_query = f"stars:>{min_stars} sort:stars-desc"
         variables = {"searchQuery": search_query, "cursor": cursor}
 
-        # o gateway do GitHub responde 502/503/504 esporadicamente sob carga;
-        # tenta novamente com backoff antes de desistir.
-        for attempt in range(8):
-            response = session.post(API_URL, json={"query": QUERY, "variables": variables})
-            if response.status_code not in (502, 503, 504):
+        # o gateway do GitHub responde com erro/corpo vazio esporadicamente sob
+        # carga (502/503/504 ou 200 com corpo invalido); tenta novamente com
+        # backoff antes de desistir.
+        payload = None
+        for attempt in range(4):
+            try:
+                response = session.post(API_URL, json={"query": QUERY, "variables": variables})
+                response.raise_for_status()
+                payload = response.json()
                 break
-            time.sleep(min(2 ** attempt, 30))
-        response.raise_for_status()
-        payload = response.json()
+            except (requests.exceptions.RequestException, ValueError):
+                time.sleep(min(2 ** attempt, 10))
+        if payload is None:
+            response.raise_for_status()
+            payload = response.json()
 
         if "errors" in payload:
             raise RuntimeError(payload["errors"])
 
         search = payload["data"]["search"]
-        repos.extend(search["nodes"])
+        for node in search["nodes"]:
+            if node["nameWithOwner"] not in seen:
+                seen.add(node["nameWithOwner"])
+                repos.append(node)
 
-        if not search["pageInfo"]["hasNextPage"]:
+        if len(repos) >= count:
             break
-        cursor = search["pageInfo"]["endCursor"]
+
+        if search["pageInfo"]["hasNextPage"]:
+            cursor = search["pageInfo"]["endCursor"]
+        else:
+            # a Search API do GitHub as vezes reporta hasNextPage=False antes
+            # do limite real de 1000 resultados (indice de busca instavel em
+            # consultas muito paginadas). Reinicia a paginacao a partir da
+            # faixa de estrelas do ultimo repositorio coletado para continuar.
+            if not repos:
+                break
+            min_stars = repos[-1]["stargazerCount"] - 1
+            cursor = None
 
         # evita estourar o limite de taxa da API em consultas grandes (ex.: 1000 repos)
         time.sleep(1)
