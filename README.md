@@ -67,8 +67,8 @@ Board: GitHub Projects (v2) do grupo (link a preencher).
 | [#13](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/13) | Validação RQ01/RQ02 nos 1000 repositórios + hipótese informal | Marcus Vinicius | ✅ Pronto (validado em `data/repos_rq1_rq2_1000.csv` — sem ausentes/duplicatas; hipóteses registradas na issue) |
 | [#14](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/14) | Validação RQ03/RQ04 nos 1000 repositórios + hipótese informal | Guilherme Lana | ⬜ Backlog |
 | [#15](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/15) | Rodar snapshot do board e exportar CSV | Guilherme Lana | ⬜ Backlog |
-| [#16](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/16) | Validação RQ05/RQ06/RQ07 nos 1000 repositórios + hipótese informal | Gabriel Chagas | ⬜ Backlog |
-| [#17](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/17) | Primeira versão do relatório (introdução + hipóteses) | Gabriel Chagas | ⬜ Backlog |
+| [#16](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/16) | Validação RQ05/RQ06/RQ07 nos 1000 repositórios + hipótese informal | Gabriel Chagas | ✅ Pronto (`docs/validacao_rq05_rq06_rq07.md`) |
+| [#17](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/17) | Primeira versão do relatório (introdução + hipóteses) | Gabriel Chagas | ✅ Pronto (`docs/relatorio.md`) |
 
 **Dependência:** #13, #14 e #16 (validação em 1000 repositórios) dependem de #12 (paginação) estar pronta primeiro.
 

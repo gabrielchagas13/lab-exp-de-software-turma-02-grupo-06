@@ -1,0 +1,45 @@
+language,is_popular_language,repo_count,median_merged_pull_requests,median_total_releases,median_days_since_update
+Python,True,227,559.0,20.0,1.0
+TypeScript,True,173,2025.0,133.0,0.0
+JavaScript,True,109,617.0,37.0,6.0
+(sem linguagem),False,85,129.0,0.0,176.0
+Go,False,76,1702.5,141.0,0.0
+Rust,False,56,2353.5,87.5,0.0
+C++,True,40,1121.5,45.5,0.0
+Java,True,40,830.5,57.0,2.0
+Jupyter Notebook,False,23,88.0,0.0,29.0
+C,True,21,294.0,46.0,1.0
+Shell,True,20,389.5,6.5,12.5
+Ruby,True,13,6263.0,28.0,1.0
+HTML,False,11,232.0,0.0,30.0
+Swift,False,10,702.5,38.5,1.5
+Kotlin,False,9,258.0,75.0,0.0
+C#,True,8,3116.0,126.0,0.0
+CSS,False,8,185.5,0.0,354.0
+Dart,False,6,592.0,35.0,1.5
+Vue,False,6,402.0,40.5,280.5
+Markdown,False,5,244.0,0.0,7.0
+MDX,False,4,380.0,1.0,5.0
+Clojure,False,4,5165.0,119.0,0.0
+PHP,True,4,10638.5,577.0,0.0
+Vim Script,False,3,440.0,8.0,0.0
+Zig,False,3,4481.0,20.0,0.0
+Dockerfile,False,2,383.5,0.5,403.5
+Scala,False,2,5.0,0.0,172.0
+PowerShell,False,2,792.5,41.0,1.0
+Makefile,False,2,3010.5,169.5,58.5
+Haskell,False,2,1073.5,94.0,7.5
+Astro,False,2,1264.5,25.5,0.0
+TeX,False,2,19.0,3.5,2069.0
+Batchfile,False,1,7.0,31.0,45.0
+Blade,False,1,1710.0,227.0,0.0
+Roff,False,1,1.0,0.0,304.0
+Assembly,False,1,0.0,0.0,35.0
+Nunjucks,False,1,485.0,0.0,63.0
+Julia,False,1,27797.0,203.0,0.0
+Lua,False,1,6532.0,147.0,2.0
+Svelte,False,1,252.0,0.0,135.0
+LLVM,False,1,97088.0,159.0,0.0
+V,False,1,13794.0,304.0,0.0
+Elixir,False,1,898.0,12.0,64.0
+Objective-C,False,1,710.0,40.0,1309.0
