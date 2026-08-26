@@ -1573,11 +1573,11 @@ function buildRQCharts(){
   // RQ03 — releases
   const releasesVals = repos.map(r=>r.total_releases);
   const relBins = bin(releasesVals, [
-    {lo:0,hi:0,label:'0'},{lo:1,hi:5,label:'1–5'},{lo:6,hi:20,label:'6–20'},
-    {lo:21,hi:100,label:'21–100'},{lo:101,hi:999,label:'101–999'}
+    {lo:0,hi:0,label:'0'},{lo:1,hi:99,label:'1–99'},
+    {lo:100,hi:999,label:'100–999'}
   ]);
   const capCount = releasesVals.filter(v=>v===1000).length;
-  relBins.push({label:'1000', count:capCount, color:'var(--series-2)', note:'possível teto de contagem da API do GitHub'});
+  relBins.push({label:'1000', count:capCount, color:'var(--series-2)', note:'teto da API'});
   renderVBars('chart-rq3', relBins);
   const rq3Median = median(releasesVals), rq3Mean = mean(releasesVals);
   document.getElementById('stat-rq3').textContent = fmtNum(rq3Median);
@@ -1590,8 +1590,8 @@ function buildRQCharts(){
   // RQ04 — dias desde atualização
   const daysVals = repos.map(r=>r.days_since_update);
   const daysBins = bin(daysVals, [
-    {lo:0,hi:0,label:'Hoje'},{lo:1,hi:7,label:'1–7d'},{lo:8,hi:30,label:'8–30d'},
-    {lo:31,hi:90,label:'31–90d'},{lo:91,hi:365,label:'91–365d'},{lo:366,hi:Infinity,label:'>365d'}
+    {lo:0,hi:0,label:'Hoje'},{lo:1,hi:30,label:'1–30d'},
+    {lo:31,hi:365,label:'31–365d'},{lo:366,hi:Infinity,label:'>365d'}
   ]);
   renderVBars('chart-rq4', daysBins);
   const rq4Median = median(daysVals), rq4Mean = mean(daysVals);
