@@ -1,0 +1,14 @@
+metric,faixa,repositorios
+age_years,0-1,81
+age_years,1-3,109
+age_years,3-5,133
+age_years,5-10,331
+age_years,10-15,297
+age_years,15+,49
+merged_pull_requests,0,20
+merged_pull_requests,1-50,106
+merged_pull_requests,51-200,147
+merged_pull_requests,201-1000,275
+merged_pull_requests,1001-5000,266
+merged_pull_requests,5001-20000,136
+merged_pull_requests,20000+,50

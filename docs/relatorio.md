@@ -12,12 +12,12 @@ Este trabalho estuda características de repositórios populares open-source no 
 ### RQ01 — Sistemas populares são maduros/antigos?
 
 > Repositórios populares tendem a ser maduros/antigos, pois é necessário tempo para acumular estrelas e comunidade.
-> **Resultado preliminar (990 repositórios):** parcialmente confirmada. Mediana de 7,75 anos e média de 7,66 anos sugerem maturidade típica, mas há uma cauda relevante de repositórios muito recentes que já viralizaram rápido, principalmente na onda atual de ferramentas de IA.
+> **Resultado (1000 repositórios, [validação](validacao_rq01_rq02.md)):** parcialmente confirmada. Mediana de 7,75 anos e média de 7,66 anos sugerem maturidade típica (63,7% da amostra tem mais de 5 anos), mas há uma cauda relevante (8,1%) de repositórios com menos de 1 ano que já viralizaram rápido, principalmente na onda atual de ferramentas de IA.
 
 ### RQ02 — Sistemas populares recebem muita contribuição externa?
 
 > Repositórios populares recebem muita contribuição externa, medida por pull requests aceitas.
-> **Resultado preliminar:** confirmada para a maioria (mediana de 768 PRs aceitas), mas com distribuição muito assimétrica — poucos projetos concentram dezenas de milhares de PRs (média de 4.236, puxada por outliers). Achado relevante: `torvalds/linux` aparece com 0 PRs mergeadas, pois o kernel Linux não usa o fluxo de Pull Request do GitHub (patches via mailing list) — a métrica subestima a contribuição externa nesse caso específico.
+> **Resultado (1000 repositórios, [validação](validacao_rq01_rq02.md)):** confirmada para a maioria (mediana de 768 PRs aceitas), mas com distribuição muito assimétrica — poucos projetos concentram dezenas de milhares de PRs (média de 4.236,5, puxada por outliers como `llvm/llvm-project`). Achado relevante: `torvalds/linux` aparece com 0 PRs mergeadas, pois o kernel Linux não usa o fluxo de Pull Request do GitHub (patches via mailing list) — a métrica subestima a contribuição externa nesse caso específico.
 
 ### RQ03 — Sistemas populares lançam releases com frequência?
 
@@ -60,6 +60,7 @@ Este trabalho estuda características de repositórios populares open-source no 
 - `fetch_repos.py` — script único, coleta RQ01-RQ06 numa única consulta GraphQL
 - `fetch_repos_rq1_rq2.py`, `fetch_repos_rq3_rq4.py`, `fetch_repos_rq5_rq6.py` — scripts individuais usados para validação em amostra por integrante, antes da integração
 - `fetch_repos_rq7.py` — análise derivada (não consulta a API): agrupa RQ02/RQ03/RQ04 por linguagem primária a partir do CSV já coletado
+- `analyze_rq1_rq2.py` — análise derivada (não consulta a API): calcula medianas/contagens de RQ01/RQ02 e gera os gráficos SVG em `docs/img/`
 - `fetch_project_snapshot.py` — exporta snapshot do status do GitHub Projects em CSV, ao final de cada sprint
 
 **Limitações conhecidas da coleta (documentadas em `docs/validacao_*.md`):**
@@ -73,7 +74,7 @@ Este trabalho estuda características de repositórios populares open-source no 
 
 ## 4. Discussão: hipótese vs. resultado
 
-*Discussão consolidada pendente — Sprint 3 / Relatório Final, após a análise estatística completa. Discussões preliminares por RQ já estão registradas na Introdução (Seção 1) e em `docs/validacao_rq01_rq02.md` (pendente), `docs/validacao_rq03_rq04.md` e `docs/validacao_rq05_rq06_rq07.md`.*
+*Discussão consolidada pendente — Sprint 3 / Relatório Final, após a análise estatística completa. Discussões preliminares por RQ já estão registradas na Introdução (Seção 1) e em [`docs/validacao_rq01_rq02.md`](validacao_rq01_rq02.md), [`docs/validacao_rq03_rq04.md`](validacao_rq03_rq04.md) e [`docs/validacao_rq05_rq06_rq07.md`](validacao_rq05_rq06_rq07.md).*
 
 ## 5. Configuração do processo
 
