@@ -74,9 +74,14 @@ Board: GitHub Projects (v2) do grupo (link a preencher).
 
 ### Sprint 3 — Lab01S03 (4 pontos)
 
-- [ ] Calcular valores medianos / contagens por categoria para cada RQ
-- [ ] Gerar visualizações (gráficos) por RQ
-- [ ] Análise RQ07 (cruzamento por linguagem)
+| Issue | Tarefa | Responsável | Status |
+|---|---|---|---|
+| [#19](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/19) | Calcular medianas/contagens RQ01/RQ02 | Marcus Vinicius | ✅ Pronto (`scripts/analyze_rq1_rq2.py`, `docs/validacao_rq01_rq02.md`) |
+| [#20](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/20) | Gerar visualizações RQ01/RQ02 | Marcus Vinicius | ✅ Pronto (`docs/img/rq01_age_distribution.svg`, `rq02_prs_distribution.svg`) |
+| [#21](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/21) | Calcular medianas/contagens RQ03/RQ04 | Guilherme Lana | ✅ Pronto (`scripts/analyze_rq3_rq4.py`) |
+| [#22](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/22) | Gerar visualizações RQ03/RQ04 | Guilherme Lana | ✅ Pronto (`scripts/visualize_rq3_rq4.py`, `docs/img/rq03_releases.svg`, `rq04_updates.svg`; dashboard.html atualizado) |
+| [#23](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/23) | Calcular medianas/contagens RQ05/RQ06/RQ07 | Gabriel Chagas | ✅ Pronto (`scripts/analyze_rq5_rq6_rq7.py`) |
+| [#24](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/24) | Gerar visualizações RQ05/RQ06/RQ07 | Gabriel Chagas | ✅ Pronto (`docs/img/rq05_*.svg`, `rq06_*.svg`, `rq07_*.svg`) |
 
 ### Relatório Final (3 pontos)
 

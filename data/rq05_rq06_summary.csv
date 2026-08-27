@@ -1,0 +1,17 @@
+metric,faixa,repositorios
+language,Python,227
+language,TypeScript,173
+language,JavaScript,109
+language,(sem linguagem),85
+language,Go,76
+language,Rust,56
+language,C++,40
+language,Java,40
+language,Jupyter Notebook,23
+language,C,21
+language,outras,140
+closed_issues_ratio,0-50%,106
+closed_issues_ratio,50-70%,126
+closed_issues_ratio,70-90%,287
+closed_issues_ratio,90-99%,309
+closed_issues_ratio,99-100%,119

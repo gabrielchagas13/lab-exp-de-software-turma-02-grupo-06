@@ -214,6 +214,41 @@
 
   footer.page-foot{ margin:32px 0 12px; font-size:12px; color:var(--text-muted); text-align:center; }
   footer.page-foot a{ color:var(--series-1); text-decoration:none; }
+
+  /* ---------- Mapa do ecossistema (grafo de força, inovação) ---------- */
+  .eco-canvas-wrap{ position:relative; width:100%; aspect-ratio:16/9; margin-top:8px; }
+  #eco-graph{ width:100%; height:100%; display:block; border-radius:8px; background:var(--surface-1); }
+  .eco-caption{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding:8px 2px 2px; font-size:11.5px; color:var(--text-muted);
+  }
+  .eco-legend{ display:flex; flex-wrap:wrap; gap:6px 14px; padding:8px 2px 4px; }
+  .eco-legend .item{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary); }
+  .eco-legend .swatch{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .eco-legend .star{ color:var(--series-4); font-size:11px; margin-left:1px; }
+  .eco-note{ margin:8px 2px 0; font-size:11.5px; color:var(--text-muted); }
+  .eco-toggle{ display:flex; gap:6px; margin:10px 0 2px; }
+  .eco-toggle button{
+    font:inherit; font-size:12px; padding:5px 12px; border-radius:999px;
+    border:1px solid var(--border); background:var(--surface-1); color:var(--text-secondary); cursor:pointer;
+  }
+  .eco-toggle button.active{ background:var(--series-1); border-color:var(--series-1); color:#fff; }
+
+  /* ---------- radar comparativo (RQ07) ---------- */
+  .radar-wrap{ margin-top:18px; }
+  .radar-wrap h3{ font-size:13px; margin:0 0 8px; color:var(--text-secondary); }
+  .radar-legend{ display:flex; gap:14px; margin-top:6px; font-size:12px; color:var(--text-secondary); }
+  .radar-legend .item{ display:inline-flex; align-items:center; gap:6px; }
+  .radar-legend .sw{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  /* ---------- sankey (linguagem -> popularidade -> atividade) ---------- */
+  .sankey-node-label{ font-size:11.5px; fill:var(--text-secondary); }
+  .sankey-value{ font-size:10.5px; fill:var(--text-muted); }
+
+  /* ---------- timeline de criação por linguagem ---------- */
+  .timeline-legend{ display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:8px; font-size:12px; color:var(--text-secondary); }
+  .timeline-legend .item{ display:inline-flex; align-items:center; gap:6px; }
+  .timeline-legend .sw{ width:9px; height:9px; border-radius:2px; display:inline-block; }
 </style>
 </head>
 <body>
@@ -321,7 +356,44 @@
         <div><h3>Mediana de releases</h3><svg class="chart" id="chart-rq7-rel" viewBox="0 0 360 220"></svg></div>
         <div><h3>Mediana de dias desde atualização</h3><svg class="chart" id="chart-rq7-days" viewBox="0 0 360 220"></svg></div>
       </div>
+      <div class="radar-wrap">
+        <h3>Radar comparativo, normalizado: linguagens populares (Octoverse) vs. outras</h3>
+        <svg class="chart" id="chart-rq7-radar" viewBox="0 0 340 300" style="max-width:340px;"></svg>
+        <div class="radar-legend" id="radar-legend"></div>
+      </div>
     </div>
+  </div>
+
+  <div class="card full" id="card-ecosystem">
+    <span class="tag">INOVAÇÃO</span>
+    <h2>Mapa do ecossistema: linguagens formam clusters visuais?</h2>
+    <p class="metric-desc">Cada ponto é um repositório, dimensionado pelo número de estrelas; passe o mouse para identificar. Não pedido pelo enunciado, aprofunda a leitura de RQ05 × RQ07.</p>
+    <div class="eco-toggle" id="eco-toggle">
+      <button type="button" data-mode="language" class="active">Por linguagem</button>
+      <button type="button" data-mode="popular">Populares vs. outras</button>
+    </div>
+    <div class="eco-canvas-wrap"><canvas id="eco-graph" role="img" aria-label="Grafo de força com os repositórios agrupados por linguagem primária ou por popularidade, dimensionados por estrelas"></canvas></div>
+    <div class="eco-caption">
+      <span id="eco-count"></span>
+      <span id="eco-status">simulando…</span>
+    </div>
+    <div class="eco-legend" id="eco-legend"></div>
+    <p class="eco-note">"(sem linguagem)" não é erro de coleta: são repositórios onde o GitHub não detecta nenhuma linguagem dominante (listas, documentação). ★ marca o top 10 do GitHub Octoverse.</p>
+  </div>
+
+  <div class="card full" id="card-sankey">
+    <span class="tag">INOVAÇÃO</span>
+    <h2>Fluxo: linguagem → popularidade → atividade</h2>
+    <p class="metric-desc">Conecta RQ05 (linguagem), RQ07 (populares vs. outras) e RQ04 (frequência de atualização) num só diagrama. A largura de cada faixa é proporcional ao número de repositórios.</p>
+    <svg class="chart" id="chart-sankey" viewBox="0 0 900 460"></svg>
+  </div>
+
+  <div class="card full" id="card-timeline">
+    <span class="tag">INOVAÇÃO</span>
+    <h2>Em quais linguagens os repositórios mais estrelados nasceram, ano a ano?</h2>
+    <p class="metric-desc">Cruza RQ01 (idade/ano de criação) com RQ05 (linguagem): mostra como a composição por linguagem mudou do repositório mais antigo até o mais recente da amostra.</p>
+    <svg class="chart" id="chart-timeline" viewBox="0 0 900 320"></svg>
+    <div class="timeline-legend" id="timeline-legend"></div>
   </div>
 
   <div class="card full" id="card-scatter">
@@ -1375,6 +1447,7 @@ function parseCSV(text){
   });
 }
 const repos = parseCSV(RAW_CSV);
+const POPULAR_LANGS = new Set(['JavaScript','Python','Java','TypeScript','C#','C++','PHP','Shell','C','Ruby']);
 
 /* ---------- helpers estatísticos ---------- */
 function median(values){
@@ -1664,6 +1737,464 @@ function buildRQ7(){
   renderHBars('chart-rq7-prs', prsData, {leftMargin:88, tooltipLabel:'mediana de PRs'});
   renderHBars('chart-rq7-rel', relData, {leftMargin:88, tooltipLabel:'mediana de releases'});
   renderHBars('chart-rq7-days', daysData, {leftMargin:88, tooltipLabel:'mediana de dias', fmt:v=>fmtNum(v)+'d'});
+
+  renderRadarRQ7();
+}
+
+/* ---------- radar comparativo: populares vs. outras (RQ07) ---------- */
+function renderRadarRQ7(){
+  const svg = document.getElementById('chart-rq7-radar');
+  if(!svg) return;
+  svg.innerHTML = '';
+
+  const populares = repos.filter(r=>POPULAR_LANGS.has(r.language));
+  const outras = repos.filter(r=>!POPULAR_LANGS.has(r.language));
+
+  const prsPop = median(populares.map(r=>r.merged_pull_requests));
+  const prsOut = median(outras.map(r=>r.merged_pull_requests));
+  const relPop = median(populares.map(r=>r.total_releases));
+  const relOut = median(outras.map(r=>r.total_releases));
+  const daysPop = median(populares.map(r=>r.days_since_update));
+  const daysOut = median(outras.map(r=>r.days_since_update));
+
+  // 3 eixos, todos normalizados de forma que "mais para fora = melhor";
+  // para dias desde atualizacao, invertemos (menos dias = mais ativo)
+  const maxPRs = Math.max(prsPop, prsOut) || 1;
+  const maxRel = Math.max(relPop, relOut) || 1;
+  const maxDays = Math.max(daysPop, daysOut) || 1;
+
+  const axes = [
+    {label:'PRs aceitas', pop: prsPop/maxPRs, out: prsOut/maxPRs, fmt:()=>`${fmtNum(prsPop)} vs ${fmtNum(prsOut)}`},
+    {label:'Releases', pop: relPop/maxRel, out: relOut/maxRel, fmt:()=>`${fmtNum(relPop)} vs ${fmtNum(relOut)}`},
+    {label:'Atividade recente', pop: 1-(daysPop/maxDays), out: 1-(daysOut/maxDays), fmt:()=>`${fmtNum(daysPop)}d vs ${fmtNum(daysOut)}d (menor é melhor)`},
+  ];
+
+  const cx = 170, cy = 148, radius = 100;
+  const angleFor = i => -Math.PI/2 + i*(2*Math.PI/axes.length);
+  const pointAt = (i, frac) => {
+    const a = angleFor(i);
+    return [cx + Math.cos(a)*radius*frac, cy + Math.sin(a)*radius*frac];
+  };
+
+  // anéis de referência (25/50/75/100%)
+  [0.25,0.5,0.75,1].forEach(frac=>{
+    const pts = axes.map((_,i)=>pointAt(i,frac).join(',')).join(' ');
+    svg.appendChild(el('polygon', {points:pts, fill:'none', stroke:'var(--gridline)', 'stroke-width':1}));
+  });
+
+  // eixos + rótulos
+  axes.forEach((ax,i)=>{
+    const [ex,ey] = pointAt(i,1);
+    svg.appendChild(el('line', {x1:cx, y1:cy, x2:ex, y2:ey, stroke:'var(--gridline)', 'stroke-width':1}));
+    const [lx,ly] = pointAt(i,1.22);
+    const t = el('text', {x:lx, y:ly, 'text-anchor':'middle', class:'sankey-node-label'});
+    t.textContent = ax.label;
+    svg.appendChild(t);
+  });
+
+  function polygonFor(key, color){
+    const pts = axes.map((ax,i)=>pointAt(i, Math.max(0,Math.min(1,ax[key]))).join(',')).join(' ');
+    const poly = el('polygon', {points:pts, fill:color, 'fill-opacity':0.28, stroke:color, 'stroke-width':2});
+    axes.forEach((ax,i)=>{
+      const [px,py] = pointAt(i, Math.max(0,Math.min(1,ax[key])));
+      const dot = el('circle', {cx:px, cy:py, r:3.5, fill:color});
+      dot.style.cursor = 'pointer';
+      dot.addEventListener('mouseenter', e=> showTooltip(e, `<strong>${ax.label}</strong><br>${ax.fmt()}`));
+      dot.addEventListener('mousemove', positionTooltip);
+      dot.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(dot);
+    });
+    return poly;
+  }
+  svg.appendChild(polygonFor('out', 'var(--series-2)'));
+  svg.appendChild(polygonFor('pop', 'var(--series-1)'));
+
+  const legendEl = document.getElementById('radar-legend');
+  if(legendEl){
+    legendEl.innerHTML = `
+      <span class="item"><span class="sw" style="background:var(--series-1)"></span>Populares (Octoverse, n=${fmtNum(populares.length)})</span>
+      <span class="item"><span class="sw" style="background:var(--series-2)"></span>Outras (n=${fmtNum(outras.length)})</span>`;
+  }
+}
+
+/* ---------- Mapa do ecossistema (grafo de força, inovação) ---------- */
+function buildEcosystemGraph(){
+  const canvas = document.getElementById('eco-graph');
+  const statusEl = document.getElementById('eco-status');
+  const countEl = document.getElementById('eco-count');
+  const legendEl = document.getElementById('eco-legend');
+  const toggleEl = document.getElementById('eco-toggle');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const COLORS = ['#4C6FE0','#2FA98C','#E0A63E','#7C868C','#D9636C','#C97F3F','#7B5FD9','#5FA8D9','#D97FB0','#9AA33F','#B7BEB9'];
+  const POP_COLORS = ['#2FA98C','#C97F3F'];
+
+  const counts = {};
+  repos.forEach(r=>{ const l = r.language || '(sem linguagem)'; counts[l] = (counts[l]||0)+1; });
+  const topLangs = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10).map(e=>e[0]);
+  const langLegend = [...topLangs, 'outras'];
+  const bucket = l => { const v = l || '(sem linguagem)'; return topLangs.includes(v) ? v : 'outras'; };
+  const popLegend = ['Populares (Octoverse)', 'Outras'];
+
+  const LANG_CLUSTERS = [
+    {x:0.18,y:0.30},{x:0.62,y:0.18},{x:0.84,y:0.42},{x:0.42,y:0.64},{x:0.12,y:0.70},
+    {x:0.68,y:0.74},{x:0.30,y:0.88},{x:0.92,y:0.76},{x:0.50,y:0.34},{x:0.08,y:0.44},{x:0.73,y:0.52}
+  ];
+  const POP_CLUSTERS = [{x:0.28,y:0.5},{x:0.72,y:0.5}];
+  const W = 900, H = 506;
+
+  const stars = repos.map(r=>r.stars).filter(v=>!isNaN(v));
+  const sqrtMin = Math.sqrt(Math.min(...stars)), sqrtMax = Math.sqrt(Math.max(...stars));
+
+  let mode = 'language'; // 'language' | 'popular'
+
+  function groupIdxOf(repo){
+    return mode === 'language'
+      ? langLegend.indexOf(bucket(repo.language))
+      : (POPULAR_LANGS.has(repo.language) ? 0 : 1);
+  }
+  function clusterOf(idx){ return mode === 'language' ? LANG_CLUSTERS[idx] : POP_CLUSTERS[idx]; }
+  function colorOf(idx){ return mode === 'language' ? COLORS[idx] : POP_COLORS[idx]; }
+
+  const nodes = repos.filter(r=>!isNaN(r.stars)).map(r=>{
+    const idx = groupIdxOf(r);
+    const c = clusterOf(idx) || LANG_CLUSTERS[LANG_CLUSTERS.length-1];
+    const cx = c.x*W, cy = c.y*H;
+    const t = (Math.sqrt(r.stars)-sqrtMin)/(sqrtMax-sqrtMin);
+    const rad = 1.6 + t*6.5;
+    const ang = Math.random()*Math.PI*2, dist = Math.random()*30;
+    return { repo: r, groupIdx: idx, r: rad, cx, cy, x: cx+Math.cos(ang)*dist, y: cy+Math.sin(ang)*dist, vx:0, vy:0 };
+  });
+
+  const CELL = 22;
+  function buildGrid(){
+    const grid = {};
+    nodes.forEach((n,i)=>{
+      const key = ((n.x/CELL)|0)+','+((n.y/CELL)|0);
+      (grid[key] || (grid[key]=[])).push(i);
+    });
+    return grid;
+  }
+  function tick(idle){
+    const grid = buildGrid();
+    nodes.forEach(n=>{
+      n.vx += (n.cx-n.x)*0.012; n.vy += (n.cy-n.y)*0.012;
+      if(idle){ n.vx += (Math.random()-0.5)*0.05; n.vy += (Math.random()-0.5)*0.05; }
+      const gx=(n.x/CELL)|0, gy=(n.y/CELL)|0;
+      for(let dx=-1;dx<=1;dx++) for(let dy=-1;dy<=1;dy++){
+        const bkt = grid[(gx+dx)+','+(gy+dy)]; if(!bkt) continue;
+        bkt.forEach(j=>{
+          if(nodes[j]===n) return;
+          const o = nodes[j];
+          const ddx=n.x-o.x, ddy=n.y-o.y, d2=ddx*ddx+ddy*ddy;
+          const minD = n.r+o.r+1.4;
+          if(d2<minD*minD && d2>0.0001){
+            const d=Math.sqrt(d2), f=(minD-d)/d*0.55;
+            n.vx += ddx*f; n.vy += ddy*f;
+          }
+        });
+      }
+    });
+    nodes.forEach(n=>{ n.vx*=0.86; n.vy*=0.86; n.x+=n.vx; n.y+=n.vy; });
+  }
+  function computeEdges(){
+    const grid = buildGrid(), seen = {}, edges = [];
+    nodes.forEach((n,i)=>{
+      const gx=(n.x/CELL)|0, gy=(n.y/CELL)|0, cand=[];
+      for(let dx=-1;dx<=1;dx++) for(let dy=-1;dy<=1;dy++){
+        const bkt = grid[(gx+dx)+','+(gy+dy)]; if(!bkt) continue;
+        bkt.forEach(j=>{
+          if(j===i) return; const o = nodes[j];
+          if(o.groupIdx !== n.groupIdx) return;
+          const ddx=n.x-o.x, ddy=n.y-o.y;
+          cand.push([ddx*ddx+ddy*ddy, j]);
+        });
+      }
+      cand.sort((a,b)=>a[0]-b[0]);
+      cand.slice(0,2).forEach(([,j])=>{
+        const key = i<j ? i+'_'+j : j+'_'+i;
+        if(!seen[key]){ seen[key]=true; edges.push([Math.min(i,j), Math.max(i,j)]); }
+      });
+    });
+    return edges;
+  }
+  let edges = computeEdges();
+  let lastScale = 1, lastOffX = 0, lastOffY = 0;
+  function draw(){
+    const rect = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    const w = Math.round(rect.width*dpr), h = Math.round(rect.height*dpr);
+    if(canvas.width!==w || canvas.height!==h){ canvas.width=w; canvas.height=h; }
+    const scale = Math.min(canvas.width/W, canvas.height/H);
+    const offX = (canvas.width-W*scale)/2, offY = (canvas.height-H*scale)/2;
+    lastScale = scale; lastOffX = offX; lastOffY = offY;
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--surface-1').trim() || '#fff';
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = bg; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.setTransform(scale,0,0,scale,offX,offY);
+    ctx.lineWidth = 0.6;
+    edges.forEach(([i,j])=>{
+      const a=nodes[i], b=nodes[j];
+      ctx.strokeStyle = colorOf(a.groupIdx); ctx.globalAlpha = 0.22;
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    });
+    nodes.forEach(n=>{
+      const hovered = n === hoveredNode;
+      ctx.beginPath();
+      ctx.fillStyle = colorOf(n.groupIdx); ctx.globalAlpha = hovered ? 1 : 0.9;
+      ctx.arc(n.x,n.y,hovered ? n.r+1.5 : n.r,0,Math.PI*2); ctx.fill();
+      if(hovered){
+        ctx.lineWidth = 1.2/scale; ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#000';
+        ctx.globalAlpha = 0.9; ctx.stroke();
+      }
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SETTLE = 170;
+  let frame = 0;
+  function step(){
+    const settled = frame >= SETTLE;
+    tick(settled);
+    if(frame === SETTLE){ edges = computeEdges(); if(statusEl) statusEl.textContent = 'simulação contínua'; }
+    draw(); frame++;
+    requestAnimationFrame(step);
+  }
+  if(reduceMotion){
+    for(let f=0; f<SETTLE; f++) tick(false);
+    draw();
+    if(statusEl) statusEl.textContent = 'layout final (animação desativada)';
+  } else {
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('resize', draw);
+
+  function refreshMeta(){
+    if(countEl) countEl.textContent = `${fmtNum(nodes.length)} repositórios · agrupados por ${mode==='language' ? 'linguagem primária' : 'populares vs. outras'} · tamanho ∝ estrelas`;
+    const legendNames = mode === 'language' ? langLegend : popLegend;
+    if(legendEl){
+      legendEl.innerHTML = legendNames.map((name,idx)=>{
+        const pop = mode === 'language' && POPULAR_LANGS.has(name);
+        return `<span class="item"><span class="swatch" style="background:${colorOf(idx)}"></span>${name}${pop ? '<span class="star" title="Top 10 GitHub Octoverse">★</span>' : ''}</span>`;
+      }).join('');
+    }
+  }
+  refreshMeta();
+
+  // toggle "por linguagem" vs "populares vs. outras": recalcula o alvo de cada
+  // ponto e deixa a física existente puxar suavemente para o novo cluster
+  if(toggleEl){
+    toggleEl.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(btn.dataset.mode === mode) return;
+        mode = btn.dataset.mode;
+        toggleEl.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b===btn));
+        nodes.forEach(n=>{
+          n.groupIdx = groupIdxOf(n.repo);
+          const c = clusterOf(n.groupIdx);
+          n.cx = c.x*W; n.cy = c.y*H;
+        });
+        edges = computeEdges();
+        refreshMeta();
+      });
+    });
+  }
+
+  // tooltip: encontra o ponto mais próximo do mouse em espaço do grafo
+  let hoveredNode = null;
+  canvas.addEventListener('mousemove', evt=>{
+    const rect = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    const px = (evt.clientX-rect.left)*dpr, py = (evt.clientY-rect.top)*dpr;
+    const gx = (px-lastOffX)/lastScale, gy = (py-lastOffY)/lastScale;
+    let best = null, bestD2 = Infinity;
+    nodes.forEach(n=>{
+      const dx=n.x-gx, dy=n.y-gy, d2=dx*dx+dy*dy, thresh=(n.r+4);
+      if(d2 < thresh*thresh && d2 < bestD2){ best = n; bestD2 = d2; }
+    });
+    hoveredNode = best;
+    if(best){
+      const r = best.repo;
+      showTooltip(evt, `<strong>${r.repo}</strong><br>${r.language || 'sem linguagem'} · ${fmtNum(r.stars)} estrelas<br>PRs: ${fmtNum(r.merged_pull_requests)} · Releases: ${fmtNum(r.total_releases)}`);
+      canvas.style.cursor = 'pointer';
+    } else {
+      hideTooltip();
+      canvas.style.cursor = 'default';
+    }
+  });
+  canvas.addEventListener('mouseleave', ()=>{ hoveredNode = null; hideTooltip(); });
+}
+
+/* ---------- sankey: linguagem -> popularidade -> atividade (inovação) ---------- */
+function renderSankey(){
+  const svg = document.getElementById('chart-sankey');
+  if(!svg) return;
+  svg.innerHTML = '';
+
+  const total = repos.length;
+  const W = 900, H = 460, margin = {top:20, bottom:20};
+  const innerH = H - margin.top - margin.bottom;
+  const colX = [60, 430, 800];
+  const NODE_W = 14;
+
+  const langCounts = {};
+  repos.forEach(r=>{ const l = r.language || '(sem linguagem)'; langCounts[l] = (langCounts[l]||0)+1; });
+  const topLangs = Object.entries(langCounts).sort((a,b)=>b[1]-a[1]).slice(0,6).map(e=>e[0]);
+  const stage1Ids = [...topLangs, '__other__'];
+  const stage1Bucket = lang => { const l = lang || '(sem linguagem)'; return topLangs.includes(l) ? l : '__other__'; };
+  const stage1Label = id => id === '__other__' ? 'Demais linguagens' : id;
+  const stage1Colors = ['#4C6FE0','#2FA98C','#E0A63E','#D9636C','#7B5FD9','#5FA8D9','#B7BEB9'];
+  const stage1ColorOf = id => stage1Colors[stage1Ids.indexOf(id)] || '#B7BEB9';
+
+  const stage2Ids = ['pop','out'];
+  const stage2Label = {pop:'Populares (Octoverse)', out:'Fora do Top 10'};
+  const stage2ColorOf = id => id === 'pop' ? 'var(--series-1)' : 'var(--series-2)';
+
+  const stage3Ids = ['fresh','mid','stale'];
+  const stage3Label = {fresh:'Recente (≤30d)', mid:'Moderado (31–365d)', stale:'Parado (>365d)'};
+  const stage3ColorOf = id => id === 'fresh' ? 'var(--series-3)' : id === 'mid' ? 'var(--series-4)' : 'var(--series-2)';
+  const tierOf = d => (d<=30) ? 'fresh' : (d<=365) ? 'mid' : 'stale';
+
+  const s1values = {}; stage1Ids.forEach(id=> s1values[id]=0);
+  const s2values = {pop:0, out:0};
+  const s3values = {fresh:0, mid:0, stale:0};
+  const link12 = {}, link23 = {};
+
+  repos.forEach(r=>{
+    const s1 = stage1Bucket(r.language);
+    const s2 = POPULAR_LANGS.has(r.language) ? 'pop' : 'out';
+    const s3 = tierOf(isNaN(r.days_since_update) ? Infinity : r.days_since_update);
+    s1values[s1]++; s2values[s2]++; s3values[s3]++;
+    link12[s1+'|'+s2] = (link12[s1+'|'+s2]||0)+1;
+    link23[s2+'|'+s3] = (link23[s2+'|'+s3]||0)+1;
+  });
+
+  function layoutColumn(ids, values){
+    const gap = 6;
+    const innerHEff = innerH - gap*(ids.length-1);
+    let y = margin.top;
+    const nodes = {};
+    ids.forEach(id=>{
+      const val = values[id]||0;
+      const h = total ? (val/total)*innerHEff : 0;
+      nodes[id] = {y0:y, y1:y+h, value:val};
+      y += h + gap;
+    });
+    return nodes;
+  }
+  const n1 = layoutColumn(stage1Ids, s1values);
+  const n2 = layoutColumn(stage2Ids, s2values);
+  const n3 = layoutColumn(stage3Ids, s3values);
+
+  function drawLinks(linkMap, idsA, nodesA, idsB, nodesB, xA, xB, colorFn){
+    const cursorA = {}; idsA.forEach(id=> cursorA[id] = nodesA[id] ? nodesA[id].y0 : 0);
+    const cursorB = {}; idsB.forEach(id=> cursorB[id] = nodesB[id] ? nodesB[id].y0 : 0);
+    idsA.forEach(a=>{
+      idsB.forEach(b=>{
+        const val = linkMap[a+'|'+b]; if(!val) return;
+        const na = nodesA[a], nb = nodesB[b];
+        if(!na || !nb || na.value<=0 || nb.value<=0) return;
+        const scaleA = (na.y1-na.y0)/na.value, scaleB = (nb.y1-nb.y0)/nb.value;
+        const hA = val*scaleA, hB = val*scaleB;
+        const y0A = cursorA[a], y1A = y0A+hA; cursorA[a] = y1A;
+        const y0B = cursorB[b], y1B = y0B+hB; cursorB[b] = y1B;
+        const x0 = xA+NODE_W, x1 = xB, midX = (x0+x1)/2;
+        const d = `M${x0},${y0A} C${midX},${y0A} ${midX},${y0B} ${x1},${y0B} L${x1},${y1B} C${midX},${y1B} ${midX},${y1A} ${x0},${y1A} Z`;
+        const p = el('path', {d, fill:colorFn(a,b), 'fill-opacity':0.32, stroke:'none'});
+        p.style.cursor = 'pointer';
+        p.addEventListener('mouseenter', e=> showTooltip(e, `<strong>${fmtNum(val)} repositórios</strong>`));
+        p.addEventListener('mousemove', positionTooltip);
+        p.addEventListener('mouseleave', hideTooltip);
+        svg.appendChild(p);
+      });
+    });
+  }
+  drawLinks(link12, stage1Ids, n1, stage2Ids, n2, colX[0], colX[1], a=>stage1ColorOf(a));
+  drawLinks(link23, stage2Ids, n2, stage3Ids, n3, colX[1], colX[2], a=>stage2ColorOf(a));
+
+  function drawNodes(ids, nodesMap, x, labelFn, colorFn, align){
+    ids.forEach(id=>{
+      const n = nodesMap[id]; if(!n || n.value<=0) return;
+      const rect = el('rect', {x, y:n.y0, width:NODE_W, height:Math.max(n.y1-n.y0,1), rx:3, ry:3, fill:colorFn(id)});
+      rect.style.cursor = 'pointer';
+      rect.addEventListener('mouseenter', e=> showTooltip(e, `<strong>${labelFn(id)}</strong><br>${fmtNum(n.value)} repositórios`));
+      rect.addEventListener('mousemove', positionTooltip);
+      rect.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(rect);
+      const midY = (n.y0+n.y1)/2;
+      const t = el('text', {x: align==='left' ? x-8 : x+NODE_W+8, y:midY+4, 'text-anchor': align==='left'?'end':'start', class:'sankey-node-label'});
+      t.textContent = `${labelFn(id)} (${fmtNum(n.value)})`;
+      svg.appendChild(t);
+    });
+  }
+  drawNodes(stage1Ids, n1, colX[0], stage1Label, stage1ColorOf, 'left');
+  drawNodes(stage2Ids, n2, colX[1], id=>stage2Label[id], stage2ColorOf, 'left');
+  drawNodes(stage3Ids, n3, colX[2], id=>stage3Label[id], stage3ColorOf, 'right');
+}
+
+/* ---------- timeline: composição por linguagem, ano de criação ---------- */
+function renderTimeline(){
+  const svg = document.getElementById('chart-timeline');
+  if(!svg) return;
+  svg.innerHTML = '';
+
+  const yearOf = r => parseInt((r.created_at||'').slice(0,4));
+  const years = repos.map(yearOf).filter(y=>!isNaN(y));
+  const minY = Math.min(...years), maxY = Math.max(...years);
+
+  const langCounts = {};
+  repos.forEach(r=>{ const l = r.language || '(sem linguagem)'; langCounts[l] = (langCounts[l]||0)+1; });
+  const topLangs = Object.entries(langCounts).sort((a,b)=>b[1]-a[1]).slice(0,6).map(e=>e[0]);
+  const legend = [...topLangs, 'outras'];
+  const colors = ['#4C6FE0','#2FA98C','#E0A63E','#D9636C','#7B5FD9','#5FA8D9','#B7BEB9'];
+  const bucket = l => { const v = l || '(sem linguagem)'; return topLangs.includes(v) ? v : 'outras'; };
+
+  const yearList = [];
+  for(let y=minY; y<=maxY; y++) yearList.push(y);
+  const data = yearList.map(y=>{
+    const counts = {}; legend.forEach(l=> counts[l]=0);
+    repos.forEach(r=>{ if(yearOf(r)===y) counts[bucket(r.language)]++; });
+    return {year:y, counts};
+  });
+
+  const W=900, H=320, margin={top:16,right:16,bottom:36,left:16};
+  const innerW = W-margin.left-margin.right, innerH = H-margin.top-margin.bottom;
+  const totals = data.map(d=> legend.reduce((s,l)=> s+d.counts[l], 0));
+  const maxTotal = Math.max(...totals, 1);
+  const n = data.length;
+  const gap = 3;
+  const bw = (innerW - gap*(n-1)) / n;
+
+  svg.appendChild(el('line', {x1:margin.left, y1:margin.top+innerH, x2:margin.left+innerW, y2:margin.top+innerH, class:'baseline-line'}));
+
+  data.forEach((d,i)=>{
+    const total = totals[i];
+    let yCursor = margin.top+innerH;
+    const x = margin.left + i*(bw+gap);
+    legend.forEach((l,li)=>{
+      const c = d.counts[l]; if(!c) return;
+      const h = (c/maxTotal)*innerH;
+      const y = yCursor - h;
+      const rect = el('rect', {x, y, width:Math.max(bw,1), height:Math.max(h,0.5), fill:colors[li]});
+      rect.style.cursor = 'pointer';
+      rect.addEventListener('mouseenter', e=> showTooltip(e, `<strong>${d.year}</strong><br>${l}: ${fmtNum(c)}<br>total no ano: ${fmtNum(total)}`));
+      rect.addEventListener('mousemove', positionTooltip);
+      rect.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(rect);
+      yCursor = y;
+    });
+    if(n<=25 || d.year % 2 === 0 || i===0 || i===n-1){
+      const t = el('text', {x:x+bw/2, y:margin.top+innerH+16, 'text-anchor':'middle', class:'axis-text'});
+      t.textContent = d.year;
+      svg.appendChild(t);
+    }
+  });
+
+  const legendEl = document.getElementById('timeline-legend');
+  if(legendEl){
+    legendEl.innerHTML = legend.map((l,i)=>`<span class="item"><span class="sw" style="background:${colors[i]}"></span>${l}</span>`).join('');
+  }
 }
 
 /* ---------- scatter de comparação ---------- */
@@ -1813,6 +2344,9 @@ function init(){
   renderKPIs();
   buildRQCharts();
   buildRQ7();
+  buildEcosystemGraph();
+  renderSankey();
+  renderTimeline();
   populateSelects();
   renderScatter();
   ['selX','selY','logX','logY'].forEach(id=>document.getElementById(id).addEventListener('change', renderScatter));
