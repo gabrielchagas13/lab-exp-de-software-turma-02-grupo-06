@@ -21,7 +21,7 @@ Board: mesmo GitHub Projects (v2) do grupo — "KANBAN - Lab Grupo 06" — usado
 ## Desenho do experimento (a definir pelo grupo)
 
 - **Hipóteses (H0/H1):** ✅ pronto — [`lab02/scripts/hypotheses.py`](scripts/hypotheses.py) + [`lab02/docs/hipoteses_ameacas.md`](docs/hipoteses_ameacas.md) — issue [#27](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/27)
-- **Variáveis e tratamentos:** pendente — issue [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29)
+- **Variáveis, tratamentos e crossover:** ✅ pronto — [`lab02/docs/desenho_experimental.md`](docs/desenho_experimental.md) — issue [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29)
 - **Katas escolhidos (4, dificuldade equivalente, autorais):** ✅ pronto — [`lab02/katas/`](katas/) + [`lab02/docs/katas_escolhidos.md`](docs/katas_escolhidos.md) — issue [#26](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/26)
 - **Ameaças à validade:** ✅ pronto — [`lab02/scripts/hypotheses.py`](scripts/hypotheses.py) (`THREATS_TO_VALIDITY`) — issue [#27](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/27)
 - **Ambiente / assistente de IA / linguagem:** pendente — issue [#30](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/30) — **os katas já assumem Python + Radon, a confirmar**
@@ -52,8 +52,8 @@ Board: mesmo GitHub Projects (v2) do grupo — "KANBAN - Lab Grupo 06" — usado
 |---|---|---|---|
 | [#26](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/26) | Escolher e validar katas (4 ou 6) | Gabriel Chagas | ✅ Pronto (`lab02/katas/`, 4 katas com testes validados) |
 | [#27](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/27) | Hipóteses (H0/H1) e ameaças à validade | Gabriel Chagas | ✅ Pronto (`lab02/scripts/hypotheses.py`) |
-| [#28](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/28) | Script de cronometragem e coleta de tempo | Marcus Vinicius | ⬜ Backlog |
-| [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29) | Variáveis, tratamentos e desenho experimental | Marcus Vinicius | ⬜ Backlog |
+| [#28](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/28) | Script de cronometragem e coleta de tempo | Marcus Vinicius | ✅ Pronto (`lab02/scripts/timer.py`) |
+| [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29) | Variáveis, tratamentos e desenho experimental | Marcus Vinicius | ✅ Pronto (`lab02/docs/desenho_experimental.md`) |
 | [#30](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/30) | Preparar ambiente + escolher assistente de IA | Guilherme Lana | ⬜ Backlog |
 | [#31](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/31) | Script de métricas estáticas (CK/PMD ou Radon) + LOC | Guilherme Lana | ⬜ Backlog |
 | [#32](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/32) | Revisão conjunta do desenho do experimento | Todo o grupo | ⬜ Backlog |
