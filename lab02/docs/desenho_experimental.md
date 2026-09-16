@@ -10,8 +10,10 @@ Complementa [`hipoteses_ameacas.md`](hipoteses_ameacas.md) (hipóteses e ameaça
 
 | Tratamento | Descrição |
 |---|---|
-| **IA** | Participante resolve o kata com o assistente de IA habilitado (autocomplete/chat), dentro do time-box. |
-| **Manual** | Participante resolve o kata sem nenhum assistente de IA (sem autocomplete de IA, sem chat), dentro do time-box. |
+| **B — IA (geração integral)** | O participante **não escreve o código base**. Formula um prompt descrevendo o kata, cola no ambiente a solução gerada pela IA, e corrige as falhas apontadas pelos testes com **novos prompts** — nunca reescrevendo a solução manualmente linha a linha. O tempo do trial conta geração + toda a depuração, dentro do time-box. |
+| **A — Manual** | Participante resolve o kata sem nenhum assistente de IA (sem autocomplete de IA, sem chat), dentro do time-box. |
+
+Texto normativo da regra em `TREATMENT_B_RULE` ([`../scripts/hypotheses.py`](../scripts/hypotheses.py)); mesma definição em [`hipoteses_ameacas.md`](hipoteses_ameacas.md).
 
 ## (B) Variáveis dependentes
 
@@ -23,6 +25,8 @@ Complementa [`hipoteses_ameacas.md`](hipoteses_ameacas.md) (hipóteses e ameaça
 | RQ3 | `cyclomatic_complexity_mean` | contínua | Via Radon `cc` (issue #31), sobre o `solution.py` final do trial. |
 | RQ3 | `duplication_pct` | contínua (%) | Via jscpd ou equivalente (issue #31). |
 | RQ3 | `loc` | inteira | Controle **obrigatório** — necessário pra normalizar complexidade/duplicação, já que código gerado por IA pode ser mais verboso. |
+
+> **Onde fica o código de cada trial (contrato com a issue #31).** Os 3 participantes editam o *mesmo* `katas/<kata>/solution.py`, então o código de um trial seria sobrescrito pelo trial seguinte no mesmo kata — sobrariam 4 arquivos para 12 trials. Por isso o [`scripts/timer.py`](../scripts/timer.py) arquiva, ao fim de cada trial, o código final em `data/trials/<trial_id>/solution.py` e grava esse caminho na coluna `solution_path` de `data/trials.csv`. O script de métricas estáticas deve iterar sobre essa coluna, **não** sobre `katas/`.
 
 ## Variáveis de controle (fixadas para isolar o efeito da IV)
 

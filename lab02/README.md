@@ -72,10 +72,10 @@ Execução: cada integrante resolve os 4 katas, na ordem numérica 01→02→03�
 
 | Issue | Trial | Responsável | Status |
 |---|---|---|---|
-| [#35](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/35) | Kata 01 (com IA) | Marcus Vinicius | ⬜ Backlog |
-| [#36](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/36) | Kata 02 (sem IA) | Marcus Vinicius | ⬜ Backlog |
-| [#37](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/37) | Kata 03 (com IA) | Marcus Vinicius | ⬜ Backlog |
-| [#38](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/38) | Kata 04 (sem IA) | Marcus Vinicius | ⬜ Backlog |
+| [#35](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/35) | Kata 01 (com IA) | Marcus Vinicius | ✅ Executado — 38,1s, 5/5 |
+| [#36](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/36) | Kata 02 (sem IA) | Marcus Vinicius | ✅ Executado — 378,3s, 5/5 |
+| [#37](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/37) | Kata 03 (com IA) | Marcus Vinicius | ✅ Executado — 43,6s, 5/5 |
+| [#38](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/38) | Kata 04 (sem IA) | Marcus Vinicius | ✅ Executado — 159,2s, 5/5 |
 | [#39](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/39) | Kata 01 (com IA) | Guilherme Lana | ⬜ Backlog |
 | [#40](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/40) | Kata 02 (sem IA) | Guilherme Lana | ⬜ Backlog |
 | [#41](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/41) | Kata 03 (sem IA) | Guilherme Lana | ⬜ Backlog |
@@ -86,6 +86,28 @@ Execução: cada integrante resolve os 4 katas, na ordem numérica 01→02→03�
 | [#46](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/46) | Kata 04 (com IA) | Gabriel Chagas | ⬜ Backlog |
 
 Balanceamento por kata (soma do trio): 6 trials com IA / 6 manual no total — ver a tabela de verificação em `desenho_experimental.md`.
+
+O comando de cada trial segue sempre o mesmo formato, trocando kata, participante e tratamento:
+
+```bash
+python scripts/timer.py --kata 02_normalizador_tags --participant marcusvv12 --treatment manual
+```
+
+#### Protocolo de cada trial
+
+1. Leia o `kata.md` **só depois** de iniciar o cronômetro — ler antes tira do tempo medido a parte de entender o problema, que faz parte da tarefa nos dois tratamentos.
+2. Rode o comando acima com o seu kata/tratamento. O `timer.py` confere que o seu `solution_<iniciais>.py` está no stub original e aborta se sobrou código de um trial anterior.
+3. Edite **apenas o seu arquivo**: `katas/<kata>/solution_<iniciais>.py` (`_mv` Marcus, `_gc` Gabriel, `_gl` Guilherme). O `timer.py` cria o arquivo a partir do stub na primeira vez e avisa no console qual é. Não edite `solution.py` — ele é gerado a cada polling (o `test_solution.py` importa `from solution`) e o que você escrever nele é sobrescrito. Não altere `test_solution.py` — mexer nos testes de aceitação invalida `success_rate` (RQ2).
+4. **Tratamento A (manual):** desligue o assistente de IA de verdade antes de começar — autocomplete inline *e* chat. Autocomplete esquecido ligado contamina o trial de controle e não aparece em nenhum dado depois.
+5. **Tratamento B (geração integral por IA):** você **não escreve o código base**. Formula um prompt descrevendo o kata, cola a solução que a IA gerar, e corrige as falhas apontadas pelos testes com **novos prompts** — sem reescrever à mão linha a linha. O tempo do trial conta geração + toda a depuração. Use a ferramenta fixada na issue [#30](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/30), a mesma para todo o grupo. Regra completa em `TREATMENT_B_RULE` ([`scripts/hypotheses.py`](scripts/hypotheses.py)).
+6. O cronômetro para sozinho quando os 5 testes passam, ou censura em 2100s. Não interrompa antes: trial que estoura o time-box é dado válido (censurado), não descartado.
+7. Ao fim, o código do trial é arquivado em `data/trials/<trial_id>/solution_<iniciais>.py` e o `solution.py` gerado volta ao stub. Commite `data/trials.csv` e a pasta do trial referenciando o número da Issue.
+
+Se um trial for abortado no meio (Ctrl+C), nada é gravado, mas o seu arquivo fica com o código pela metade — restaure antes de recomeçar:
+
+```bash
+python scripts/timer.py --reset --kata 01_gastos_semanais --participant marcusvv12
+```
 
 ### Sprint 3 — Lab02S03 (5 pontos)
 
@@ -105,10 +127,17 @@ Balanceamento por kata (soma do trio): 6 trials com IA / 6 manual no total — v
 
 ```
 lab02/
-  katas/     # 4 katas autorais (kata.md + solution.py stub + test_solution.py)
-  scripts/   # hypotheses.py (H0/H1 + ameaças), cronometragem, métricas estáticas, análise, dashboard
-  data/      # tempos coletados, métricas estáticas por trial, dados agregados
-  docs/      # desenho do experimento (katas, hipóteses), relatório final
+  katas/           # 4 katas autorais (kata.md + test_solution.py)
+    01_.../
+      solution_mv.py   # um arquivo por integrante — é o que cada um edita no trial
+      solution_gc.py
+      solution.py      # GERADO a cada polling (o test importa daqui); volta ao stub no fim
+    _stubs/        # cópia canônica do enunciado vazio — origem de todo solution_<iniciais>.py
+  scripts/         # hypotheses.py (H0/H1 + ameaças), cronometragem, métricas estáticas, análise, dashboard
+  data/
+    trials.csv     # uma linha por trial (12 no total): tempo, testes passando, caminho do código
+    trials/        # código final de cada trial, um subdir por trial_id — entrada da RQ3
+  docs/            # desenho do experimento (katas, hipóteses), relatório final
 ```
 
 ## Setup

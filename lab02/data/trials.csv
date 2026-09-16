@@ -1,0 +1,5 @@
+trial_id,participant,kata,treatment,started_at,time_to_green_seconds,censored,n_tests_passing,n_tests_total,success_rate,solution_path
+01_gastos_semanais_marcusvv12_ia_total_20260916T171339,marcusvv12,01_gastos_semanais,ia_total,2026-09-16T17:13:39.182603+00:00,38.1,False,5,5,1.0,data/trials/01_gastos_semanais_marcusvv12_ia_total_20260916T171339/solution_mv.py
+03_escalonador_tarefas_marcusvv12_ia_total_20260916T171437,marcusvv12,03_escalonador_tarefas,ia_total,2026-09-16T17:14:37.957363+00:00,43.6,False,5,5,1.0,data/trials/03_escalonador_tarefas_marcusvv12_ia_total_20260916T171437/solution_mv.py
+02_normalizador_tags_marcusvv12_manual_20260916T171630,marcusvv12,02_normalizador_tags,manual,2026-09-16T17:16:30.005787+00:00,378.3,False,5,5,1.0,data/trials/02_normalizador_tags_marcusvv12_manual_20260916T171630/solution_mv.py
+04_clusters_anagramas_marcusvv12_manual_20260916T172313,marcusvv12,04_clusters_anagramas,manual,2026-09-16T17:23:13.570459+00:00,159.2,False,5,5,1.0,data/trials/04_clusters_anagramas_marcusvv12_manual_20260916T172313/solution_mv.py
