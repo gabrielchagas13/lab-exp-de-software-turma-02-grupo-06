@@ -1,0 +1,5 @@
+trial_id,participant,kata,treatment,started_at,time_to_green_seconds,censored,n_tests_passing,n_tests_total,success_rate
+01_gastos_semanais_gabrielchagas13_manual_20260916T143706,gabrielchagas13,01_gastos_semanais,manual,2026-09-16T14:37:06.124362+00:00,674.2,False,5,5,1.0
+03_escalonador_tarefas_gabrielchagas13_manual_20260916T150941,gabrielchagas13,03_escalonador_tarefas,manual,2026-09-16T15:09:41.151568+00:00,,True,0,5,0.0
+02_normalizador_tags_gabrielchagas13_ai_20260916T182513,gabrielchagas13,02_normalizador_tags,ai,2026-09-16T18:25:13.624162+00:00,72.0,False,5,5,1.0
+04_clusters_anagramas_gabrielchagas13_ai_20260916T182917,gabrielchagas13,04_clusters_anagramas,ai,2026-09-16T18:29:17.852771+00:00,10.3,False,5,5,1.0

@@ -25,6 +25,8 @@ kata x participante x tratamento), a base de dados usada pela analise
 estatistica da Sprint 3 (RQ1/RQ2).
 """
 
+from __future__ import annotations
+
 import argparse
 import csv
 import os
