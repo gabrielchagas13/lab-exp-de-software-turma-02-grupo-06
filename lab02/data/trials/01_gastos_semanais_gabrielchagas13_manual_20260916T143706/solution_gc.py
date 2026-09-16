@@ -6,4 +6,9 @@ Implemente a funcao abaixo. Nao altere a assinatura.
 
 
 def weekly_spending(purchases: list[dict]) -> tuple[int, float]:
-    raise NotImplementedError
+    totals = [0.0] * 4
+    for purchase in purchases:
+        totals[purchase["day"] // 7] += purchase["value"]
+
+    week = max(range(4), key=lambda index: totals[index])
+    return week, totals[week]

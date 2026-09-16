@@ -1,5 +1,9 @@
-trial_id,participant,kata,treatment,started_at,time_to_green_seconds,censored,n_tests_passing,n_tests_total,success_rate
-01_gastos_semanais_gabrielchagas13_manual_20260916T143706,gabrielchagas13,01_gastos_semanais,manual,2026-09-16T14:37:06.124362+00:00,674.2,False,5,5,1.0
-03_escalonador_tarefas_gabrielchagas13_manual_20260916T150941,gabrielchagas13,03_escalonador_tarefas,manual,2026-09-16T15:09:41.151568+00:00,,True,0,5,0.0
-02_normalizador_tags_gabrielchagas13_ai_20260916T182513,gabrielchagas13,02_normalizador_tags,ai,2026-09-16T18:25:13.624162+00:00,72.0,False,5,5,1.0
-04_clusters_anagramas_gabrielchagas13_ai_20260916T182917,gabrielchagas13,04_clusters_anagramas,ai,2026-09-16T18:29:17.852771+00:00,10.3,False,5,5,1.0
+trial_id,participant,kata,treatment,started_at,time_to_green_seconds,censored,n_tests_passing,n_tests_total,success_rate,solution_path
+01_gastos_semanais_marcusvv12_ia_total_20260916T171339,marcusvv12,01_gastos_semanais,ia_total,2026-09-16T17:13:39.182603+00:00,38.1,False,5,5,1.0,data/trials/01_gastos_semanais_marcusvv12_ia_total_20260916T171339/solution_mv.py
+03_escalonador_tarefas_marcusvv12_ia_total_20260916T171437,marcusvv12,03_escalonador_tarefas,ia_total,2026-09-16T17:14:37.957363+00:00,43.6,False,5,5,1.0,data/trials/03_escalonador_tarefas_marcusvv12_ia_total_20260916T171437/solution_mv.py
+02_normalizador_tags_marcusvv12_manual_20260916T171630,marcusvv12,02_normalizador_tags,manual,2026-09-16T17:16:30.005787+00:00,378.3,False,5,5,1.0,data/trials/02_normalizador_tags_marcusvv12_manual_20260916T171630/solution_mv.py
+04_clusters_anagramas_marcusvv12_manual_20260916T172313,marcusvv12,04_clusters_anagramas,manual,2026-09-16T17:23:13.570459+00:00,159.2,False,5,5,1.0,data/trials/04_clusters_anagramas_marcusvv12_manual_20260916T172313/solution_mv.py
+01_gastos_semanais_gabrielchagas13_manual_20260916T143706,gabrielchagas13,01_gastos_semanais,manual,2026-09-16T14:37:06.124362+00:00,674.2,False,5,5,1.0,data/trials/01_gastos_semanais_gabrielchagas13_manual_20260916T143706/solution_gc.py
+03_escalonador_tarefas_gabrielchagas13_manual_20260916T150941,gabrielchagas13,03_escalonador_tarefas,manual,2026-09-16T15:09:41.151568+00:00,,True,0,5,0.0,data/trials/03_escalonador_tarefas_gabrielchagas13_manual_20260916T150941/solution_gc.py
+02_normalizador_tags_gabrielchagas13_ia_total_20260916T182513,gabrielchagas13,02_normalizador_tags,ia_total,2026-09-16T18:25:13.624162+00:00,72.0,False,5,5,1.0,data/trials/02_normalizador_tags_gabrielchagas13_ia_total_20260916T182513/solution_gc.py
+04_clusters_anagramas_gabrielchagas13_ia_total_20260916T182917,gabrielchagas13,04_clusters_anagramas,ia_total,2026-09-16T18:29:17.852771+00:00,10.3,False,5,5,1.0,data/trials/04_clusters_anagramas_gabrielchagas13_ia_total_20260916T182917/solution_gc.py
