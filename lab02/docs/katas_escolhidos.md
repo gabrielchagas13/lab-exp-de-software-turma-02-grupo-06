@@ -11,7 +11,7 @@
 
 ## Por que 4 (número par)
 
-Cada integrante resolve os 4 katas: 2 com IA, 2 sem, em ordem contrabalanceada (ex.: integrante A faz 01 e 03 com IA / 02 e 04 sem; integrante B faz 02 e 04 com IA / 01 e 03 sem; etc. — definir contrabalanceamento exato na issue #29).
+Cada integrante resolve os 4 katas: 2 com IA, 2 sem, em ordem contrabalanceada — tabela de atribuição exata (quem faz qual kata em qual tratamento) definida em [`desenho_experimental.md`](desenho_experimental.md) (issue #29).
 
 ## Por que dificuldade equivalente
 

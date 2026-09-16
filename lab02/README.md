@@ -28,10 +28,10 @@ Ver `TREATMENT_B_RULE` em [`lab02/scripts/hypotheses.py`](scripts/hypotheses.py)
 ## Desenho do experimento (a definir pelo grupo)
 
 - **Hipóteses (H0/H1):** ✅ pronto — [`lab02/scripts/hypotheses.py`](scripts/hypotheses.py) + [`lab02/docs/hipoteses_ameacas.md`](docs/hipoteses_ameacas.md) — issue [#27](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/27)
-- **Variáveis e tratamentos:** pendente — issue [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29)
+- **Variáveis, tratamentos e crossover:** ✅ pronto — [`lab02/docs/desenho_experimental.md`](docs/desenho_experimental.md) — issue [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29)
 - **Katas escolhidos (4, dificuldade equivalente, autorais):** ✅ pronto — [`lab02/katas/`](katas/) + [`lab02/docs/katas_escolhidos.md`](docs/katas_escolhidos.md) — issue [#26](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/26)
 - **Ameaças à validade:** ✅ pronto — [`lab02/scripts/hypotheses.py`](scripts/hypotheses.py) (`THREATS_TO_VALIDITY`) — issue [#27](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/27)
-- **Ambiente / assistente de IA / linguagem:** pendente — issue [#30](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/30) — **os katas já assumem Python + Radon, a confirmar**
+- **Ambiente / assistente de IA / linguagem:** ✅ pronto — [`lab02/docs/ambiente.md`](docs/ambiente.md) — issue [#30](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/30)
 
 ## Regras fixas do enunciado
 
@@ -60,15 +60,15 @@ Ver `TREATMENT_B_RULE` em [`lab02/scripts/hypotheses.py`](scripts/hypotheses.py)
 |---|---|---|---|
 | [#26](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/26) | Escolher e validar katas (4 ou 6) | Gabriel Chagas | ✅ Fechada (`lab02/katas/`, 4 katas com testes validados) |
 | [#27](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/27) | Hipóteses (H0/H1) e ameaças à validade | Gabriel Chagas | ✅ Fechada (`lab02/scripts/hypotheses.py`) |
-| [#28](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/28) | Script de cronometragem e coleta de tempo | Marcus Vinicius | 🟡 Em progresso (ver também #33) |
-| [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29) | Variáveis, tratamentos e desenho experimental | Marcus Vinicius | 🟡 Em progresso (ver também #33) |
-| [#30](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/30) | Preparar ambiente + escolher assistente de IA | Guilherme Lana | ✅ Fechada |
-| [#31](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/31) | Script de métricas estáticas (CK/PMD ou Radon) + LOC | Guilherme Lana | ✅ Fechada |
+| [#28](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/28) | Script de cronometragem e coleta de tempo | Marcus Vinicius | ✅ Pronto (`lab02/scripts/timer.py`) |
+| [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29) | Variáveis, tratamentos e desenho experimental | Marcus Vinicius | ✅ Pronto (`lab02/docs/desenho_experimental.md`) — **fonte de verdade do contrabalanceamento da S02** |
+| [#30](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/30) | Preparar ambiente + escolher assistente de IA | Guilherme Lana | ✅ Fechada (`lab02/docs/ambiente.md`) — descrição do Tratamento IA a revisar (assumia uso assistido, não geração integral) |
+| [#31](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/31) | Script de métricas estáticas (CK/PMD ou Radon) + LOC | Guilherme Lana | ✅ Fechada (`lab02/scripts/collect_metrics.py`) |
 | [#32](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/32) | Revisão conjunta do desenho do experimento | Todo o grupo | ⬜ Backlog |
 
 ### Sprint 2 — Lab02S02 (5 pontos)
 
-Execução: cada integrante resolve os 4 katas (2 com IA, 2 sem, ordem contrabalanceada — ver [`lab02/scripts/trial_plan.py`](scripts/trial_plan.py)). Cada trial é uma Issue individual no board:
+Execução: cada integrante resolve os 4 katas, na ordem numérica 01→02→03→04 (2 com IA, 2 manual), conforme a tabela de contrabalanceamento oficial em [`lab02/docs/desenho_experimental.md`](docs/desenho_experimental.md) (issue #29). Cada trial é uma Issue individual no board:
 
 | Issue | Trial | Responsável | Status |
 |---|---|---|---|
@@ -76,16 +76,16 @@ Execução: cada integrante resolve os 4 katas (2 com IA, 2 sem, ordem contrabal
 | [#36](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/36) | Kata 02 (sem IA) | Marcus Vinicius | ⬜ Backlog |
 | [#37](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/37) | Kata 03 (com IA) | Marcus Vinicius | ⬜ Backlog |
 | [#38](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/38) | Kata 04 (sem IA) | Marcus Vinicius | ⬜ Backlog |
-| [#39](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/39) | Kata 01 (sem IA) | Guilherme Lana | ⬜ Backlog |
-| [#40](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/40) | Kata 02 (com IA) | Guilherme Lana | ⬜ Backlog |
+| [#39](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/39) | Kata 01 (com IA) | Guilherme Lana | ⬜ Backlog |
+| [#40](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/40) | Kata 02 (sem IA) | Guilherme Lana | ⬜ Backlog |
 | [#41](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/41) | Kata 03 (sem IA) | Guilherme Lana | ⬜ Backlog |
 | [#42](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/42) | Kata 04 (com IA) | Guilherme Lana | ⬜ Backlog |
-| [#43](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/43) | Kata 02 (sem IA) | Gabriel Chagas | ⬜ Backlog |
-| [#44](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/44) | Kata 01 (com IA) | Gabriel Chagas | ⬜ Backlog |
+| [#43](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/43) | Kata 02 (com IA) | Gabriel Chagas | ⬜ Backlog |
+| [#44](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/44) | Kata 01 (sem IA) | Gabriel Chagas | ⬜ Backlog |
 | [#45](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/45) | Kata 03 (sem IA) | Gabriel Chagas | ⬜ Backlog |
 | [#46](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/46) | Kata 04 (com IA) | Gabriel Chagas | ⬜ Backlog |
 
-Cada kata acaba com 2 execuções com IA e 1 sem (ou vice-versa) somando o trio — ver `summary_by_kata()` em `trial_plan.py` pra conferir o balanceamento.
+Balanceamento por kata (soma do trio): 6 trials com IA / 6 manual no total — ver a tabela de verificação em `desenho_experimental.md`.
 
 ### Sprint 3 — Lab02S03 (5 pontos)
 
