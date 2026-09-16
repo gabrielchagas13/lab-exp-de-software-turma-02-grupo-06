@@ -76,10 +76,10 @@ Execução: cada integrante resolve os 4 katas, na ordem numérica 01→02→03�
 | [#36](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/36) | Kata 02 (sem IA) | Marcus Vinicius | ✅ Executado — 378,3s, 5/5 |
 | [#37](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/37) | Kata 03 (com IA) | Marcus Vinicius | ✅ Executado — 43,6s, 5/5 |
 | [#38](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/38) | Kata 04 (sem IA) | Marcus Vinicius | ✅ Executado — 159,2s, 5/5 |
-| [#39](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/39) | Kata 01 (com IA) | Guilherme Lana | ⬜ Backlog |
-| [#40](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/40) | Kata 02 (sem IA) | Guilherme Lana | ⬜ Backlog |
-| [#41](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/41) | Kata 03 (sem IA) | Guilherme Lana | ⬜ Backlog |
-| [#42](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/42) | Kata 04 (com IA) | Guilherme Lana | ⬜ Backlog |
+| [#39](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/39) | Kata 01 (com IA) | Guilherme Lana | ✅ Executado — 33,7s, 5/5 |
+| [#40](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/40) | Kata 02 (sem IA) | Guilherme Lana | ✅ Executado — 180,7s, 5/5 |
+| [#41](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/41) | Kata 03 (sem IA) | Guilherme Lana | ✅ Executado — 301,4s, 5/5 |
+| [#42](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/42) | Kata 04 (com IA) | Guilherme Lana | ✅ Executado — 11,0s, 5/5 |
 | [#43](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/43) | Kata 02 (com IA) | Gabriel Chagas | ✅ Executado — 72,0s, 5/5 |
 | [#44](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/44) | Kata 01 (sem IA) | Gabriel Chagas | ✅ Executado — 674,2s, 5/5 |
 | [#45](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/45) | Kata 03 (sem IA) | Gabriel Chagas | ⚠️ Executado — **censurado em 2100s, 0/5** (não concluído a tempo) |
