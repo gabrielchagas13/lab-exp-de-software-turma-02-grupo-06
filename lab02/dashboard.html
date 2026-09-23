@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard: LAB02 IA vs. Manual</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='14'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #ffffff;
+    --page-plane:     #f4f3ef;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6;
+    --series-1-soft:  #2a78d61a;
+    --series-2:       #eb6834;
+    --series-2-soft:  #eb68341a;
+    --series-3:       #1baf7a;
+    --accent-grad:    linear-gradient(135deg, #2a78d6 0%, #1baf7a 100%);
+    --shadow:         0 1px 2px rgba(11,11,11,0.04), 0 8px 24px rgba(11,11,11,0.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --surface-1:      #17181a;
+      --surface-2:      #1e1f22;
+      --page-plane:     #0c0d0e;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #4a92f0;
+      --series-1-soft:  #4a92f026;
+      --series-2:       #f2793b;
+      --series-2-soft:  #f2793b26;
+      --series-3:       #24c98a;
+      --shadow:         0 1px 2px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --surface-1:      #17181a;
+    --surface-2:      #1e1f22;
+    --page-plane:     #0c0d0e;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #4a92f0;
+    --series-1-soft:  #4a92f026;
+    --series-2:       #f2793b;
+    --series-2-soft:  #f2793b26;
+    --series-3:       #24c98a;
+    --shadow:         0 1px 2px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.35);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--page-plane); color:var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif; padding:24px;
+  }
+  .wrap{ max-width:1220px; margin:0 auto; }
+  header.top{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+  header.top .hero{ flex:1; min-width:280px; }
+  header.top .badge{
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    padding:4px 10px; border-radius:999px; margin-bottom:10px; color:#fff; background:var(--accent-grad);
+  }
+  header.top h1{ font-size:24px; margin:0 0 6px; letter-spacing:-.01em; }
+  header.top p{ margin:0; color:var(--text-secondary); font-size:14px; max-width:720px; line-height:1.5; }
+  .theme-btn{
+    border:1px solid var(--border); background:var(--surface-1); color:var(--text-primary);
+    border-radius:8px; padding:8px 14px; font-size:13px; cursor:pointer; box-shadow:var(--shadow);
+  }
+  .theme-btn:hover{ border-color: var(--series-1); }
+  .banner{
+    margin:16px 0 24px; padding:11px 16px; border-radius:10px; font-size:13px;
+    background:var(--surface-1); border:1px solid var(--border); color:var(--text-secondary); box-shadow:var(--shadow);
+  }
+  .banner.incomplete{ border-color: var(--series-2); color: var(--series-2); background:var(--series-2-soft); }
+  .kpi-row{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px; margin-bottom:26px;
+  }
+  .kpi{
+    background:var(--surface-1); border:1px solid var(--border); border-radius:14px; padding:16px 18px;
+    box-shadow:var(--shadow); transition:transform .15s ease;
+  }
+  .kpi:hover{ transform:translateY(-2px); }
+  .kpi .label{ font-size:11.5px; color:var(--text-secondary); margin-bottom:8px; text-transform:uppercase; letter-spacing:.03em; }
+  .kpi .value{ font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+  .section-title{ font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); margin:28px 2px 12px; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:16px; margin-bottom:16px; }
+  .card{
+    background:var(--surface-1); border:1px solid var(--border); border-radius:16px; padding:20px 22px 16px;
+    box-shadow:var(--shadow);
+  }
+  .card.full{ grid-column:1 / -1; }
+  .card h2{ font-size:15px; margin:0 0 4px; }
+  .card .metric-desc{ font-size:12px; color:var(--text-muted); margin-bottom:14px; }
+  .hypo-box{ margin-top:10px; padding:11px 13px; border-radius:10px; background:var(--page-plane); border:1px solid var(--border); font-size:12px; color:var(--text-secondary); line-height:1.55; }
+  .table-scroll{ overflow-x:auto; border:1px solid var(--border); border-radius:14px; }
+  table.data-table{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:900px; }
+  table.data-table thead th{
+    text-align:left; padding:9px 12px; border-bottom:1px solid var(--border);
+    color:var(--text-secondary); white-space:nowrap; font-weight:600; background:var(--surface-1);
+  }
+  table.data-table tbody td{ padding:8px 12px; border-bottom:1px solid var(--gridline); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  table.data-table tbody tr:hover{ background:var(--page-plane); }
+  .pill{ display:inline-block; font-size:11px; padding:2px 9px; border-radius:999px; border:1px solid var(--border); font-weight:600; }
+  .pill.ia{ color:var(--series-1); background:var(--series-1-soft); border-color:transparent; }
+  .pill.manual{ color:var(--series-2); background:var(--series-2-soft); border-color:transparent; }
+  .pill.censored{ color:var(--series-2); background:var(--series-2-soft); border-color:transparent; }
+  footer.page-foot{ margin:32px 0 12px; font-size:12px; color:var(--text-muted); text-align:center; }
+  canvas{ max-height:280px; }
+
+  .dumbbell{ width:100%; height:auto; display:block; }
+  .dumbbell .row-label{ fill:var(--text-secondary); font-size:12px; font-weight:600; }
+  .dumbbell .value-label{ fill:var(--text-muted); font-size:10.5px; font-variant-numeric:tabular-nums; }
+  .dumbbell .connector{ stroke:var(--gridline); stroke-width:3; stroke-linecap:round; }
+  .dumbbell .dot-ia{ fill:var(--series-1); }
+  .dumbbell .dot-manual{ fill:var(--series-2); }
+  .legend-row{ display:flex; gap:18px; font-size:12px; color:var(--text-secondary); margin-bottom:6px; }
+  .legend-row .sw{ display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px; }
+  .legend-row .sw.ia{ background:var(--series-1); }
+  .legend-row .sw.manual{ background:var(--series-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="hero">
+      <span class="badge">LAB02 · Experimento controlado</span>
+      <h1>Geração integral por IA vs. codificação manual</h1>
+      <p>Crossover within-subject (issue #29). Fonte: <code>data/trials.csv</code> (RQ1/RQ2) + <code>data/metrics.csv</code> (RQ3). Estatística descritiva (mediana/IQR) por tratamento — o teste de Wilcoxon pareado fica nas issues #47/#48.</p>
+    </div>
+    <button class="theme-btn" id="themeToggle" type="button">🌓 Alternar tema</button>
+  </header>
+
+  <div class="banner incomplete">8/12 trials coletados — faltam 4 · participantes com pelo menos 1 trial: gabrielchagas13, marcusvv12 · trials com métricas estáticas (RQ3): 4/8</div>
+
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <div class="section-title">Comparação pareada por participante (desenho within-subject)</div>
+  <div class="grid">
+    <div class="card">
+      <h2>RQ1 — Time-to-green por participante</h2>
+      <p class="metric-desc">Mediana de tempo (s) de cada integrante nos katas com IA vs. Manual — é exatamente essa diferença, por pessoa, que o Wilcoxon pareado (#47) testa.</p>
+      <div class="legend-row"><span><span class="sw ia"></span>IA</span><span><span class="sw manual"></span>Manual</span></div>
+      <svg class="dumbbell" id="dumbbell-time" viewBox="0 0 560 160"></svg>
+    </div>
+    <div class="card">
+      <h2>RQ2 — Taxa de sucesso por participante</h2>
+      <p class="metric-desc">Mediana de success_rate de cada integrante, mesmo pareamento.</p>
+      <div class="legend-row"><span><span class="sw ia"></span>IA</span><span><span class="sw manual"></span>Manual</span></div>
+      <svg class="dumbbell" id="dumbbell-success" viewBox="0 0 560 160"></svg>
+    </div>
+  </div>
+
+  <div class="section-title">Métricas agregadas (todos os trials)</div>
+  <div class="grid">
+    <div class="card">
+      <span class="pill ia">RQ1</span>
+      <h2>Time-to-green (s)</h2>
+      <p class="metric-desc">Geração + depuração até todos os testes passarem. Censurado em 2100s (35min) se o time-box estourar.</p>
+      <canvas id="chart-time"></canvas>
+      <div class="hypo-box" id="hypo-rq1"></div>
+    </div>
+    <div class="card">
+      <span class="pill manual">RQ2</span>
+      <h2>Taxa de sucesso dos testes</h2>
+      <p class="metric-desc">% de testes de aceitação passando ao final do trial.</p>
+      <canvas id="chart-success"></canvas>
+      <div class="hypo-box" id="hypo-rq2"></div>
+    </div>
+    <div class="card">
+      <span class="pill ia">RQ3</span>
+      <h2>Perfil normalizado (LOC · CC · Duplicação)</h2>
+      <p class="metric-desc">Cada eixo normalizado pelo maior valor entre os dois tratamentos (1.0 = quem "perde" naquela métrica) — dá pra ver de um golpe só onde a IA pesa mais.</p>
+      <canvas id="chart-radar"></canvas>
+    </div>
+    <div class="card">
+      <span class="pill manual">RQ3</span>
+      <h2>LOC (controle)</h2>
+      <p class="metric-desc">Linhas de código da solução final (Radon raw).</p>
+      <canvas id="chart-loc"></canvas>
+    </div>
+    <div class="card">
+      <span class="pill ia">RQ3</span>
+      <h2>Complexidade ciclomática média</h2>
+      <p class="metric-desc">Média por função/método (Radon cc).</p>
+      <canvas id="chart-cc"></canvas>
+    </div>
+    <div class="card">
+      <span class="pill manual">RQ3</span>
+      <h2>Duplicação de código (%)</h2>
+      <p class="metric-desc">Via jscpd sobre a solução final do trial.</p>
+      <canvas id="chart-dup"></canvas>
+      <div class="hypo-box" id="hypo-rq3"></div>
+    </div>
+  </div>
+
+  <div class="card full">
+    <h2>Trials individuais</h2>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Trial</th><th>Participante</th><th>Kata</th><th>Tratamento</th>
+            <th>Tempo (s)</th><th>Sucesso</th><th>LOC</th><th>CC média</th><th>Duplicação %</th>
+          </tr>
+        </thead>
+        <tbody id="trials-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="page-foot">Gerado por <code>scripts/dashboard.py</code> a partir de <code>data/trials.csv</code> + <code>data/metrics.csv</code> — issue #49.</footer>
+</div>
+
+<script>
+const DATA = {"rows": [{"trial_id": "01_gastos_semanais_marcusvv12_ia_total_20260916T171339", "participant": "marcusvv12", "kata": "01_gastos_semanais", "treatment": "ia_total", "time_to_green_seconds": 38.1, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": null, "cyclomatic_complexity_mean": null, "duplication_pct": null}, {"trial_id": "03_escalonador_tarefas_marcusvv12_ia_total_20260916T171437", "participant": "marcusvv12", "kata": "03_escalonador_tarefas", "treatment": "ia_total", "time_to_green_seconds": 43.6, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": null, "cyclomatic_complexity_mean": null, "duplication_pct": null}, {"trial_id": "02_normalizador_tags_marcusvv12_manual_20260916T171630", "participant": "marcusvv12", "kata": "02_normalizador_tags", "treatment": "manual", "time_to_green_seconds": 378.3, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": null, "cyclomatic_complexity_mean": null, "duplication_pct": null}, {"trial_id": "04_clusters_anagramas_marcusvv12_manual_20260916T172313", "participant": "marcusvv12", "kata": "04_clusters_anagramas", "treatment": "manual", "time_to_green_seconds": 159.2, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": null, "cyclomatic_complexity_mean": null, "duplication_pct": null}, {"trial_id": "01_gastos_semanais_gabrielchagas13_manual_20260916T143706", "participant": "gabrielchagas13", "kata": "01_gastos_semanais", "treatment": "manual", "time_to_green_seconds": 674.2, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 14.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "03_escalonador_tarefas_gabrielchagas13_manual_20260916T150941", "participant": "gabrielchagas13", "kata": "03_escalonador_tarefas", "treatment": "manual", "time_to_green_seconds": null, "censored": true, "success_rate": 0.0, "n_tests_passing": 0, "n_tests_total": 5, "loc": 13.0, "cyclomatic_complexity_mean": 1.0, "duplication_pct": 0.0}, {"trial_id": "02_normalizador_tags_gabrielchagas13_ia_total_20260916T182513", "participant": "gabrielchagas13", "kata": "02_normalizador_tags", "treatment": "ia_total", "time_to_green_seconds": 72.0, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 20.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "04_clusters_anagramas_gabrielchagas13_ia_total_20260916T182917", "participant": "gabrielchagas13", "kata": "04_clusters_anagramas", "treatment": "ia_total", "time_to_green_seconds": 10.3, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 16.0, "cyclomatic_complexity_mean": 3.0, "duplication_pct": 0.0}], "by_treatment": {"ia_total": {"label": "IA (geração integral)", "time_to_green_seconds": {"n": 4, "median": 40.85, "q1": 31.15, "q3": 50.7}, "success_rate": {"n": 4, "median": 1.0, "q1": 1.0, "q3": 1.0}, "loc": {"n": 2, "median": 18.0, "q1": 17.0, "q3": 19.0}, "cyclomatic_complexity_mean": {"n": 2, "median": 2.5, "q1": 2.25, "q3": 2.75}, "duplication_pct": {"n": 2, "median": 0.0, "q1": 0.0, "q3": 0.0}, "n_censored": 0}, "manual": {"label": "Manual", "time_to_green_seconds": {"n": 3, "median": 378.3, "q1": 268.75, "q3": 526.25}, "success_rate": {"n": 4, "median": 1.0, "q1": 0.75, "q3": 1.0}, "loc": {"n": 2, "median": 13.5, "q1": 13.25, "q3": 13.75}, "cyclomatic_complexity_mean": {"n": 2, "median": 1.5, "q1": 1.25, "q3": 1.75}, "duplication_pct": {"n": 2, "median": 0.0, "q1": 0.0, "q3": 0.0}, "n_censored": 1}}, "by_participant": [{"participant": "gabrielchagas13", "ia_total": {"n": 2, "median_time": 41.1, "median_success": 1.0}, "manual": {"n": 2, "median_time": 674.2, "median_success": 0.5}}, {"participant": "marcusvv12", "ia_total": {"n": 2, "median_time": 40.9, "median_success": 1.0}, "manual": {"n": 2, "median_time": 268.8, "median_success": 1.0}}], "radar": {"ia_total": [1.0, 1.0, 0.0], "manual": [0.75, 0.6, 0.0]}, "n_trials": 8, "n_expected": 12, "n_missing": 4, "n_with_metrics": 4, "participants_done": ["gabrielchagas13", "marcusvv12"]};
+
+function fmt(v, digits=1){ return v === null || v === undefined ? '—' : Number(v).toFixed(digits); }
+
+function renderKpis(){
+  const el = document.getElementById('kpi-row');
+  const items = [
+    ['Trials coletados', `${DATA.n_trials}/${DATA.n_expected}`],
+    ['Com métricas RQ3', `${DATA.n_with_metrics}`],
+    ['Censurados (IA)', DATA.by_treatment.ia_total.n_censored],
+    ['Censurados (Manual)', DATA.by_treatment.manual.n_censored],
+  ];
+  el.innerHTML = items.map(([label, value]) => `
+    <div class="kpi"><div class="label">${label}</div><div class="value">${value}</div></div>
+  `).join('');
+}
+
+function renderHypoBox(id, rq, text){
+  document.getElementById(id).innerHTML = `<strong>${rq}</strong>: ${text}`;
+}
+
+function medianBarChart(canvasId, metricKey, unitLabel){
+  const ia = DATA.by_treatment.ia_total[metricKey];
+  const manual = DATA.by_treatment.manual[metricKey];
+  new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels: ['IA (geração integral)', 'Manual'],
+      datasets: [{
+        label: `mediana ${unitLabel}`,
+        data: [ia.median, manual.median],
+        backgroundColor: ['#2a78d6', '#eb6834'],
+        borderRadius: 8,
+        borderSkipped: false,
+        maxBarThickness: 90,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            afterLabel: (ctx) => {
+              const s = ctx.dataIndex === 0 ? ia : manual;
+              return `n=${s.n} · IQR [${fmt(s.q1)}, ${fmt(s.q3)}]`;
+            }
+          }
+        }
+      },
+      scales: { y: { beginAtZero: true, grid: { color: 'rgba(128,128,128,.15)' } }, x: { grid: { display: false } } }
+    }
+  });
+}
+
+function radarChart(){
+  const labels = ['LOC', 'Complexidade ciclomática', 'Duplicação %'];
+  new Chart(document.getElementById('chart-radar'), {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'IA (geração integral)',
+          data: DATA.radar.ia_total,
+          borderColor: '#2a78d6', backgroundColor: 'rgba(42,120,214,.18)',
+          pointBackgroundColor: '#2a78d6', borderWidth: 2,
+        },
+        {
+          label: 'Manual',
+          data: DATA.radar.manual,
+          borderColor: '#eb6834', backgroundColor: 'rgba(235,104,52,.18)',
+          pointBackgroundColor: '#eb6834', borderWidth: 2,
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
+      scales: { r: { min: 0, max: 1, ticks: { display: false }, grid: { color: 'rgba(128,128,128,.2)' } } }
+    }
+  });
+}
+
+function dumbbellChart(svgId, ia_key, manual_key, fmtDigits){
+  const svg = document.getElementById(svgId);
+  const rows = DATA.by_participant;
+  const W = 560, rowH = 40, padTop = 10, leftPad = 90, rightPad = 50;
+  const H = padTop * 2 + rowH * rows.length;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const vals = [];
+  rows.forEach(r => {
+    if (r.ia_total[ia_key] !== null) vals.push(r.ia_total[ia_key]);
+    if (r.manual[manual_key] !== null) vals.push(r.manual[manual_key]);
+  });
+  const min = Math.min(...vals, 0), max = Math.max(...vals, 1);
+  const x = v => leftPad + (v - min) / (max - min || 1) * (W - leftPad - rightPad);
+
+  let svgContent = '';
+  rows.forEach((r, i) => {
+    const y = padTop + i * rowH + rowH / 2;
+    const iaVal = r.ia_total[ia_key], manVal = r.manual[manual_key];
+    svgContent += `<text class="row-label" x="4" y="${y + 4}">${r.participant}</text>`;
+    if (iaVal !== null && manVal !== null){
+      svgContent += `<line class="connector" x1="${x(iaVal)}" y1="${y}" x2="${x(manVal)}" y2="${y}" />`;
+    }
+    if (iaVal !== null){
+      svgContent += `<circle class="dot-ia" cx="${x(iaVal)}" cy="${y}" r="7" />`;
+      svgContent += `<text class="value-label" x="${x(iaVal)}" y="${y - 12}" text-anchor="middle">${iaVal.toFixed(fmtDigits)}</text>`;
+    }
+    if (manVal !== null){
+      svgContent += `<circle class="dot-manual" cx="${x(manVal)}" cy="${y}" r="7" />`;
+      svgContent += `<text class="value-label" x="${x(manVal)}" y="${y + 22}" text-anchor="middle">${manVal.toFixed(fmtDigits)}</text>`;
+    }
+  });
+  svg.innerHTML = svgContent;
+}
+
+function renderTable(){
+  const body = document.getElementById('trials-body');
+  body.innerHTML = DATA.rows.map(r => `
+    <tr>
+      <td>${r.trial_id}</td>
+      <td>${r.participant}</td>
+      <td>${r.kata}</td>
+      <td><span class="pill ${r.treatment === 'ia_total' ? 'ia' : 'manual'}">${r.treatment === 'ia_total' ? 'IA' : 'Manual'}</span></td>
+      <td>${fmt(r.time_to_green_seconds)}${r.censored ? ' <span class="pill censored">censurado</span>' : ''}</td>
+      <td>${fmt(r.success_rate, 2)}</td>
+      <td>${fmt(r.loc, 0)}</td>
+      <td>${fmt(r.cyclomatic_complexity_mean, 2)}</td>
+      <td>${fmt(r.duplication_pct, 2)}</td>
+    </tr>
+  `).join('');
+}
+
+function initTheme(){
+  const btn = document.getElementById('themeToggle');
+  btn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+  });
+}
+
+renderKpis();
+medianBarChart('chart-time', 'time_to_green_seconds', 's');
+medianBarChart('chart-success', 'success_rate', '');
+medianBarChart('chart-loc', 'loc', 'linhas');
+medianBarChart('chart-cc', 'cyclomatic_complexity_mean', '');
+medianBarChart('chart-dup', 'duplication_pct', '%');
+radarChart();
+dumbbellChart('dumbbell-time', 'median_time', 'median_time', 0);
+dumbbellChart('dumbbell-success', 'median_success', 'median_success', 2);
+initTheme();
+renderTable();
+
+renderHypoBox('hypo-rq1', 'RQ1',
+  `Mediana time-to-green: IA=${fmt(DATA.by_treatment.ia_total.time_to_green_seconds.median)}s vs. Manual=${fmt(DATA.by_treatment.manual.time_to_green_seconds.median)}s (descritivo — teste de Wilcoxon pareado na issue #47, exige amostra completa).`);
+renderHypoBox('hypo-rq2', 'RQ2',
+  `Mediana success_rate: IA=${fmt(DATA.by_treatment.ia_total.success_rate.median, 2)} vs. Manual=${fmt(DATA.by_treatment.manual.success_rate.median, 2)}.`);
+renderHypoBox('hypo-rq3', 'RQ3',
+  `Mediana duplicação: IA=${fmt(DATA.by_treatment.ia_total.duplication_pct.median)}% vs. Manual=${fmt(DATA.by_treatment.manual.duplication_pct.median)}% — LOC e CC nos gráficos ao lado (issue #48 traz o teste formal).`);
+</script>
+</body>
+</html>

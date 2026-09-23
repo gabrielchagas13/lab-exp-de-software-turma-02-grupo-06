@@ -34,7 +34,9 @@ def get_radon_cc(path):
         data = json.loads(output)
         blocks = []
         for file, file_blocks in data.items():
-            if not isinstance(file_blocks, dict) or 'error' in file_blocks:
+            if isinstance(file_blocks, dict) and 'error' in file_blocks:
+                continue
+            if not isinstance(file_blocks, list):
                 continue
             blocks.extend(file_blocks)
             
