@@ -113,8 +113,8 @@ python scripts/timer.py --reset --kata 01_gastos_semanais --participant marcusvv
 
 | Issue | Tarefa | Responsável | Status |
 |---|---|---|---|
-| [#47](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/47) | Análise estatística RQ1/RQ2 (Wilcoxon) | Marcus Vinicius | ⬜ Backlog |
-| [#48](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/48) | Análise RQ3 (métricas estáticas) | Guilherme Lana | ⬜ Backlog |
+| [#47](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/47) | Análise estatística RQ1/RQ2 (Wilcoxon) | Marcus Vinicius | ✅ Pronto (`scripts/analyze_rq1_rq2.py`, `docs/resultados_rq01_rq02.md`) |
+| [#48](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/48) | Análise RQ3 (métricas estáticas) | Guilherme Lana | ✅ Pronto (`scripts/analyze_rq3.py`, `docs/resultados_rq03.md`) |
 | [#49](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/49) | Dashboard de visualização | Gabriel Chagas | ⬜ Backlog |
 
 ### Relatório Final (5 pontos)

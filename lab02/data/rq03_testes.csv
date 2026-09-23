@@ -1,0 +1,6 @@
+rq,metrica,rotulo,teste,alternativa,n_pares,estatistica_W,p_valor,menor_p_possivel,rejeita_h0_alpha_005,mediana_ia,mediana_manual,observacao
+RQ3,loc,LOC (Linhas de Código - total),Wilcoxon signed-rank pareado,bilateral (IA != manual),3,3.0,1.0,0.25,False,16.0,21.0,
+RQ3,sloc,SLOC (Source Lines of Code),Wilcoxon signed-rank pareado,bilateral (IA != manual),3,3.0,1.0,0.25,False,8.0,9.5,
+RQ3,cyclomatic_complexity_mean,Complexidade Ciclomática Média,Wilcoxon signed-rank pareado,bilateral (IA != manual),3,3.0,1.0,0.25,False,2.5,2.5,
+RQ3,maintainability_index,Índice de Manutenibilidade (MI),Wilcoxon signed-rank pareado,bilateral (IA != manual),3,2.0,0.75,0.25,False,98.74,97.08,
+RQ3,duplication_pct,Duplicação de Código (%),Wilcoxon signed-rank pareado,bilateral (IA != manual),3,0.0,1.0,0.25,False,0.0,0.0,todas as diferenças são nulas (empate absoluto)

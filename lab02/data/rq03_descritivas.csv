@@ -1,0 +1,11 @@
+metrica,tratamento,n,mediana,q1,q3,iqr,min,max
+loc,ia_total,6,16.0,16.0,19.0,3.0,15.0,40.0
+loc,manual,6,21.0,15.25,27.5,12.25,13.0,52.0
+sloc,ia_total,6,8.0,7.25,10.25,3.0,6.0,23.0
+sloc,manual,6,9.5,6.75,11.5,4.75,2.0,30.0
+cyclomatic_complexity_mean,ia_total,6,2.5,2.0,3.0,1.0,2.0,12.0
+cyclomatic_complexity_mean,manual,6,2.5,2.0,3.75,1.75,1.0,12.0
+maintainability_index,ia_total,6,98.74,95.98,100.0,4.02,85.84,100.0
+maintainability_index,manual,6,97.08,93.32,98.52,5.2,82.1,100.0
+duplication_pct,ia_total,6,0.0,0.0,0.0,0.0,0.0,0.0
+duplication_pct,manual,6,0.0,0.0,0.0,0.0,0.0,0.0

@@ -1,0 +1,16 @@
+metrica,participant,ia_total,manual,diferenca_ia_menos_manual
+loc,gabrielchagas13,18.0,13.5,4.5
+loc,gguilhermelana,15.5,40.5,-25.0
+loc,marcusvv12,28.0,21.0,7.0
+sloc,gabrielchagas13,9.5,4.0,5.5
+sloc,gguilhermelana,7.5,21.0,-13.5
+sloc,marcusvv12,14.5,9.5,5.0
+cyclomatic_complexity_mean,gabrielchagas13,2.5,1.5,1.0
+cyclomatic_complexity_mean,gguilhermelana,2.5,7.5,-5.0
+cyclomatic_complexity_mean,marcusvv12,7.0,3.0,4.0
+maintainability_index,gabrielchagas13,100.0,99.44,0.56
+maintainability_index,gguilhermelana,98.74,87.14,11.61
+maintainability_index,marcusvv12,90.66,97.08,-6.43
+duplication_pct,gabrielchagas13,0.0,0.0,0.0
+duplication_pct,gguilhermelana,0.0,0.0,0.0
+duplication_pct,marcusvv12,0.0,0.0,0.0
