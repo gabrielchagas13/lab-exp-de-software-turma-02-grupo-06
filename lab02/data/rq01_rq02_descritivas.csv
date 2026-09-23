@@ -1,0 +1,5 @@
+metrica,tratamento,n,mediana,q1,q3,iqr,min,max
+time_to_green_seconds,ia_total,6,35.9,16.68,42.22,25.55,10.3,72.0
+time_to_green_seconds,manual,6,339.85,210.88,600.22,389.35,159.2,2100.0
+success_rate,ia_total,6,1.0,1.0,1.0,0.0,1.0,1.0
+success_rate,manual,6,1.0,1.0,1.0,0.0,0.0,1.0

@@ -1,0 +1,4 @@
+rq,metrica,teste,alternativa,n_pares,estatistica_W,p_valor,menor_p_possivel,rejeita_h0_alpha_005,mediana_ia,mediana_manual
+RQ1,time_to_green_seconds,Wilcoxon signed-rank pareado,unilateral (IA < manual),3,0.0,0.125,0.125,False,35.9,339.85
+RQ2,success_rate,Wilcoxon signed-rank pareado,bilateral (IA ≠ manual),3,0.0,1.0,0.25,False,1.0,1.0
+RQ1,time_to_green_seconds,"Mann-Whitney U (exploratório, não pareado)",unilateral (IA < manual),12,0.0,0.0011,,True,35.9,339.85

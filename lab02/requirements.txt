@@ -1,2 +1,4 @@
 pytest
 radon
+pandas
+scipy
