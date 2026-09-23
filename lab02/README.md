@@ -23,9 +23,9 @@ Ver `TREATMENT_B_RULE` em [`lab02/scripts/hypotheses.py`](scripts/hypotheses.py)
 | RQ2 | O código gerado integralmente por IA apresenta mais ou menos defeitos (testes que falham) do que o código feito à mão ao final do tempo limite? | Taxa de sucesso (% testes passando); nº absoluto de testes falhando |
 | RQ3 | O código gerado por IA apresenta maior complexidade ciclomática, verbosidade ou duplicação em comparação ao código desenvolvido manualmente? | Complexidade ciclomática (CK/Radon); duplicação (PMD CPD/jscpd); LOC (controle obrigatório — código de IA tende a ser mais verboso) |
 
-*(As métricas exatas a usar em cada RQ, e a justificativa da escolha, ainda precisam ser definidas pelo grupo — ver issues #26-#32 abaixo.)*
+Métricas finais adotadas e justificativa: [`docs/relatorio_final.md`](docs/relatorio_final.md) (seção 3.6).
 
-## Desenho do experimento (a definir pelo grupo)
+## Desenho do experimento
 
 - **Hipóteses (H0/H1):** ✅ pronto — [`lab02/scripts/hypotheses.py`](scripts/hypotheses.py) + [`lab02/docs/hipoteses_ameacas.md`](docs/hipoteses_ameacas.md) — issue [#27](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/27)
 - **Variáveis, tratamentos e crossover:** ✅ pronto — [`lab02/docs/desenho_experimental.md`](docs/desenho_experimental.md) — issue [#29](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/29)
@@ -115,13 +115,32 @@ python scripts/timer.py --reset --kata 01_gastos_semanais --participant marcusvv
 |---|---|---|---|
 | [#47](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/47) | Análise estatística RQ1/RQ2 (Wilcoxon) | Marcus Vinicius | ✅ Pronto (`scripts/analyze_rq1_rq2.py`, `docs/resultados_rq01_rq02.md`) |
 | [#48](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/48) | Análise RQ3 (métricas estáticas) | Guilherme Lana | ✅ Pronto (`scripts/analyze_rq3.py`, `docs/resultados_rq03.md`) |
-| [#49](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/49) | Dashboard de visualização | Gabriel Chagas | ⬜ Backlog |
+| [#49](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/49) | Dashboard de visualização | Gabriel Chagas | ✅ Pronto (`scripts/dashboard.py` → `dashboard.html`, `scripts/aggregate_static_metrics.py`) |
+
+#### Resultados
+
+| RQ | Mediana IA | Mediana Manual | Wilcoxon pareado (n = 3) | Decisão |
+|---|---|---|---|---|
+| RQ1 — tempo | 35,9s | 339,9s | W = 0, p = 0,125 (unilateral) | Não rejeita H0 |
+| RQ2 — taxa de sucesso | 1,00 | 1,00 | W = 0, p = 1,0 (bilateral) | Não rejeita H0 |
+| RQ3 — LOC / CC / duplicação | 16 / 2,5 / 0% | 21 / 2,5 / 0% | p ≥ 0,75 (bilateral) | Não rejeita H0 |
+
+Com 3 pares o menor p possível é 0,125 (unilateral) / 0,25 (bilateral) — nenhum resultado deste desenho consegue rejeitar H0. Descritivamente, IA foi ~9,5× mais rápida nos 3 participantes, sem mais defeitos nem pior estrutura. Detalhes em [`docs/resultados_rq01_rq02.md`](docs/resultados_rq01_rq02.md), [`docs/resultados_rq03.md`](docs/resultados_rq03.md) e [`dashboard.html`](dashboard.html).
+
+Para regenerar tudo:
+
+```bash
+./venv/bin/python scripts/analyze_rq1_rq2.py
+./venv/bin/python scripts/analyze_rq3.py
+./venv/bin/python scripts/aggregate_static_metrics.py
+./venv/bin/python scripts/dashboard.py
+```
 
 ### Relatório Final (5 pontos)
 
 | Issue | Tarefa | Responsável | Status |
 |---|---|---|---|
-| [#50](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/50) | Elaborar relatório final | Todo o grupo | ⬜ Backlog |
+| [#50](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/50) | Elaborar relatório final | Todo o grupo | ✅ Pronto ([`docs/relatorio_final.md`](docs/relatorio_final.md)) |
 
 ## Estrutura da pasta
 
@@ -137,7 +156,11 @@ lab02/
   data/
     trials.csv     # uma linha por trial (12 no total): tempo, testes passando, caminho do código
     trials/        # código final de cada trial, um subdir por trial_id — entrada da RQ3
-  docs/            # desenho do experimento (katas, hipóteses), relatório final
+    correcoes.md   # registro de toda correção feita nos dados brutos
+    rq01_rq02_*.csv, rq03_*.csv   # descritivas, pares e testes (saída dos analyze_*.py)
+    metrics.csv    # LOC/CC/duplicação por trial (entrada do dashboard)
+  docs/            # desenho do experimento, resultados por RQ, relatório final
+  dashboard.html   # dashboard de visualização (gerado por scripts/dashboard.py)
 ```
 
 ## Setup

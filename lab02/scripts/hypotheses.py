@@ -107,6 +107,27 @@ THREATS_TO_VALIDITY: list[Threat] = [
         description="Descartar trials que não terminam a tempo enviesaria a amostra a favor do tratamento com mais falhas (sobrevivência seletiva dos casos rápidos).",
         mitigation="Trial não concluído em 35 min é registrado como censurado em 35 min (time_to_green_seconds = 2100), não descartado, conforme o enunciado.",
     ),
+    # Ameaças observadas na análise (Sprint 3, issues #47/#48) -- não previstas no desenho.
+    Threat(
+        name="Tamanho amostral insuficiente (validade de conclusão)",
+        description="Com 3 participantes o Wilcoxon pareado tem apenas 3 pares; o menor p alcançável é 0,125 (unilateral) ou 0,25 (bilateral). Nenhum resultado, por mais forte e unânime, consegue rejeitar H0 a α = 0,05.",
+        mitigation="Não mitigável dentro do grupo (seriam necessários ≥ 5 pares). Reportar o piso do p-valor junto com o tamanho de efeito descritivo e a direção das diferenças por participante, para não ler 'não rejeita H0' como ausência de efeito.",
+    ),
+    Threat(
+        name="Código de trial censurado entra na RQ3",
+        description="O trial censurado (Gabriel, kata 03, manual, 0/5 testes) arquivou código incompleto (13 LOC, CC = 1), que puxa para baixo LOC e CC do tratamento manual sem representar uma solução real.",
+        mitigation="Mantido para preservar o pareamento (n = 3); declarado como limitação no relatório final. A mediana por participante reduz, mas não elimina, o efeito.",
+    ),
+    Threat(
+        name="Efeito teto na taxa de sucesso (RQ2)",
+        description="Com katas desta dificuldade e time-box de 35 min, 11 dos 12 trials terminaram com 100% dos testes; success_rate quase não varia e a RQ2 passa a medir o time-box, não a qualidade funcional.",
+        mitigation="Declarado no relatório final. Em replicações: katas mais difíceis, time-box menor ou testes ocultos (não visíveis durante o trial).",
+    ),
+    Threat(
+        name="Erro de rotulagem do tratamento na coleta",
+        description="Dois trials manuais do Marcus foram gravados como IA por erro de digitação no comando do timer.",
+        mitigation="Relabel documentado com evidência em data/correcoes.md; timer.py passou a validar (participante, kata, tratamento) contra trial_plan.TRIALS antes de iniciar.",
+    ),
 ]
 
 

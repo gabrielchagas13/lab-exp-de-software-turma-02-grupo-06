@@ -140,12 +140,12 @@
     <div class="hero">
       <span class="badge">LAB02 · Experimento controlado</span>
       <h1>Geração integral por IA vs. codificação manual</h1>
-      <p>Crossover within-subject (issue #29). Fonte: <code>data/trials.csv</code> (RQ1/RQ2) + <code>data/metrics.csv</code> (RQ3). Estatística descritiva (mediana/IQR) por tratamento — o teste de Wilcoxon pareado fica nas issues #47/#48.</p>
+      <p>Crossover within-subject (issue #29). Fonte: <code>data/trials.csv</code> (RQ1/RQ2) + <code>data/metrics.csv</code> (RQ3). Descritivas em mediana/IQR (trial censurado imputado em 2100s) + Wilcoxon pareado das issues #47 (RQ1/RQ2) e #48 (RQ3).</p>
     </div>
     <button class="theme-btn" id="themeToggle" type="button">🌓 Alternar tema</button>
   </header>
 
-  <div class="banner incomplete">8/12 trials coletados — faltam 4 · participantes com pelo menos 1 trial: gabrielchagas13, marcusvv12 · trials com métricas estáticas (RQ3): 4/8</div>
+  <div class="banner ">12/12 trials coletados — completo · participantes com pelo menos 1 trial: gabrielchagas13, gguilhermelana, marcusvv12 · trials com métricas estáticas (RQ3): 12/12</div>
 
   <div class="kpi-row" id="kpi-row"></div>
 
@@ -208,6 +208,23 @@
     </div>
   </div>
 
+  <div class="section-title">Testes inferenciais (α = 0,05)</div>
+  <div class="card full" style="margin-bottom:16px">
+    <h2>Wilcoxon signed-rank pareado — n = 3 pares (1 por participante)</h2>
+    <p class="metric-desc">Com 3 pares o menor p alcançável é 0,125 (unilateral) ou 0,25 (bilateral): nenhum resultado deste desenho consegue rejeitar H0, mesmo com efeito unânime. O Mann-Whitney é exploratório (ignora o pareamento) e não responde às RQs.</p>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>RQ</th><th>Métrica</th><th>Teste</th><th>Alternativa</th><th>n</th>
+            <th>Mediana IA</th><th>Mediana Manual</th><th>W / U</th><th>p</th><th>Menor p possível</th><th>Decisão</th>
+          </tr>
+        </thead>
+        <tbody id="tests-body"></tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="card full">
     <h2>Trials individuais</h2>
     <div class="table-scroll">
@@ -227,7 +244,7 @@
 </div>
 
 <script>
-const DATA = {"rows": [{"trial_id": "01_gastos_semanais_marcusvv12_ia_total_20260916T171339", "participant": "marcusvv12", "kata": "01_gastos_semanais", "treatment": "ia_total", "time_to_green_seconds": 38.1, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": null, "cyclomatic_complexity_mean": null, "duplication_pct": null}, {"trial_id": "03_escalonador_tarefas_marcusvv12_ia_total_20260916T171437", "participant": "marcusvv12", "kata": "03_escalonador_tarefas", "treatment": "ia_total", "time_to_green_seconds": 43.6, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": null, "cyclomatic_complexity_mean": null, "duplication_pct": null}, {"trial_id": "02_normalizador_tags_marcusvv12_manual_20260916T171630", "participant": "marcusvv12", "kata": "02_normalizador_tags", "treatment": "manual", "time_to_green_seconds": 378.3, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": null, "cyclomatic_complexity_mean": null, "duplication_pct": null}, {"trial_id": "04_clusters_anagramas_marcusvv12_manual_20260916T172313", "participant": "marcusvv12", "kata": "04_clusters_anagramas", "treatment": "manual", "time_to_green_seconds": 159.2, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": null, "cyclomatic_complexity_mean": null, "duplication_pct": null}, {"trial_id": "01_gastos_semanais_gabrielchagas13_manual_20260916T143706", "participant": "gabrielchagas13", "kata": "01_gastos_semanais", "treatment": "manual", "time_to_green_seconds": 674.2, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 14.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "03_escalonador_tarefas_gabrielchagas13_manual_20260916T150941", "participant": "gabrielchagas13", "kata": "03_escalonador_tarefas", "treatment": "manual", "time_to_green_seconds": null, "censored": true, "success_rate": 0.0, "n_tests_passing": 0, "n_tests_total": 5, "loc": 13.0, "cyclomatic_complexity_mean": 1.0, "duplication_pct": 0.0}, {"trial_id": "02_normalizador_tags_gabrielchagas13_ia_total_20260916T182513", "participant": "gabrielchagas13", "kata": "02_normalizador_tags", "treatment": "ia_total", "time_to_green_seconds": 72.0, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 20.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "04_clusters_anagramas_gabrielchagas13_ia_total_20260916T182917", "participant": "gabrielchagas13", "kata": "04_clusters_anagramas", "treatment": "ia_total", "time_to_green_seconds": 10.3, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 16.0, "cyclomatic_complexity_mean": 3.0, "duplication_pct": 0.0}], "by_treatment": {"ia_total": {"label": "IA (geração integral)", "time_to_green_seconds": {"n": 4, "median": 40.85, "q1": 31.15, "q3": 50.7}, "success_rate": {"n": 4, "median": 1.0, "q1": 1.0, "q3": 1.0}, "loc": {"n": 2, "median": 18.0, "q1": 17.0, "q3": 19.0}, "cyclomatic_complexity_mean": {"n": 2, "median": 2.5, "q1": 2.25, "q3": 2.75}, "duplication_pct": {"n": 2, "median": 0.0, "q1": 0.0, "q3": 0.0}, "n_censored": 0}, "manual": {"label": "Manual", "time_to_green_seconds": {"n": 3, "median": 378.3, "q1": 268.75, "q3": 526.25}, "success_rate": {"n": 4, "median": 1.0, "q1": 0.75, "q3": 1.0}, "loc": {"n": 2, "median": 13.5, "q1": 13.25, "q3": 13.75}, "cyclomatic_complexity_mean": {"n": 2, "median": 1.5, "q1": 1.25, "q3": 1.75}, "duplication_pct": {"n": 2, "median": 0.0, "q1": 0.0, "q3": 0.0}, "n_censored": 1}}, "by_participant": [{"participant": "gabrielchagas13", "ia_total": {"n": 2, "median_time": 41.1, "median_success": 1.0}, "manual": {"n": 2, "median_time": 674.2, "median_success": 0.5}}, {"participant": "marcusvv12", "ia_total": {"n": 2, "median_time": 40.9, "median_success": 1.0}, "manual": {"n": 2, "median_time": 268.8, "median_success": 1.0}}], "radar": {"ia_total": [1.0, 1.0, 0.0], "manual": [0.75, 0.6, 0.0]}, "n_trials": 8, "n_expected": 12, "n_missing": 4, "n_with_metrics": 4, "participants_done": ["gabrielchagas13", "marcusvv12"]};
+const DATA = {"rows": [{"trial_id": "01_gastos_semanais_marcusvv12_ia_total_20260916T171339", "participant": "marcusvv12", "kata": "01_gastos_semanais", "treatment": "ia_total", "time_to_green_seconds": 38.1, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 16.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "03_escalonador_tarefas_marcusvv12_ia_total_20260916T171437", "participant": "marcusvv12", "kata": "03_escalonador_tarefas", "treatment": "ia_total", "time_to_green_seconds": 43.6, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 40.0, "cyclomatic_complexity_mean": 12.0, "duplication_pct": 0.0}, {"trial_id": "02_normalizador_tags_marcusvv12_manual_20260916T171630", "participant": "marcusvv12", "kata": "02_normalizador_tags", "treatment": "manual", "time_to_green_seconds": 378.3, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 19.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "04_clusters_anagramas_marcusvv12_manual_20260916T172313", "participant": "marcusvv12", "kata": "04_clusters_anagramas", "treatment": "manual", "time_to_green_seconds": 159.2, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 23.0, "cyclomatic_complexity_mean": 4.0, "duplication_pct": 0.0}, {"trial_id": "01_gastos_semanais_gabrielchagas13_manual_20260916T143706", "participant": "gabrielchagas13", "kata": "01_gastos_semanais", "treatment": "manual", "time_to_green_seconds": 674.2, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 14.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "03_escalonador_tarefas_gabrielchagas13_manual_20260916T150941", "participant": "gabrielchagas13", "kata": "03_escalonador_tarefas", "treatment": "manual", "time_to_green_seconds": 2100.0, "censored": true, "success_rate": 0.0, "n_tests_passing": 0, "n_tests_total": 5, "loc": 13.0, "cyclomatic_complexity_mean": 1.0, "duplication_pct": 0.0}, {"trial_id": "02_normalizador_tags_gabrielchagas13_ia_total_20260916T182513", "participant": "gabrielchagas13", "kata": "02_normalizador_tags", "treatment": "ia_total", "time_to_green_seconds": 72.0, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 20.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "04_clusters_anagramas_gabrielchagas13_ia_total_20260916T182917", "participant": "gabrielchagas13", "kata": "04_clusters_anagramas", "treatment": "ia_total", "time_to_green_seconds": 10.3, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 16.0, "cyclomatic_complexity_mean": 3.0, "duplication_pct": 0.0}, {"trial_id": "01_gastos_semanais_gguilhermelana_ia_total_20260916T223026", "participant": "gguilhermelana", "kata": "01_gastos_semanais", "treatment": "ia_total", "time_to_green_seconds": 33.7, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 15.0, "cyclomatic_complexity_mean": 2.0, "duplication_pct": 0.0}, {"trial_id": "04_clusters_anagramas_gguilhermelana_ia_total_20260916T223111", "participant": "gguilhermelana", "kata": "04_clusters_anagramas", "treatment": "ia_total", "time_to_green_seconds": 11.0, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 16.0, "cyclomatic_complexity_mean": 3.0, "duplication_pct": 0.0}, {"trial_id": "02_normalizador_tags_gguilhermelana_manual_20260916T224727", "participant": "gguilhermelana", "kata": "02_normalizador_tags", "treatment": "manual", "time_to_green_seconds": 180.7, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 29.0, "cyclomatic_complexity_mean": 3.0, "duplication_pct": 0.0}, {"trial_id": "03_escalonador_tarefas_gguilhermelana_manual_20260916T225039", "participant": "gguilhermelana", "kata": "03_escalonador_tarefas", "treatment": "manual", "time_to_green_seconds": 301.4, "censored": false, "success_rate": 1.0, "n_tests_passing": 5, "n_tests_total": 5, "loc": 52.0, "cyclomatic_complexity_mean": 12.0, "duplication_pct": 0.0}], "by_treatment": {"ia_total": {"label": "IA (geração integral)", "time_to_green_seconds": {"n": 6, "median": 35.9, "q1": 16.68, "q3": 42.23}, "success_rate": {"n": 6, "median": 1.0, "q1": 1.0, "q3": 1.0}, "loc": {"n": 6, "median": 16.0, "q1": 16.0, "q3": 19.0}, "cyclomatic_complexity_mean": {"n": 6, "median": 2.5, "q1": 2.0, "q3": 3.0}, "duplication_pct": {"n": 6, "median": 0.0, "q1": 0.0, "q3": 0.0}, "n_censored": 0}, "manual": {"label": "Manual", "time_to_green_seconds": {"n": 6, "median": 339.85, "q1": 210.87, "q3": 600.23}, "success_rate": {"n": 6, "median": 1.0, "q1": 1.0, "q3": 1.0}, "loc": {"n": 6, "median": 21.0, "q1": 15.25, "q3": 27.5}, "cyclomatic_complexity_mean": {"n": 6, "median": 2.5, "q1": 2.0, "q3": 3.75}, "duplication_pct": {"n": 6, "median": 0.0, "q1": 0.0, "q3": 0.0}, "n_censored": 1}}, "by_participant": [{"participant": "gabrielchagas13", "ia_total": {"n": 2, "median_time": 41.1, "median_success": 1.0}, "manual": {"n": 2, "median_time": 1387.1, "median_success": 0.5}}, {"participant": "gguilhermelana", "ia_total": {"n": 2, "median_time": 22.4, "median_success": 1.0}, "manual": {"n": 2, "median_time": 241.0, "median_success": 1.0}}, {"participant": "marcusvv12", "ia_total": {"n": 2, "median_time": 40.9, "median_success": 1.0}, "manual": {"n": 2, "median_time": 268.8, "median_success": 1.0}}], "radar": {"ia_total": [0.762, 1.0, 0.0], "manual": [1.0, 1.0, 0.0]}, "n_trials": 12, "n_expected": 12, "n_missing": 0, "n_with_metrics": 12, "participants_done": ["gabrielchagas13", "gguilhermelana", "marcusvv12"], "tests": [{"rq": "RQ1", "metric": "time_to_green_seconds", "test": "Wilcoxon signed-rank pareado", "alternative": "unilateral (IA < manual)", "n": "3", "W": 0.0, "p": 0.125, "p_floor": 0.125, "rejects": false, "median_ia": 35.9, "median_manual": 339.85}, {"rq": "RQ2", "metric": "success_rate", "test": "Wilcoxon signed-rank pareado", "alternative": "bilateral (IA ≠ manual)", "n": "3", "W": 0.0, "p": 1.0, "p_floor": 0.25, "rejects": false, "median_ia": 1.0, "median_manual": 1.0}, {"rq": "RQ1", "metric": "time_to_green_seconds", "test": "Mann-Whitney U (exploratório, não pareado)", "alternative": "unilateral (IA < manual)", "n": "12", "W": 0.0, "p": 0.0011, "p_floor": null, "rejects": true, "median_ia": 35.9, "median_manual": 339.85}, {"rq": "RQ3", "metric": "LOC (Linhas de Código - total)", "test": "Wilcoxon signed-rank pareado", "alternative": "bilateral (IA != manual)", "n": "3", "W": 3.0, "p": 1.0, "p_floor": 0.25, "rejects": false, "median_ia": 16.0, "median_manual": 21.0}, {"rq": "RQ3", "metric": "SLOC (Source Lines of Code)", "test": "Wilcoxon signed-rank pareado", "alternative": "bilateral (IA != manual)", "n": "3", "W": 3.0, "p": 1.0, "p_floor": 0.25, "rejects": false, "median_ia": 8.0, "median_manual": 9.5}, {"rq": "RQ3", "metric": "Complexidade Ciclomática Média", "test": "Wilcoxon signed-rank pareado", "alternative": "bilateral (IA != manual)", "n": "3", "W": 3.0, "p": 1.0, "p_floor": 0.25, "rejects": false, "median_ia": 2.5, "median_manual": 2.5}, {"rq": "RQ3", "metric": "Índice de Manutenibilidade (MI)", "test": "Wilcoxon signed-rank pareado", "alternative": "bilateral (IA != manual)", "n": "3", "W": 2.0, "p": 0.75, "p_floor": 0.25, "rejects": false, "median_ia": 98.74, "median_manual": 97.08}, {"rq": "RQ3", "metric": "Duplicação de Código (%)", "test": "Wilcoxon signed-rank pareado", "alternative": "bilateral (IA != manual)", "n": "3", "W": 0.0, "p": 1.0, "p_floor": 0.25, "rejects": false, "median_ia": 0.0, "median_manual": 0.0}]};
 
 function fmt(v, digits=1){ return v === null || v === undefined ? '—' : Number(v).toFixed(digits); }
 
@@ -236,8 +253,8 @@ function renderKpis(){
   const items = [
     ['Trials coletados', `${DATA.n_trials}/${DATA.n_expected}`],
     ['Com métricas RQ3', `${DATA.n_with_metrics}`],
-    ['Censurados (IA)', DATA.by_treatment.ia_total.n_censored],
-    ['Censurados (Manual)', DATA.by_treatment.manual.n_censored],
+    ['Não concluídos em 35 min (IA)', DATA.by_treatment.ia_total.n_censored],
+    ['Não concluídos em 35 min (Manual)', DATA.by_treatment.manual.n_censored],
   ];
   el.innerHTML = items.map(([label, value]) => `
     <div class="kpi"><div class="label">${label}</div><div class="value">${value}</div></div>
@@ -251,6 +268,16 @@ function renderHypoBox(id, rq, text){
 function medianBarChart(canvasId, metricKey, unitLabel){
   const ia = DATA.by_treatment.ia_total[metricKey];
   const manual = DATA.by_treatment.manual[metricKey];
+  const values = DATA.rows.map(r => r[metricKey]).filter(v => v !== null);
+  if (values.length && values.every(v => v === 0)){
+    // barras de altura zero parecem grafico quebrado -- mostra o valor direto
+    document.getElementById(canvasId).outerHTML = `
+      <div style="height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+        <div style="font-size:44px;font-weight:700;font-variant-numeric:tabular-nums">0${unitLabel}</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-top:6px">em todos os ${values.length} trials, nos dois tratamentos</div>
+      </div>`;
+    return;
+  }
   new Chart(document.getElementById(canvasId), {
     type: 'bar',
     data: {
@@ -350,7 +377,7 @@ function dumbbellChart(svgId, ia_key, manual_key, fmtDigits){
 
 function renderTable(){
   const body = document.getElementById('trials-body');
-  body.innerHTML = DATA.rows.map(r => `
+  body.innerHTML = DATA.rows.filter(r => !r.censored).map(r => `
     <tr>
       <td>${r.trial_id}</td>
       <td>${r.participant}</td>
@@ -361,6 +388,29 @@ function renderTable(){
       <td>${fmt(r.loc, 0)}</td>
       <td>${fmt(r.cyclomatic_complexity_mean, 2)}</td>
       <td>${fmt(r.duplication_pct, 2)}</td>
+    </tr>
+  `).join('');
+}
+
+function renderTests(){
+  const body = document.getElementById('tests-body');
+  if (!DATA.tests.length){
+    body.innerHTML = `<tr><td colspan="11">Sem resultados — rode scripts/analyze_rq1_rq2.py e scripts/analyze_rq3.py.</td></tr>`;
+    return;
+  }
+  body.innerHTML = DATA.tests.map(t => `
+    <tr>
+      <td>${t.rq}</td>
+      <td>${t.metric}</td>
+      <td>${t.test}</td>
+      <td>${t.alternative}</td>
+      <td>${t.n}</td>
+      <td>${fmt(t.median_ia, 2)}</td>
+      <td>${fmt(t.median_manual, 2)}</td>
+      <td>${fmt(t.W, 1)}</td>
+      <td>${fmt(t.p, 4)}</td>
+      <td>${fmt(t.p_floor, 3)}</td>
+      <td><span class="pill ${t.rejects ? 'ia' : 'manual'}">${t.rejects ? 'rejeita H0' : 'não rejeita H0'}</span></td>
     </tr>
   `).join('');
 }
@@ -383,14 +433,15 @@ radarChart();
 dumbbellChart('dumbbell-time', 'median_time', 'median_time', 0);
 dumbbellChart('dumbbell-success', 'median_success', 'median_success', 2);
 initTheme();
+renderTests();
 renderTable();
 
 renderHypoBox('hypo-rq1', 'RQ1',
-  `Mediana time-to-green: IA=${fmt(DATA.by_treatment.ia_total.time_to_green_seconds.median)}s vs. Manual=${fmt(DATA.by_treatment.manual.time_to_green_seconds.median)}s (descritivo — teste de Wilcoxon pareado na issue #47, exige amostra completa).`);
+  `Mediana time-to-green: IA=${fmt(DATA.by_treatment.ia_total.time_to_green_seconds.median)}s vs. Manual=${fmt(DATA.by_treatment.manual.time_to_green_seconds.median)}s — 3/3 participantes mais rápidos com IA, mas Wilcoxon unilateral p = 0,125 (piso do teste com n = 3): não rejeita H0.`);
 renderHypoBox('hypo-rq2', 'RQ2',
-  `Mediana success_rate: IA=${fmt(DATA.by_treatment.ia_total.success_rate.median, 2)} vs. Manual=${fmt(DATA.by_treatment.manual.success_rate.median, 2)}.`);
+  `Mediana success_rate: IA=${fmt(DATA.by_treatment.ia_total.success_rate.median, 2)} vs. Manual=${fmt(DATA.by_treatment.manual.success_rate.median, 2)} — satura em 1,0; a única falha é o trial manual censurado. Wilcoxon bilateral p = 1,0: não rejeita H0.`);
 renderHypoBox('hypo-rq3', 'RQ3',
-  `Mediana duplicação: IA=${fmt(DATA.by_treatment.ia_total.duplication_pct.median)}% vs. Manual=${fmt(DATA.by_treatment.manual.duplication_pct.median)}% — LOC e CC nos gráficos ao lado (issue #48 traz o teste formal).`);
+  `Mediana duplicação: IA=${fmt(DATA.by_treatment.ia_total.duplication_pct.median)}% vs. Manual=${fmt(DATA.by_treatment.manual.duplication_pct.median)}% — 0% nos 12 trials. LOC e CC sem direção consistente entre participantes; Wilcoxon bilateral p ≥ 0,75 em todas as métricas: não rejeita H0.`);
 </script>
 </body>
 </html>

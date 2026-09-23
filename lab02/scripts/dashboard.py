@@ -4,15 +4,19 @@ Gera o dashboard de visualizacao (issue #49) a partir de data/trials.csv
 (RQ1/RQ2, issue #28) e data/metrics.csv (RQ3, issue #31 +
 scripts/aggregate_static_metrics.py).
 
-Mostra estatistica DESCRITIVA (mediana/IQR) por tratamento -- o teste de
-Wilcoxon pareado (RQ1/RQ2: issue #47; RQ3: issue #48) e feito a parte, sobre
-os mesmos CSVs.
+Mostra estatistica DESCRITIVA (mediana/IQR) por tratamento e, se existirem,
+os resultados do Wilcoxon pareado gerados a parte por analyze_rq1_rq2.py
+(issue #47 -> data/rq01_rq02_testes.csv) e analyze_rq3.py (issue #48 ->
+data/rq03_testes.csv). Trial censurado entra com tempo imputado em 2100s, a
+mesma convencao da analise inferencial.
 
 Roda de novo a qualquer momento (ex.: apos mais trials da Sprint 2 ou depois
 de rodar aggregate_static_metrics.py) para atualizar lab02/dashboard.html.
 
 Uso:
     python scripts/aggregate_static_metrics.py   # gera/atualiza data/metrics.csv
+    python scripts/analyze_rq1_rq2.py            # (opcional) testes RQ1/RQ2
+    python scripts/analyze_rq3.py                # (opcional) testes RQ3
     python scripts/dashboard.py                  # gera/atualiza dashboard.html
 """
 
@@ -27,9 +31,14 @@ sys_path_here = os.path.dirname(os.path.abspath(__file__))
 LAB02_DIR = os.path.dirname(sys_path_here)
 TRIALS_CSV = os.path.join(LAB02_DIR, "data", "trials.csv")
 METRICS_CSV = os.path.join(LAB02_DIR, "data", "metrics.csv")
+TESTS_CSVS = [
+    os.path.join(LAB02_DIR, "data", "rq01_rq02_testes.csv"),
+    os.path.join(LAB02_DIR, "data", "rq03_testes.csv"),
+]
 OUTPUT_HTML = os.path.join(LAB02_DIR, "dashboard.html")
 
 EXPECTED_TRIALS = 12  # 3 participantes x 4 katas (issue #29)
+TIME_BOX_SECONDS = 2100.0  # trial censurado entra com o time-box imputado (piso)
 TREATMENT_LABEL = {"ia_total": "IA (geração integral)", "manual": "Manual"}
 TREATMENT_ORDER = ["ia_total", "manual"]
 
@@ -61,19 +70,23 @@ def summarize(values: list[float]) -> dict:
     return {"n": len(values), "median": round(stats.median(values), 2), "q1": round(q1, 2), "q3": round(q3, 2)}
 
 
-def build_dataset(trials: list[dict], metrics: list[dict]) -> dict:
+def build_dataset(trials: list[dict], metrics: list[dict], tests: list[dict]) -> dict:
     metrics_by_id = {m["trial_id"]: m for m in metrics}
 
     rows = []
     for t in trials:
         m = metrics_by_id.get(t["trial_id"], {})
+        censored = t["censored"] == "True"
+        time = to_float(t["time_to_green_seconds"])
+        if censored and time is None:
+            time = TIME_BOX_SECONDS
         rows.append({
             "trial_id": t["trial_id"],
             "participant": t["participant"],
             "kata": t["kata"],
             "treatment": t["treatment"],
-            "time_to_green_seconds": to_float(t["time_to_green_seconds"]),
-            "censored": t["censored"] == "True",
+            "time_to_green_seconds": time,
+            "censored": censored,
             "success_rate": to_float(t["success_rate"]),
             "n_tests_passing": int(t["n_tests_passing"]),
             "n_tests_total": int(t["n_tests_total"]),
@@ -131,6 +144,22 @@ def build_dataset(trials: list[dict], metrics: list[dict]) -> dict:
         "n_missing": missing,
         "n_with_metrics": sum(1 for r in rows if r["loc"] is not None),
         "participants_done": participants_done,
+        "tests": [
+            {
+                "rq": t["rq"],
+                "metric": t.get("rotulo") or t["metrica"],
+                "test": t["teste"],
+                "alternative": t["alternativa"],
+                "n": t["n_pares"],
+                "W": to_float(t["estatistica_W"]),
+                "p": to_float(t["p_valor"]),
+                "p_floor": to_float(t["menor_p_possivel"]),
+                "rejects": t["rejeita_h0_alpha_005"] == "True",
+                "median_ia": to_float(t["mediana_ia"]),
+                "median_manual": to_float(t["mediana_manual"]),
+            }
+            for t in tests
+        ],
     }
 
 
@@ -282,7 +311,7 @@ def render_html(dataset: dict) -> str:
     <div class="hero">
       <span class="badge">LAB02 · Experimento controlado</span>
       <h1>Geração integral por IA vs. codificação manual</h1>
-      <p>Crossover within-subject (issue #29). Fonte: <code>data/trials.csv</code> (RQ1/RQ2) + <code>data/metrics.csv</code> (RQ3). Estatística descritiva (mediana/IQR) por tratamento — o teste de Wilcoxon pareado fica nas issues #47/#48.</p>
+      <p>Crossover within-subject (issue #29). Fonte: <code>data/trials.csv</code> (RQ1/RQ2) + <code>data/metrics.csv</code> (RQ3). Descritivas em mediana/IQR (trial censurado imputado em 2100s) + Wilcoxon pareado das issues #47 (RQ1/RQ2) e #48 (RQ3).</p>
     </div>
     <button class="theme-btn" id="themeToggle" type="button">🌓 Alternar tema</button>
   </header>
@@ -350,6 +379,23 @@ def render_html(dataset: dict) -> str:
     </div>
   </div>
 
+  <div class="section-title">Testes inferenciais (α = 0,05)</div>
+  <div class="card full" style="margin-bottom:16px">
+    <h2>Wilcoxon signed-rank pareado — n = 3 pares (1 por participante)</h2>
+    <p class="metric-desc">Com 3 pares o menor p alcançável é 0,125 (unilateral) ou 0,25 (bilateral): nenhum resultado deste desenho consegue rejeitar H0, mesmo com efeito unânime. O Mann-Whitney é exploratório (ignora o pareamento) e não responde às RQs.</p>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>RQ</th><th>Métrica</th><th>Teste</th><th>Alternativa</th><th>n</th>
+            <th>Mediana IA</th><th>Mediana Manual</th><th>W / U</th><th>p</th><th>Menor p possível</th><th>Decisão</th>
+          </tr>
+        </thead>
+        <tbody id="tests-body"></tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="card full">
     <h2>Trials individuais</h2>
     <div class="table-scroll">
@@ -378,8 +424,8 @@ function renderKpis(){{
   const items = [
     ['Trials coletados', `${{DATA.n_trials}}/${{DATA.n_expected}}`],
     ['Com métricas RQ3', `${{DATA.n_with_metrics}}`],
-    ['Censurados (IA)', DATA.by_treatment.ia_total.n_censored],
-    ['Censurados (Manual)', DATA.by_treatment.manual.n_censored],
+    ['Não concluídos em 35 min (IA)', DATA.by_treatment.ia_total.n_censored],
+    ['Não concluídos em 35 min (Manual)', DATA.by_treatment.manual.n_censored],
   ];
   el.innerHTML = items.map(([label, value]) => `
     <div class="kpi"><div class="label">${{label}}</div><div class="value">${{value}}</div></div>
@@ -393,6 +439,16 @@ function renderHypoBox(id, rq, text){{
 function medianBarChart(canvasId, metricKey, unitLabel){{
   const ia = DATA.by_treatment.ia_total[metricKey];
   const manual = DATA.by_treatment.manual[metricKey];
+  const values = DATA.rows.map(r => r[metricKey]).filter(v => v !== null);
+  if (values.length && values.every(v => v === 0)){{
+    // barras de altura zero parecem grafico quebrado -- mostra o valor direto
+    document.getElementById(canvasId).outerHTML = `
+      <div style="height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+        <div style="font-size:44px;font-weight:700;font-variant-numeric:tabular-nums">0${{unitLabel}}</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-top:6px">em todos os ${{values.length}} trials, nos dois tratamentos</div>
+      </div>`;
+    return;
+  }}
   new Chart(document.getElementById(canvasId), {{
     type: 'bar',
     data: {{
@@ -492,7 +548,7 @@ function dumbbellChart(svgId, ia_key, manual_key, fmtDigits){{
 
 function renderTable(){{
   const body = document.getElementById('trials-body');
-  body.innerHTML = DATA.rows.map(r => `
+  body.innerHTML = DATA.rows.filter(r => !r.censored).map(r => `
     <tr>
       <td>${{r.trial_id}}</td>
       <td>${{r.participant}}</td>
@@ -503,6 +559,29 @@ function renderTable(){{
       <td>${{fmt(r.loc, 0)}}</td>
       <td>${{fmt(r.cyclomatic_complexity_mean, 2)}}</td>
       <td>${{fmt(r.duplication_pct, 2)}}</td>
+    </tr>
+  `).join('');
+}}
+
+function renderTests(){{
+  const body = document.getElementById('tests-body');
+  if (!DATA.tests.length){{
+    body.innerHTML = `<tr><td colspan="11">Sem resultados — rode scripts/analyze_rq1_rq2.py e scripts/analyze_rq3.py.</td></tr>`;
+    return;
+  }}
+  body.innerHTML = DATA.tests.map(t => `
+    <tr>
+      <td>${{t.rq}}</td>
+      <td>${{t.metric}}</td>
+      <td>${{t.test}}</td>
+      <td>${{t.alternative}}</td>
+      <td>${{t.n}}</td>
+      <td>${{fmt(t.median_ia, 2)}}</td>
+      <td>${{fmt(t.median_manual, 2)}}</td>
+      <td>${{fmt(t.W, 1)}}</td>
+      <td>${{fmt(t.p, 4)}}</td>
+      <td>${{fmt(t.p_floor, 3)}}</td>
+      <td><span class="pill ${{t.rejects ? 'ia' : 'manual'}}">${{t.rejects ? 'rejeita H0' : 'não rejeita H0'}}</span></td>
     </tr>
   `).join('');
 }}
@@ -525,14 +604,15 @@ radarChart();
 dumbbellChart('dumbbell-time', 'median_time', 'median_time', 0);
 dumbbellChart('dumbbell-success', 'median_success', 'median_success', 2);
 initTheme();
+renderTests();
 renderTable();
 
 renderHypoBox('hypo-rq1', 'RQ1',
-  `Mediana time-to-green: IA=${{fmt(DATA.by_treatment.ia_total.time_to_green_seconds.median)}}s vs. Manual=${{fmt(DATA.by_treatment.manual.time_to_green_seconds.median)}}s (descritivo — teste de Wilcoxon pareado na issue #47, exige amostra completa).`);
+  `Mediana time-to-green: IA=${{fmt(DATA.by_treatment.ia_total.time_to_green_seconds.median)}}s vs. Manual=${{fmt(DATA.by_treatment.manual.time_to_green_seconds.median)}}s — 3/3 participantes mais rápidos com IA, mas Wilcoxon unilateral p = 0,125 (piso do teste com n = 3): não rejeita H0.`);
 renderHypoBox('hypo-rq2', 'RQ2',
-  `Mediana success_rate: IA=${{fmt(DATA.by_treatment.ia_total.success_rate.median, 2)}} vs. Manual=${{fmt(DATA.by_treatment.manual.success_rate.median, 2)}}.`);
+  `Mediana success_rate: IA=${{fmt(DATA.by_treatment.ia_total.success_rate.median, 2)}} vs. Manual=${{fmt(DATA.by_treatment.manual.success_rate.median, 2)}} — satura em 1,0; a única falha é o trial manual censurado. Wilcoxon bilateral p = 1,0: não rejeita H0.`);
 renderHypoBox('hypo-rq3', 'RQ3',
-  `Mediana duplicação: IA=${{fmt(DATA.by_treatment.ia_total.duplication_pct.median)}}% vs. Manual=${{fmt(DATA.by_treatment.manual.duplication_pct.median)}}% — LOC e CC nos gráficos ao lado (issue #48 traz o teste formal).`);
+  `Mediana duplicação: IA=${{fmt(DATA.by_treatment.ia_total.duplication_pct.median)}}% vs. Manual=${{fmt(DATA.by_treatment.manual.duplication_pct.median)}}% — 0% nos 12 trials. LOC e CC sem direção consistente entre participantes; Wilcoxon bilateral p ≥ 0,75 em todas as métricas: não rejeita H0.`);
 </script>
 </body>
 </html>
@@ -548,7 +628,12 @@ def main() -> None:
         print(f"[dashboard] aviso: {METRICS_CSV} nao encontrado -- rode scripts/aggregate_static_metrics.py "
               f"antes para preencher RQ3 (LOC/CC/duplicação).")
 
-    dataset = build_dataset(trials, metrics)
+    tests = [row for path in TESTS_CSVS for row in read_csv(path)]
+    if not tests:
+        print("[dashboard] aviso: sem data/rq*_testes.csv -- rode analyze_rq1_rq2.py e analyze_rq3.py "
+              "para incluir os testes inferenciais.")
+
+    dataset = build_dataset(trials, metrics, tests)
     html = render_html(dataset)
 
     with open(OUTPUT_HTML, "w", encoding="utf-8") as f:

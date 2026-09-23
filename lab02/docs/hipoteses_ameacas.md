@@ -38,4 +38,15 @@ Teste estatístico único para as três RQs: **Wilcoxon signed-rank** (pareado, 
 | Variação individual de habilidade (programação e formulação de prompts) | Desenho crossover/within-subject — cada integrante é seu próprio controle (issue #29) |
 | Trial não concluído no time-box | Censura em 35 min, não descarte (evita enviesar a favor do tratamento com mais falhas) |
 
+### Ameaças observadas na análise (Sprint 3)
+
+Não previstas no desenho; surgiram ao analisar os dados (issues [#47](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/47) e [#48](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/48)).
+
+| Ameaça | Tipo | Tratamento |
+|---|---|---|
+| **Tamanho amostral insuficiente:** 3 pares → menor p possível 0,125 (unilateral) / 0,25 (bilateral); impossível rejeitar H0 a α = 0,05 | Conclusão | Não mitigável no grupo (exigiria ≥ 5 participantes). Reportar piso do p, tamanho de efeito e direção das diferenças |
+| **Código de trial censurado entra na RQ3:** Gabriel/kata 03/manual arquivou código incompleto (13 LOC, CC = 1) | Construto | Mantido para preservar o pareamento; declarado como limitação |
+| **Efeito teto em success_rate (RQ2):** 11/12 trials com 100% | Construto | Declarado; em replicação usar katas mais difíceis ou testes ocultos |
+| **Erro de rotulagem do tratamento** (2 trials do Marcus) | Interna | Relabel com evidência em [`data/correcoes.md`](../data/correcoes.md); `timer.py` passou a validar contra `trial_plan.py` |
+
 Detalhamento de cada ameaça e sua mitigação em [`lab02/scripts/hypotheses.py`](../scripts/hypotheses.py) (lista `THREATS_TO_VALIDITY`).
