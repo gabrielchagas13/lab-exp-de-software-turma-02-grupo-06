@@ -1,0 +1,8 @@
+{
+  "window_start": "2025-10-01",
+  "window_end": "2026-09-30",
+  "data_dir": "data",
+  "repos": [
+    {"full_name": "pallets/flask", "default_branch": "main"}
+  ]
+}
