@@ -2,7 +2,12 @@
   "window_start": "2025-10-01",
   "window_end": "2026-09-30",
   "data_dir": "data",
-  "repos": [
-    {"full_name": "pallets/flask", "default_branch": "main"}
-  ]
+  "selection": {
+    "sample_size": 100,
+    "min_releases": 5,
+    "min_runs": 50,
+    "seed": 42,
+    "query": "",
+    "star_ranges": ["1000..2000", "2000..5000", "5000..10000", "10000..50000", ">=50000"]
+  }
 }

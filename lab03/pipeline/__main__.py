@@ -9,6 +9,7 @@ from metricas.cfr import change_failure_rate_ci
 from metricas.recuperacao import censored_ratio, median_recovery_hours, recovery_episodes
 from pipeline.http import GitHubClient, NotFoundError
 from pipeline.runs import collect_repo
+from pipeline.selection import select_repositories
 
 
 def load_config(path):
@@ -31,8 +32,13 @@ def main(argv=None):
     client = GitHubClient(token, os.path.join(cfg["data_dir"], "cache"))
     out_dir = os.path.join(cfg["data_dir"], "runs")
 
+    if "selection" in cfg:
+        repos = select_repositories(client, cfg["selection"], start, end, cfg["data_dir"])
+    else:
+        repos = cfg["repos"]
+
     rows = []
-    for repo in cfg["repos"]:
+    for repo in repos:
         try:
             data = collect_repo(client, repo["full_name"], repo["default_branch"],
                                 start, end, out_dir)
