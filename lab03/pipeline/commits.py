@@ -42,10 +42,16 @@ def collect_release_commits(client, repo, releases):
     o compare dá 404 (tag apagada), a release é registrada em `skipped` e
     ignorada, e a próxima usa como base a última release válida. A primeira
     release do histórico não tem base e também vai para `skipped`.
+
+    Só entram releases da definição principal (`prerelease=false`): pré-releases
+    não são deploys e, se fossem base do compare, deslocariam os commits entre
+    releases. Elas ficam para a variante da RQ 07.
     """
     out, skipped = [], []
     base = None
     for rel in releases:
+        if rel.get("prerelease"):
+            continue
         tag = rel["tag_name"]
         if base is None:
             if rel["in_window"]:

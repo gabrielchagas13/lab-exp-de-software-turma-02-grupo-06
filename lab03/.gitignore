@@ -3,3 +3,5 @@ __pycache__/
 .pytest_cache/
 .coverage
 data/cache/
+data_teste/
+config_teste.json

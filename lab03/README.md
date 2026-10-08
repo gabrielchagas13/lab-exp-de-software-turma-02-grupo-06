@@ -35,7 +35,7 @@ python -m pipeline --config config.json
 | `query` | `""` | Qualificadores extras da busca (ex.: `language:python`) |
 | `star_ranges` | `1000..2000` … `>=50000` | Faixas de estrelas; uma busca por faixa (teto de 1.000 resultados por busca) |
 
-Saídas em `data/`: `selecao/` (funil e metadados, ver abaixo), `runs/<owner>__<repo>.json` (workflow runs coletados), `metricas_ci.json` (CFR (a) e tempo de recuperação por repositório) e `cache/` (respostas brutas da API, ignorado pelo git).
+Saídas em `data/`: `selecao/` (funil e metadados, ver abaixo), `runs/<owner>__<repo>.json` (workflow runs coletados), `metricas.json` (por repositório: releases/semana, lead time (a) e (b), CFR (a), tempo de recuperação e % de censurados), `releases/` e `commits/` (releases não-rascunho, tags e commits entre releases) e `cache/` (respostas brutas da API, ignorado pelo git).
 
 ## Seleção de repositórios e funil
 `pipeline/selection.py` busca candidatos em `/search/repositories`, uma consulta por faixa de estrelas, e junta os resultados sem duplicatas. Os candidatos são ordenados por nome e embaralhados com `seed`, depois avaliados nessa ordem até completar `sample_size`. Os filtros vão do mais barato ao mais caro em chamadas à API, e o descarte acontece no primeiro que falhar:
@@ -80,7 +80,7 @@ O cliente (`pipeline/http.py`) lê `X-RateLimit-Remaining`/`X-RateLimit-Reset` e
 
 ## Releases e commits
 - `pipeline/releases.py`: releases não-rascunho (pré-releases marcadas em `prerelease`) e tags, com paginação via header `Link`. As releases anteriores à janela ficam no JSON com `in_window=false`, porque servem de base para a primeira release da janela.
-- `pipeline/commits.py`: `compare/{base}...{head}` entre releases consecutivas, paginado com `per_page`/`page` (funciona com mais de 250 commits). Se uma tag foi apagada (404), a release vai para `skipped`, é ignorada, e a próxima usa a última release válida como base.
+- `pipeline/commits.py`: `compare/{base}...{head}` entre releases consecutivas da definição principal (pré-releases são puladas e não servem de base), paginado com `per_page`/`page` (funciona com mais de 250 commits). Se uma tag foi apagada (404), a release vai para `skipped`, é ignorada, e a próxima usa a última release válida como base.
 
 ## Métricas (`metricas/`)
 - `cfr.py`: classificação de `conclusion` e CFR (a), proxy de CI.

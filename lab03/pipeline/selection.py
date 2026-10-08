@@ -35,7 +35,7 @@ DISCARD_REASONS = (
 
 
 # ---- busca ---------------------------------------------------------------
-def search_candidates(client, star_ranges, query=""):
+def search_candidates(client, star_ranges, query="", log=lambda msg: None):
     """Candidatos de /search/repositories, uma consulta por faixa de estrelas.
 
     A busca devolve no máximo 1.000 resultados por consulta, por isso a busca é
@@ -48,6 +48,7 @@ def search_candidates(client, star_ranges, query=""):
         pages = client.get_pages("/search/repositories", {
             "q": q, "sort": "stars", "order": "desc", "per_page": PER_PAGE})
         items = [item for page in pages for item in page["items"]]
+        log(f"[selecao] busca '{q}': {len(items)} resultados")
         slices.append({"query": q, "total_count": pages[0]["total_count"] if pages else 0,
                        "fetched": len(items)})
         for item in items:
@@ -157,10 +158,11 @@ def select_repositories(client, selection, start, end, data_dir, log=print):
     `buscas.csv` e `repos.csv` (metadados da amostra final).
     """
     cfg = {**DEFAULTS, **selection}
+    log("[selecao] buscando candidatos (cada faixa leva ~30 s)...")
     out_dir = os.path.join(data_dir, "selecao")
     runs_dir = os.path.join(data_dir, "runs")
 
-    candidates, slices = search_candidates(client, cfg["star_ranges"], cfg["query"])
+    candidates, slices = search_candidates(client, cfg["star_ranges"], cfg["query"], log)
     random.Random(cfg["seed"]).shuffle(candidates)
     log(f"[selecao] {len(candidates)} candidatos")
 

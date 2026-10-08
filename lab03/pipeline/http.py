@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 import re
+import sys
 import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -82,7 +83,9 @@ class GitHubClient:
     # ---- rede, rate limit e retry ------------------------------------
     def _wait_for_quota(self):
         if self._remaining == 0 and self._reset:
-            self._sleep(max(self._reset - self._now(), 0) + 1)
+            wait = max(self._reset - self._now(), 0) + 1
+            print(f"[http] rate limit: aguardando {wait:.0f} s", file=sys.stderr, flush=True)
+            self._sleep(wait)
             self._remaining = None
 
     def _track(self, headers):

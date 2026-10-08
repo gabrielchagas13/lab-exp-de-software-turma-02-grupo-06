@@ -100,3 +100,12 @@ def test_collect_repo_commits_grava_e_retoma(tmp_path):
     assert collect_repo_commits(client, "owner/repo", releases("v1", "v2"), out_dir) == first
     assert len(client.calls) == n
     assert (tmp_path / "commits" / "owner__repo.json").exists()
+
+
+def test_pre_release_nao_entra_nem_serve_de_base():
+    client = FakeClient({("v1", "v3"): 2})
+    rels = releases("v1", "v2-rc", "v3")
+    rels[1]["prerelease"] = True
+    out, skipped = collect_release_commits(client, "o/r", rels)
+    assert [(r["tag"], r["base_tag"]) for r in out] == [("v3", "v1")]
+    assert skipped == [{"tag": "v1", "reason": "sem release anterior"}]
