@@ -35,7 +35,7 @@ python -m pipeline --config config.json
 | `query` | `""` | Qualificadores extras da busca (ex.: `language:python`) |
 | `star_ranges` | `1000..2000` … `>=50000` | Faixas de estrelas; uma busca por faixa (teto de 1.000 resultados por busca) |
 
-Saídas em `data/`: `selecao/` (funil e metadados, ver abaixo), `runs/<owner>__<repo>.json` (workflow runs coletados), `metricas.json` (por repositório: releases/semana, lead time (a) e (b), CFR (a), tempo de recuperação e % de censurados), `releases/` e `commits/` (releases não-rascunho, tags e commits entre releases) e `cache/` (respostas brutas da API, ignorado pelo git).
+Saídas em `data/`: `dataset.csv` + `dicionario_dados.csv` (consolidado final, uma linha por repositório; o dicionário descreve tipo, unidade e fórmula de cada coluna), `selecao/` (funil e metadados, ver abaixo), `runs/<owner>__<repo>.json` (workflow runs coletados), `metricas.json` (por repositório: releases/semana, lead time (a) e (b), CFR (a), tempo de recuperação e % de censurados), `releases/` e `commits/` (releases não-rascunho, tags e commits entre releases) e `cache/` (respostas brutas da API, ignorado pelo git).
 
 ## Seleção de repositórios e funil
 `pipeline/selection.py` busca candidatos em `/search/repositories`, uma consulta por faixa de estrelas, e junta os resultados sem duplicatas. Os candidatos são ordenados por nome e embaralhados com `seed`, depois avaliados nessa ordem até completar `sample_size`. Os filtros vão do mais barato ao mais caro em chamadas à API, e o descarte acontece no primeiro que falhar:
@@ -86,6 +86,17 @@ O cliente (`pipeline/http.py`) lê `X-RateLimit-Remaining`/`X-RateLimit-Reset` e
 - `cfr.py`: classificação de `conclusion` e CFR (a), proxy de CI.
 - `recuperacao.py`: episódios de falha por workflow, tempo de recuperação (mediana) e proporção de episódios censurados.
 - `lead_time.py`: lead time (RQ2). (a) por release = publicação da release − commit mais antigo que ela entrega; (b) por commit = publicação da release − data de cada commit novo. Usa `author_date`, sem commits novos o resultado é `None`, e commits com data posterior à release contam como 0 h. O resumo por repositório usa a mediana de (a) e a mediana de (b) sobre todos os commits.
+
+- `corretiva.py`: heurística de release corretiva (`v1` só patch; `v2` patch ou commits `fix`/`hotfix`/`revert`; `v3` ambos) e CFR (b): release que é seguida em ≤ 7 dias por uma corretiva falhou; releases dos últimos 7 dias da janela ficam fora do denominador. O pipeline usa a `v2` por padrão; troque conforme o F1 da validação.
+
+## Validação manual (amostra-ouro)
+`pipeline/gold.py`, depois que a coleta terminou (`data/commits/` e `data/selecao/repos.csv` existem):
+```bash
+python -m pipeline.gold sortear --raters ana,bia,caio   # 60 repositórios (seed 42) + 5 releases de cada, uma planilha por integrante
+python -m pipeline.gold kappa   --raters ana,bia,caio   # kappa de Fleiss por dimensão + consenso (data/gold/consenso.csv)
+python -m pipeline.gold avaliar --versao v2             # precisão, recall e F1 da heurística contra o consenso
+```
+Cada integrante preenche **sozinho** `data/gold/rotulos_repos_<nome>.csv` (`tipo_projeto`: biblioteca/framework, aplicacao/servico, cli, outro; `releases_reais`: sim/nao/incerto) e `rotulos_releases_<nome>.csv` (`corretiva`: sim/nao) e commita o seu arquivo. **Protocolo de desempate:** maioria simples; casos 1-1-1 ficam vazios em `consenso.csv` e são decididos em reunião, preenchendo a coluna `consenso` à mão antes de rodar `avaliar`. Se o F1 ficar abaixo de 0,70, refine `metricas/corretiva.py` e registre cada versão e seu F1 no artigo.
 
 ## Testes
 ```bash

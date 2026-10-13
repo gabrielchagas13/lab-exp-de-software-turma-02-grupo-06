@@ -3,7 +3,7 @@
   "window_end": "2026-09-30",
   "data_dir": "data",
   "selection": {
-    "sample_size": 100,
+    "sample_size": 300,
     "min_releases": 5,
     "min_runs": 50,
     "seed": 42,

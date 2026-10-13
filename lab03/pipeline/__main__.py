@@ -6,9 +6,11 @@ import sys
 from datetime import date
 
 from metricas.cfr import change_failure_rate_ci
+from metricas.corretiva import change_failure_rate_release
 from metricas.lead_time import repo_lead_time
 from metricas.recuperacao import censored_ratio, median_recovery_hours, recovery_episodes
 from pipeline.commits import collect_repo_commits
+from pipeline.dataset import build_dataset
 from pipeline.http import GitHubClient, NotFoundError
 from pipeline.releases import collect_repo_releases
 from pipeline.runs import collect_repo
@@ -36,6 +38,7 @@ def process_repo(client, repo, start, end, data_dir):
         "releases": len(in_window),
         "releases_ignoradas": len(commits["skipped"]),
         "cfr_ci": change_failure_rate_ci(runs["runs"]),
+        "cfr_entrega": change_failure_rate_release(commits["releases"], end),
         "recovery_median_h": median_recovery_hours(episodes),
         "recovery_censored_ratio": censored_ratio(episodes),
         **repo_lead_time(commits["releases"]),
@@ -76,6 +79,8 @@ def main(argv=None):
     with open(out, "w", encoding="utf-8") as f:
         json.dump(rows, f, indent=2)
     print(f"Métricas gravadas em {out}")
+    build_dataset(cfg["data_dir"])
+    print(f"Dataset e dicionário de dados em {cfg['data_dir']}/dataset.csv e dicionario_dados.csv")
 
 
 if __name__ == "__main__":
