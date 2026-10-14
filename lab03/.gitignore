@@ -5,3 +5,13 @@ __pycache__/
 data/cache/
 data_teste/
 config_teste.json
+data_smoke/
+.env
+
+# Dados intermediarios da coleta: reproduziveis pelo pipeline a partir do cache,
+# somam ~585 MB e nao devem entrar no repositorio. O que e versionado do data/
+# e o resultado final: metricas.json e os CSVs de data/selecao/ (funil, que vai
+# para a secao de Metodologia do artigo).
+data/runs/
+data/releases/
+data/commits/

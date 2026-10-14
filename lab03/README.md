@@ -4,7 +4,15 @@ Pipeline reprodutível que coleta dados do GitHub (REST, sem bibliotecas de terc
 
 ## Requisitos
 - Python 3.12+
-- Um token do GitHub na variável de ambiente `GITHUB_TOKEN` (nunca commite o token)
+- Um token do GitHub, de duas formas (a variável de ambiente tem precedência):
+  - variável de ambiente `GITHUB_TOKEN`; ou
+  - arquivo `lab03/.env` com `GITHUB_TOKEN=<token>` — ignorado pelo git, **nunca commite o token**
+
+O token só precisa de acesso de leitura a repositórios públicos: um *fine-grained token* com "Public Repositories (read-only)", ou um *classic token* **sem nenhum escopo marcado**, já dá os 5.000 req/h. Sem token são 60 req/h e a coleta trava em minutos. Para conferir o token antes de uma coleta longa (não consome cota):
+
+```bash
+curl -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/rate_limit
+```
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
@@ -73,7 +81,24 @@ Saídas em `data/selecao/`:
 Toda resposta da API é salva em `data/cache/`, e cada repositório concluído em `data/runs/`. Se a execução for interrompida (rate limit, rede, `Ctrl+C`), rode o mesmo comando de novo: ele continua de onde parou, sem repetir chamadas. Para recoletar do zero, apague `data/`.
 
 ## Rate limit e erros
-O cliente (`pipeline/http.py`) lê `X-RateLimit-Remaining`/`X-RateLimit-Reset` e espera a renovação sozinho (também respeita `Retry-After`). Erros 5xx e de rede são repetidos com backoff exponencial (1 s, 2 s, 4 s, 8 s, 16 s).
+O GitHub impõe **dois** limites diferentes, e o cliente (`pipeline/http.py`) trata os dois:
+
+**Limite primário** — cota por hora: 5.000 req/h no `core` com token (60/h sem token, por isso `GITHUB_TOKEN` é obrigatório). A busca (`/search/*`) tem cota **própria e bem menor, 30 req/min**. O cliente lê `X-RateLimit-Remaining`/`X-RateLimit-Reset` e guarda a cota **por recurso** (`X-RateLimit-Resource`), para que esgotar a busca não faça o pipeline esperar à toa nos endpoints normais. Quando a cota zera, ele dorme até a renovação.
+
+**Limite secundário** — proteção contra rajadas. Dispara **mesmo com cota primária sobrando**, quando as requisições vêm rápido demais, e responde 403/429 com a mensagem `secondary rate limit`. Foi o que derrubava a coleta antes: o cliente só olhava a cota primária, via que ainda havia quota e levantava exceção. Agora:
+
+- **Prevenção:** intervalo mínimo entre requisições — `min_interval` 0,75 s nos endpoints normais e `search_interval` 2,1 s na busca (cota de 30/min). É isso que evita o bloqueio acontecer.
+- **Remediação:** se ainda assim disparar, o cliente espera 60 s, **dobra o intervalo** (repetir no mesmo ritmo dispara de novo) e repete, até `max_retries` esperas.
+
+Os intervalos são configuráveis em `config.json`; aumente-os se a coleta continuar esbarrando no limite:
+
+```json
+"http": { "min_interval": 0.75, "search_interval": 2.1 }
+```
+
+Um 403 **sem** mensagem de rate limit (token sem permissão, repositório bloqueado) continua propagando como erro — não vira espera. Erros 5xx e de rede são repetidos com backoff exponencial (1 s, 2 s, 4 s, 8 s, 16 s).
+
+**Quanto tempo leva.** Com o ritmo padrão, ~100 repositórios levam da ordem de **2 a 3 horas**, e a amostra de 300+ da S02 passa de 6 h. É lento de propósito: o ritmo é a troca que evita o bloqueio. Como tudo é cacheado, dá para interromper com `Ctrl+C` e retomar depois. **Rode só uma instância por vez** — duas em paralelo somam requisições na mesma conta e disparam o limite secundário mesmo com o intervalo configurado.
 
 ## Workflow runs
 `pipeline/runs.py` coleta runs do default branch com `event=push`, uma consulta por mês. Se um intervalo atinge o teto de 1.000 resultados da API, ele é dividido ao meio recursivamente. Os casos que ainda estouram (um único dia) ficam em `capped_days` no JSON do repositório.
@@ -86,6 +111,44 @@ O cliente (`pipeline/http.py`) lê `X-RateLimit-Remaining`/`X-RateLimit-Reset` e
 - `cfr.py`: classificação de `conclusion` e CFR (a), proxy de CI.
 - `recuperacao.py`: episódios de falha por workflow, tempo de recuperação (mediana) e proporção de episódios censurados.
 - `lead_time.py`: lead time (RQ2). (a) por release = publicação da release − commit mais antigo que ela entrega; (b) por commit = publicação da release − data de cada commit novo. Usa `author_date`, sem commits novos o resultado é `None`, e commits com data posterior à release contam como 0 h. O resumo por repositório usa a mediana de (a) e a mediana de (b) sobre todos os commits.
+
+## Validação manual (amostra-ouro)
+Uma heurística automática pode errar bastante; a forma de saber o quanto ela erra é comparar com o julgamento humano. `validacao/` cobre as duas etapas (enunciado, seção 6).
+
+**1. Sortear a amostra e gerar as planilhas** (issues de rotulagem):
+
+```bash
+python -m validacao.amostra --config config.json
+```
+
+Sorteia 60 repositórios e 5 releases de cada com semente fixa (`SEED = 42`, registrada em `data/validacao/amostra.json` junto com a lista sorteada) e gera **uma planilha por avaliador** em `data/validacao/`, com colunas de rótulo vazias e links diretos para o GitHub:
+
+| Arquivo | Colunas a preencher | Valores |
+|---|---|---|
+| `rotulos_repos_<iniciais>.csv` | `tipo_projeto` | `biblioteca` \| `aplicacao` \| `cli` \| `outro` |
+| | `releases_sao_entregas` | `sim` \| `nao` \| `incerto` |
+| `rotulos_releases_<iniciais>.csv` | `corretiva` | `sim` \| `nao` |
+
+As demais colunas vêm preenchidas e são **contexto para o avaliador**, não rótulos: `linguagem` e `estrelas` no nível do repositório; `release_nome`, `notas` (trecho das release notes) e `commits` (mensagens dos commits daquela release) no nível da release. Isso evita abrir 300 páginas no navegador — a evidência que o enunciado manda ler vem na própria linha.
+
+A planilha traz apenas **evidência bruta**. Não embute sinais derivados do tipo "mudou só o número de patch" ou "contém `fix` nos commits", porque esses são exatamente as entradas da heurística automática: mostrá-los induziria o avaliador a concordar com ela, e a precisão/recall medidas depois contra esse mesmo gabarito sairiam infladas por construção. Há um teste que falha se alguém adicionar uma coluna dessas.
+
+Os três avaliadores recebem exatamente a mesma amostra, e **rotulam de forma independente, sem consultar os colegas e sem ver a saída da heurística** — é essa independência que dá sentido ao kappa. Rodar o comando de novo **não sobrescreve** planilha já preenchida; para refazer, apague o arquivo à mão.
+
+**2. Calcular concordância e consenso** (issue [#66](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/66)):
+
+```bash
+python -m validacao.concordancia --config config.json
+```
+
+| Saída | Conteúdo |
+|---|---|
+| `concordancia.csv` | kappa de Fleiss por dimensão, nº de itens, interpretação (Landis & Koch) e itens descartados por rótulo em branco |
+| `consenso_<dimensao>.csv` | rótulo de consenso por item, o voto de cada avaliador e se foi unânime |
+
+O consenso sai por **maioria simples**: 3-0 e 2-1 resolvem sozinhos; um 1-1-1 fica como `sem_consenso` e vai para reunião — o protocolo de desempate deve ficar registrado no repositório. Os rótulos alinham pela chave do item (`full_name`, ou `full_name`+`tag`), não pela ordem das linhas, então um avaliador pode reordenar a planilha sem corromper o cálculo.
+
+O consenso alimenta duas coisas: o `tipo_projeto` é fator da RQ 06, e o rótulo `corretiva` é a referência contra a qual se mede precisão/recall/F1 da heurística de release corretiva (RQ 03 b).
 
 ## Testes
 ```bash

@@ -1,4 +1,5 @@
 import json
+import os
 
 import pytest
 
@@ -7,8 +8,39 @@ from pipeline import __main__ as cli
 
 def test_sem_token_aborta(monkeypatch, tmp_path):
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    # neutraliza o .env do desenvolvedor: o teste é sobre ausência de token
+    monkeypatch.setattr(cli, "load_dotenv", lambda path: None)
     with pytest.raises(SystemExit):
         cli.main(["--config", str(tmp_path / "c.json")])
+
+
+def test_load_dotenv_define_variavel(monkeypatch, tmp_path):
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    env = tmp_path / ".env"
+    env.write_text("# comentario\nGITHUB_TOKEN=abc123\n\n", encoding="utf-8")
+    cli.load_dotenv(str(env))
+    assert os.environ["GITHUB_TOKEN"] == "abc123"
+
+
+def test_load_dotenv_nao_sobrescreve_o_ambiente(monkeypatch, tmp_path):
+    """Na CI o token vem de secret; o .env não pode passar por cima dele."""
+    monkeypatch.setenv("GITHUB_TOKEN", "do_ambiente")
+    env = tmp_path / ".env"
+    env.write_text("GITHUB_TOKEN=do_arquivo\n", encoding="utf-8")
+    cli.load_dotenv(str(env))
+    assert os.environ["GITHUB_TOKEN"] == "do_ambiente"
+
+
+def test_load_dotenv_aceita_aspas_e_ignora_lixo(monkeypatch, tmp_path):
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    env = tmp_path / ".env"
+    env.write_text('linha sem igual\nGITHUB_TOKEN="ghp_x"\n', encoding="utf-8")
+    cli.load_dotenv(str(env))
+    assert os.environ["GITHUB_TOKEN"] == "ghp_x"
+
+
+def test_load_dotenv_sem_arquivo_nao_quebra(tmp_path):
+    cli.load_dotenv(str(tmp_path / "inexistente.env"))
 
 
 def test_load_config(tmp_path):

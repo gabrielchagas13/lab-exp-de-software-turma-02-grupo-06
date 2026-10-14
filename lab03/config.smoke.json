@@ -1,0 +1,18 @@
+{
+  "_comentario": "Config de fumaça: valida o pipeline inteiro (busca, filtros, coleta e métricas) em poucos minutos, antes de disparar a coleta longa. Usa uma única faixa de estrelas e amostra de 3 repositórios. Saída separada em data_smoke/ para não misturar com a coleta real.",
+  "window_start": "2025-10-01",
+  "window_end": "2026-09-30",
+  "data_dir": "data_smoke",
+  "selection": {
+    "sample_size": 3,
+    "min_releases": 5,
+    "min_runs": 50,
+    "seed": 42,
+    "query": "",
+    "star_ranges": ["10000..50000"]
+  },
+  "http": {
+    "min_interval": 0.75,
+    "search_interval": 2.1
+  }
+}
