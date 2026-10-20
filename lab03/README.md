@@ -109,6 +109,7 @@ Um 403 **sem** mensagem de rate limit (token sem permissão, repositório bloque
 
 ## Métricas (`metricas/`)
 - `cfr.py`: classificação de `conclusion` e CFR (a), proxy de CI.
+- `corretiva.py`: heurística de release corretiva e CFR (b) = releases corretivas / releases da janela. Três sinais (versão semver de *patch*; tag/título com `fix`/`hotfix`/`bugfix`/`revert`; ao menos metade dos commits, sem merges, com essas palavras) combinados em quatro variantes (`v1_semver`, `v2_semver_ou_nome`, `v3_commits`, `v4_combinada`). O pipeline grava todas em `metricas.json` (`cfr_release_<variante>`); a escolha sai da avaliação contra o consenso (abaixo).
 - `recuperacao.py`: episódios de falha por workflow, tempo de recuperação (mediana) e proporção de episódios censurados.
 - `lead_time.py`: lead time (RQ2). (a) por release = publicação da release − commit mais antigo que ela entrega; (b) por commit = publicação da release − data de cada commit novo. Usa `author_date`, sem commits novos o resultado é `None`, e commits com data posterior à release contam como 0 h. O resumo por repositório usa a mediana de (a) e a mediana de (b) sobre todos os commits.
 
@@ -148,7 +149,28 @@ python -m validacao.concordancia --config config.json
 
 O consenso sai por **maioria simples**: 3-0 e 2-1 resolvem sozinhos; um 1-1-1 fica como `sem_consenso` e vai para reunião — o protocolo de desempate deve ficar registrado no repositório. Os rótulos alinham pela chave do item (`full_name`, ou `full_name`+`tag`), não pela ordem das linhas, então um avaliador pode reordenar a planilha sem corromper o cálculo.
 
+**Antes de entregar os rótulos**, valide a planilha (colunas intactas, itens da amostra, valores aceitos; rótulo em branco aparece como pendência):
+
+```bash
+python -m validacao.validar_rotulos --avaliador gl              # durante a rotulagem
+python -m validacao.validar_rotulos --avaliador gl --completo   # falha se faltar rótulo
+```
+
 O consenso alimenta duas coisas: o `tipo_projeto` é fator da RQ 06, e o rótulo `corretiva` é a referência contra a qual se mede precisão/recall/F1 da heurística de release corretiva (RQ 03 b).
+
+**3. Avaliar a heurística de release corretiva** (issue [#67](https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues/67)), só depois que os três terminarem de rotular:
+
+```bash
+python -m validacao.avaliar_heuristica --config config.json
+```
+
+Grava `avaliacao_heuristica.csv` (VP/FP/FN/VN, precisão, recall e F1 de cada variante, e se atinge a meta F1 ≥ 0,70) e `avaliacao_heuristica_itens.csv` (previsão de cada variante por release, para analisar os erros ao refinar). Releases sem consenso ficam de fora.
+
+## Tabelas do relatório
+```bash
+python -m scripts.tabelas_metodologia --config config.json
+```
+Gera, a partir dos dados, as tabelas da Metodologia em `docs/tabelas/` (`.md` e `.tex`): funil de seleção, definições operacionais e variantes (com quantos repositórios têm valor em cada coluna) e protocolo da amostra-ouro. As versões Markdown são escritas em `docs/relatorio.md` entre os marcadores `<!-- tabela:... -->`; rode de novo depois de cada coleta.
 
 ## Testes
 ```bash

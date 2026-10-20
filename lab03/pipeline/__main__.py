@@ -6,6 +6,7 @@ import sys
 from datetime import date
 
 from metricas.cfr import change_failure_rate_ci
+from metricas.corretiva import cfr_releases
 from metricas.lead_time import repo_lead_time
 from metricas.recuperacao import censored_ratio, median_recovery_hours, recovery_episodes
 from pipeline.commits import collect_repo_commits
@@ -58,12 +59,14 @@ def process_repo(client, repo, start, end, data_dir):
                                    os.path.join(data_dir, "commits"))
     episodes = recovery_episodes(runs["runs"])
     in_window = [r for r in rels["releases"] if r["in_window"] and not r["prerelease"]]
+    mensagens = {r["tag"]: [c["message"] for c in r["commits"]] for r in commits["releases"]}
     return {
         "repo": runs["repo"],
         "runs": len(runs["runs"]),
         "releases": len(in_window),
         "releases_ignoradas": len(commits["skipped"]),
         "cfr_ci": change_failure_rate_ci(runs["runs"]),
+        **cfr_releases(in_window, mensagens),
         "recovery_median_h": median_recovery_hours(episodes),
         "recovery_censored_ratio": censored_ratio(episodes),
         **repo_lead_time(commits["releases"]),

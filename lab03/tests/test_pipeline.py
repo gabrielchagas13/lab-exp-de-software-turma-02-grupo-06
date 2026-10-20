@@ -84,6 +84,7 @@ def test_process_repo_integra_runs_releases_e_commits(tmp_path):
                            date(2026, 1, 1), date(2026, 1, 31), str(tmp_path))
     assert row["repo"] == "o/r" and row["runs"] == 3 and row["releases"] == 2
     assert row["cfr_ci"] == pytest.approx(1 / 3)
+    assert row["cfr_release_v1_semver"] == 0.0    # tags v1/v2 não são semver X.Y.Z
     assert row["recovery_median_h"] == 2.0
     assert row["lead_time_release_h"] == 24.0 and row["lead_time_commit_h"] == 24.0
     assert (tmp_path / "commits" / "o__r.json").exists()
