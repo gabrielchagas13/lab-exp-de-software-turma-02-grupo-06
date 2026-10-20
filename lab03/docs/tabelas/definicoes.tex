@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+\centering
+\caption{Definições operacionais e variantes das métricas}
+\label{tab:definicoes}
+\begin{tabular}{lllp{6cm}lll}
+\hline
+Métrica & RQ & Variante & Definição operacional & Unidade & Coluna & Repos com valor \\
+\hline
+Frequência de deploy & RQ01 & principal & Releases publicadas (sem draft e sem pré-release) na janela / semanas da janela & releases/semana & releases\_por\_semana & 100/100 \\
+Lead time & RQ02 & (a) por release & Mediana, entre as releases, de publicação -- author\_date do commit mais antigo que ela entrega & horas & lead\_time\_release\_h & 100/100 \\
+Lead time & RQ02 & (b) por commit & Mediana, sobre todos os commits novos, de publicação da release -- author\_date & horas & lead\_time\_commit\_h & 100/100 \\
+Change failure rate & RQ03 & (a) proxy de CI & Falhas / (falhas + sucessos) dos runs de push no default branch; falha = failure, timed\_out, startup\_failure & proporção & cfr\_ci & 100/100 \\
+Change failure rate & RQ03 & (b) v1 semver & Releases corretivas / releases da janela; corretiva = tag semver X.Y.Z com Z $>$ 0 & proporção & cfr\_release\_v1\_semver & 0/100 \\
+Change failure rate & RQ03 & (b) v2 semver ou nome & Como (b) v1, ou tag/título com fix, hotfix, bugfix ou revert & proporção & cfr\_release\_v2\_semver\_ou\_nome & 0/100 \\
+Change failure rate & RQ03 & (b) v3 commits & Corretiva = ao menos metade dos commits novos (sem merges) com fix, hotfix, bugfix ou revert & proporção & cfr\_release\_v3\_commits & 0/100 \\
+Change failure rate & RQ03 & (b) v4 combinada & Corretiva = qualquer um dos sinais de v1, v2 ou v3 & proporção & cfr\_release\_v4\_combinada & 0/100 \\
+Tempo de recuperação & RQ04 & principal & Mediana, por workflow, de sucesso seguinte -- primeira falha após um sucesso (episódios sem sucesso posterior são censurados) & horas & recovery\_median\_h & 94/100 \\
+Tempo de recuperação & RQ04 & censura & Proporção de episódios de falha censurados & proporção & recovery\_censored\_ratio & 95/100 \\
+\hline
+\end{tabular}
+\end{table}
