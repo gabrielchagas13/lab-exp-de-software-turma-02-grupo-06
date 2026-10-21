@@ -1,0 +1,7 @@
+metrica,descricao,unidade,n,ausentes,mediana,q1,q3,iqr,min,max
+releases_por_semana,RQ 01 — releases_por_semana,releases/semana,300,0,0.4411,0.2301,1.0404,0.8103,0.0959,51.263
+lead_time_release_h,RQ 02 (a) — lead_time_release_h,horas,300,0,226.326,68.0708,817.963,749.8922,0.0233,70292.9528
+cfr_ci,RQ 03 (a) — cfr_ci,proporção,300,0,0.0489,0.0208,0.1092,0.0884,0.0,0.72
+recovery_median_h,RQ 04 — recovery_median_h,horas,276,24,2.6993,0.953,9.69,8.737,0.0225,698.7112
+lead_time_commit_h,RQ 02 (b) — lead time por commit,horas,300,0,179.7561,52.3617,900.895,848.5333,0.0547,62229.5333
+recovery_censored_ratio,RQ 04 — episódios censurados,proporção,280,20,0.0,0.0,0.0018,0.0018,0.0,1.0

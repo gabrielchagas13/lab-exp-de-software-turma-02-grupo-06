@@ -1,0 +1,6 @@
+dimensao,Elite,High,Medium,Low,sem_classificacao,pct_elite_ou_high
+deployment_frequency,6,70,141,83,0,25.3
+lead_time,46,83,91,80,0,43.0
+change_failure_rate,248,36,10,6,0,94.7
+recovery_time,75,162,27,12,24,85.9
+geral,21,126,137,16,0,49.0
