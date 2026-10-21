@@ -20,13 +20,13 @@ Os candidatos são obtidos por buscas em `/search/repositories`, uma por faixa d
 | Etapa | Critério | Restantes | Descartados |
 |---|---|---|---|
 | candidatos (busca) | Resultado da busca por faixas de estrelas, sem duplicatas | 4511 | 0 |
-| fork_ou_arquivado | Descarta forks e repositórios arquivados | 4475 | 36 |
-| sem_push_na_janela | Descarta quem não teve push durante a janela | 4346 | 129 |
-| inacessivel | Descarta erros da API (404, 451...) | 4346 | 0 |
-| sem_actions | Descarta quem não tem workflows do GitHub Actions | 4304 | 42 |
-| poucas_releases | Exige >= 5 releases publicadas (sem draft e sem pré-release) na janela | 4162 | 142 |
-| poucos_runs | Exige >= 50 runs válidos (push, default branch, sucesso/falha) na janela | 4141 | 21 |
-| amostra_final | Sorteio (semente 42) até completar 100; o resto não é avaliado | 100 | 4041 (não avaliados) |
+| fork_ou_arquivado | Descarta forks e repositórios arquivados | 4407 | 104 |
+| sem_push_na_janela | Descarta quem não teve push durante a janela | 4092 | 315 |
+| inacessivel | Descarta erros da API (404, 451...) | 4092 | 0 |
+| sem_actions | Descarta quem não tem workflows do GitHub Actions | 3985 | 107 |
+| poucas_releases | Exige >= 5 releases publicadas (sem draft e sem pré-release) na janela | 3559 | 426 |
+| poucos_runs | Exige >= 50 runs válidos (push, default branch, sucesso/falha) na janela | 3492 | 67 |
+| amostra_final | Sorteio (semente 42) até completar 300; o resto não é avaliado | 300 | 3192 (não avaliados) |
 
 5 buscas por faixa de estrelas retornaram 4511 de 65606 repositórios existentes (a API limita cada busca a 1.000 resultados). Janela de observação: 2025-10-01 a 2026-09-30 (365 dias).
 <!-- /tabela:funil -->
@@ -42,16 +42,16 @@ A Tabela 2 define cada métrica e suas variantes, e indica a coluna corresponden
 <!-- tabela:definicoes -->
 | Métrica | RQ | Variante | Definição operacional | Unidade | Coluna | Repos com valor |
 |---|---|---|---|---|---|---|
-| Frequência de deploy | RQ01 | principal | Releases publicadas (sem draft e sem pré-release) na janela / semanas da janela | releases/semana | `releases_por_semana` | 100/100 |
-| Lead time | RQ02 | (a) por release | Mediana, entre as releases, de publicação − `author_date` do commit mais antigo que ela entrega | horas | `lead_time_release_h` | 100/100 |
-| Lead time | RQ02 | (b) por commit | Mediana, sobre todos os commits novos, de publicação da release − `author_date` | horas | `lead_time_commit_h` | 100/100 |
-| Change failure rate | RQ03 | (a) proxy de CI | Falhas / (falhas + sucessos) dos runs de push no default branch; falha = `failure`, `timed_out`, `startup_failure` | proporção | `cfr_ci` | 100/100 |
-| Change failure rate | RQ03 | (b) v1 semver | Releases corretivas / releases da janela; corretiva = tag semver X.Y.Z com Z > 0 | proporção | `cfr_release_v1_semver` | 0/100 |
-| Change failure rate | RQ03 | (b) v2 semver ou nome | Como (b) v1, ou tag/título com fix, hotfix, bugfix ou revert | proporção | `cfr_release_v2_semver_ou_nome` | 0/100 |
-| Change failure rate | RQ03 | (b) v3 commits | Corretiva = ao menos metade dos commits novos (sem merges) com fix, hotfix, bugfix ou revert | proporção | `cfr_release_v3_commits` | 0/100 |
-| Change failure rate | RQ03 | (b) v4 combinada | Corretiva = qualquer um dos sinais de v1, v2 ou v3 | proporção | `cfr_release_v4_combinada` | 0/100 |
-| Tempo de recuperação | RQ04 | principal | Mediana, por workflow, de sucesso seguinte − primeira falha após um sucesso (episódios sem sucesso posterior são censurados) | horas | `recovery_median_h` | 94/100 |
-| Tempo de recuperação | RQ04 | censura | Proporção de episódios de falha censurados | proporção | `recovery_censored_ratio` | 95/100 |
+| Frequência de deploy | RQ01 | principal | Releases publicadas (sem draft e sem pré-release) na janela / semanas da janela | releases/semana | `releases_por_semana` | 300/300 |
+| Lead time | RQ02 | (a) por release | Mediana, entre as releases, de publicação − `author_date` do commit mais antigo que ela entrega | horas | `lead_time_release_h` | 300/300 |
+| Lead time | RQ02 | (b) por commit | Mediana, sobre todos os commits novos, de publicação da release − `author_date` | horas | `lead_time_commit_h` | 300/300 |
+| Change failure rate | RQ03 | (a) proxy de CI | Falhas / (falhas + sucessos) dos runs de push no default branch; falha = `failure`, `timed_out`, `startup_failure` | proporção | `cfr_ci` | 300/300 |
+| Change failure rate | RQ03 | (b) v1 semver | Releases corretivas / releases da janela; corretiva = tag semver X.Y.Z com Z > 0 | proporção | `cfr_release_v1_semver` | 300/300 |
+| Change failure rate | RQ03 | (b) v2 semver ou nome | Como (b) v1, ou tag/título com fix, hotfix, bugfix ou revert | proporção | `cfr_release_v2_semver_ou_nome` | 300/300 |
+| Change failure rate | RQ03 | (b) v3 commits | Corretiva = ao menos metade dos commits novos (sem merges) com fix, hotfix, bugfix ou revert | proporção | `cfr_release_v3_commits` | 300/300 |
+| Change failure rate | RQ03 | (b) v4 combinada | Corretiva = qualquer um dos sinais de v1, v2 ou v3 | proporção | `cfr_release_v4_combinada` | 300/300 |
+| Tempo de recuperação | RQ04 | principal | Mediana, por workflow, de sucesso seguinte − primeira falha após um sucesso (episódios sem sucesso posterior são censurados) | horas | `recovery_median_h` | 276/300 |
+| Tempo de recuperação | RQ04 | censura | Proporção de episódios de falha censurados | proporção | `recovery_censored_ratio` | 280/300 |
 <!-- /tabela:definicoes -->
 
 Algumas decisões operacionais valem para todas as métricas:
@@ -80,6 +80,33 @@ A concordância entre avaliadores é medida pelo kappa de Fleiss em cada dimens�
 | Concordância | kappa de Fleiss por dimensão (Landis & Koch) |
 | Consenso | maioria simples; 1-1-1 decidido em reunião |
 <!-- /tabela:amostra_ouro -->
+
+### Resultados da validação manual
+
+Os rótulos de cada avaliador estão em `data/validacao/`.
+
+A concordância entre os três, medida pelo kappa de Fleiss, foi quase perfeita para o tipo do projeto e razoável para as outras duas dimensões (escala de Landis e Koch):
+
+| Dimensão | Itens | Kappa de Fleiss | Interpretação |
+|---|---|---|---|
+| Tipo do projeto | 60 | 0,920 | quase perfeita |
+| Releases são entregas reais | 60 | 0,295 | razoável |
+| Release corretiva | 267 | 0,320 | razoável |
+
+Os kappas baixos indicam que os critérios "release corretiva" e "releases são entregas reais" são ambíguos. A divergência vem sobretudo de um avaliador: o `gl` marcou 235 das 300 releases como corretivas, contra 101 (`gc`) e 110 (`mv`). A concordância simples entre `gc` e `mv` é de 74,5%, e a de `gl` com cada um deles, de 47% e 43%.
+
+Kappa e F1 usam 267 das 300 releases: 33 releases ficaram fora porque as tags da planilha de `mv` foram alteradas por um editor de planilhas (por exemplo, `22.1.0` virou `22.1.2000`), e o cruzamento por tag não as encontra. Corrigir essas tags e rodar `python -m validacao.concordancia` e `python -m validacao.avaliar_heuristica` de novo altera os números.
+
+A heurística corretiva, comparada ao consenso por maioria simples, teve o seguinte desempenho:
+
+| Versão | Precisão | Recall | F1 | Meta (F1 ≥ 0,70) |
+|---|---|---|---|---|
+| v1 semver | 0,535 | 0,885 | 0,667 | não atinge |
+| v2 semver ou nome | 0,531 | 0,885 | 0,664 | não atinge |
+| v3 commits | 0,683 | 0,448 | 0,541 | não atinge |
+| v4 combinada | 0,506 | 0,927 | 0,654 | não atinge |
+
+Nenhuma versão atinge a meta. As versões baseadas em semver têm recall alto e precisão baixa (cerca de metade das releases marcadas como corretivas não o são segundo o consenso), e a v3, baseada em commits, tem o perfil inverso. Pelo protocolo, a heurística deve ser refinada e cada versão testada registrada no artigo.
 
 ### Reprodutibilidade
 
