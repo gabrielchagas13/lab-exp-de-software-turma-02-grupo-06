@@ -60,7 +60,7 @@ Algumas decisões operacionais valem para todas as métricas:
 
 - **Lead time.** Usa a data de autoria (`author_date`) do commit. Commits com data posterior à release (por exemplo, por *rebase*) contam como 0 h. Uma release sem commits novos não tem lead time e não entra na mediana.
 - **CFR (a).** Os runs `cancelled`, `skipped`, `neutral`, `action_required` e `stale` não contam como sucesso nem como falha.
-- **CFR (b).** Não há campo na API que marque uma release como corretiva, então ela é classificada por uma heurística (`metricas/corretiva.py`) com três sinais. O primeiro é a versão semver ser um incremento de *patch*. O segundo é a tag ou o título conter *fix*, *hotfix*, *bugfix* ou *revert*. O terceiro é ao menos metade dos commits novos, sem contar merges, conter essas palavras. Uma release falha quando é seguida, em até 7 dias, por uma release corretiva; o CFR (b) é o número de releases que falharam sobre as releases avaliadas, e as publicadas nos últimos 7 dias da janela ficam fora do denominador (censuradas). As quatro combinações desses sinais (v1 a v4) foram avaliadas contra o consenso da amostra-ouro (`validacao/avaliar_heuristica.py`), com meta de F1 ≥ 0,70, e nenhuma atingiu a meta (F1 de 0,54 a 0,67): v1, v2 e v4 têm recall alto e precisão baixa, e a v3 o contrário. A v5 refina a v1 usando as release notes como confirmação: a release precisa ter *patch* maior que zero **e** release notes que citem correção. As notas sozinhas não servem, porque quase toda release tem uma seção de correções, inclusive as de funcionalidade. A v5 obteve F1 = 0,74 (precisão 0,80 e recall 0,69). Esse valor é otimista, porque a v5 foi escolhida nas mesmas 267 releases em que foi avaliada (o intervalo de confiança de 95%, por bootstrap entre repositórios, vai de 0,64 a 0,82). Todas as versões e os refinamentos descartados estão em `docs/heuristica_corretiva.md`.
+- **CFR (b).** Não há campo na API que marque uma release como corretiva, então ela é classificada por uma heurística (`metricas/corretiva.py`) com três sinais. O primeiro é a versão semver ser um incremento de *patch*. O segundo é a tag ou o título conter *fix*, *hotfix*, *bugfix* ou *revert*. O terceiro é ao menos metade dos commits novos, sem contar merges, conter essas palavras. Uma release falha quando é seguida, em até 7 dias, por uma release corretiva; o CFR (b) é o número de releases que falharam sobre as releases avaliadas, e as publicadas nos últimos 7 dias da janela ficam fora do denominador (censuradas). As quatro combinações desses sinais (v1 a v4) foram avaliadas contra o consenso da amostra-ouro (`validacao/avaliar_heuristica.py`), com meta de F1 ≥ 0,70, e nenhuma atingiu a meta (F1 de 0,54 a 0,68): v1, v2 e v4 têm recall alto e precisão baixa, e a v3 o contrário. A v5 refina a v1 usando as release notes como confirmação: a release precisa ter *patch* maior que zero **e** release notes que citem correção. As notas sozinhas não servem, porque quase toda release tem uma seção de correções, inclusive as de funcionalidade. A v5 obteve F1 = 0,72 (precisão 0,76 e recall 0,69). Esse valor é otimista, porque a v5 foi escolhida olhando parte da própria amostra: nas 33 releases que não participaram da escolha o F1 foi 0,65, e o intervalo de confiança de 95%, por bootstrap entre repositórios, vai de 0,63 a 0,80. Todas as versões e os refinamentos descartados estão em `docs/heuristica_corretiva.md`.
 - **Tempo de recuperação.** Os episódios de falha são calculados dentro de cada workflow. Assim, a falha de um workflow não é "recuperada" pelo sucesso de outro. Um episódio sem sucesso posterior dentro da janela é censurado, e não descartado. A proporção de censurados é registrada junto, porque um repositório com muitos episódios censurados tem a mediana subestimada.
 
 ### Protocolo de validação manual
@@ -93,22 +93,23 @@ A concordância entre os três, medida pelo kappa de Fleiss, foi quase perfeita 
 |---|---|---|---|
 | Tipo do projeto | 60 | 0,920 | quase perfeita |
 | Releases são entregas reais | 60 | 0,295 | razoável |
-| Release corretiva | 267 | 0,320 | razoável |
+| Release corretiva | 300 | 0,324 | razoável |
 
-Os kappas baixos indicam que os critérios "release corretiva" e "releases são entregas reais" são ambíguos. A divergência vem sobretudo de um avaliador: o `gl` marcou 235 das 300 releases como corretivas, contra 101 (`gc`) e 110 (`mv`). A concordância simples entre `gc` e `mv` é de 74,5%, e a de `gl` com cada um deles, de 47% e 43%.
+Os kappas baixos indicam que os critérios "release corretiva" e "releases são entregas reais" são ambíguos. A divergência vem sobretudo de um avaliador: o `gl` marcou 235 das 300 releases como corretivas, contra 101 (`gc`) e 110 (`mv`). A concordância simples entre `gc` e `mv` é de 93,7%, e a de `gl` com cada um deles, de 52% e 53%.
 
-Kappa e F1 usam 267 das 300 releases: 33 releases ficaram fora porque as tags da planilha de `mv` foram alteradas por um editor de planilhas (por exemplo, `22.1.0` virou `22.1.2000`), e o cruzamento por tag não as encontra. Corrigir essas tags e rodar `python -m validacao.concordancia` e `python -m validacao.avaliar_heuristica` de novo altera os números.
+Kappa e F1 usam as 300 releases. Numa primeira versão, 33 delas ficaram de fora porque as tags da planilha de `mv` foram alteradas por um editor de planilhas (por exemplo, `22.1.0` virou `22.1.2000`); as tags foram realinhadas pela URL de cada release e os números abaixo já incluem essas 33.
 
 A heurística corretiva, comparada ao consenso por maioria simples, teve o seguinte desempenho:
 
 | Versão | Precisão | Recall | F1 | Meta (F1 ≥ 0,70) |
 |---|---|---|---|---|
-| v1 semver | 0,535 | 0,885 | 0,667 | não atinge |
-| v2 semver ou nome | 0,531 | 0,885 | 0,664 | não atinge |
-| v3 commits | 0,683 | 0,448 | 0,541 | não atinge |
-| v4 combinada | 0,506 | 0,927 | 0,654 | não atinge |
+| v1 semver | 0,549 | 0,902 | 0,682 | não atinge |
+| v2 semver ou nome | 0,546 | 0,902 | 0,680 | não atinge |
+| v3 commits | 0,694 | 0,446 | 0,543 | não atinge |
+| v4 combinada | 0,517 | 0,938 | 0,667 | não atinge |
+| v5 patch e notas | 0,762 | 0,688 | 0,723 | atinge |
 
-Nenhuma versão atinge a meta. As versões baseadas em semver têm recall alto e precisão baixa (cerca de metade das releases marcadas como corretivas não o são segundo o consenso), e a v3, baseada em commits, tem o perfil inverso. Pelo protocolo, a heurística deve ser refinada e cada versão testada registrada no artigo.
+As quatro primeiras versões não atingem a meta: as baseadas em semver têm recall alto e precisão baixa (quase metade das releases marcadas como corretivas não o são segundo o consenso), e a v3, baseada em commits, tem o perfil inverso. A v5 (patch e release notes que citam correção) atinge F1 = 0,72, mas esse valor é otimista, porque a versão foi escolhida olhando parte da amostra (ver acima e `docs/heuristica_corretiva.md`).
 
 ### Reprodutibilidade
 

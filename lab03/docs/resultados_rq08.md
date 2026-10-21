@@ -7,7 +7,7 @@ Amostra final: **300 repositórios**. Janela: 2025-10-01 a 2026-09-30.
 
 **Rework rate** é a proporção de releases **corretivas** sobre o total de releases do repositório (métrica que o DORA acrescentou em 2024). A classificação "corretiva" é a mesma heurística do CFR (b), nas quatro versões.
 
-> **Ressalva.** A heurística corretiva foi validada contra a amostra-ouro e **nenhuma versão atinge F1 ≥ 0,70** (a melhor, v1 semver, tem F1 = 0,667; precisão 0,535 e recall 0,885, em 267 releases). Os números abaixo são o que cada versão produz, não a taxa real de retrabalho.
+> **Ressalva.** A heurística corretiva foi validada contra a amostra-ouro e **só a v5 atinge F1 ≥ 0,70**, e de forma otimista (F1 = 0,723, em 300 releases; as versões v1 a v4, que este resultado usa, ficam entre 0,54 e 0,68). Os números abaixo são o que cada versão produz, não a taxa real de retrabalho.
 
 ## Resultado
 

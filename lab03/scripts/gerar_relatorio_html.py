@@ -3,7 +3,7 @@
 Todo número da página vem de `data/` (funil, dataset, descritivas, classificação C1
 e RQ 07), então a página nunca fica desatualizada em relação à coleta: depois de
 rodar o pipeline e as análises, basta rodar este script de novo. O texto é fixo;
-o que ainda não existe (RQ 05, RQ 06, validação manual, ameaças e replicação) aparece
+o que ainda não existe (discussão, ameaças finais e replicação) aparece
 marcado como **pendente**, sem números inventados.
 
 Uso:
@@ -257,6 +257,33 @@ def montar(cfg):
                     f"<strong>{n(r.f1, 3)}</strong>", "atinge" if r.atinge_meta else "não atinge"]
                    for r in av.itertuples()], "num")
     melhor = av.sort_values("f1", ascending=False).iloc[0]
+    atingem = av[av.atinge_meta]
+
+    r5 = pd.read_csv(os.path.join(d, "analise", "rq05_spearman.csv"))
+    r6 = pd.read_csv(os.path.join(d, "analise", "rq06_fatores.csv"))
+    nome_cfr = {"cfr_ci": "CFR (a), proxy de CI", "cfr_entrega_v1_semver": "CFR (b) v1 semver",
+                "cfr_entrega_v2_semver_ou_nome": "CFR (b) v2 semver ou nome",
+                "cfr_entrega_v3_commits": "CFR (b) v3 commits",
+                "cfr_entrega_v4_combinada": "CFR (b) v4 combinada"}
+    nome_met = {**nome_cfr, "releases_por_semana": "Frequência de deploy",
+                "lead_time_release_h": "Lead time (a)", "lead_time_commit_h": "Lead time (b)",
+                "recovery_median_h": "Tempo de recuperação"}
+    nome_fator = {"language": "Linguagem", "stars": "Estrelas", "contributors": "Contribuidores",
+                  "age_years": "Idade"}
+    fmt_p = lambda p: "&lt; 0,001" if p < 0.001 else n(p, 3)
+    t_r5 = tabela(["CFR", "n", "ρ de Spearman", "p-valor"],
+                  [[nome_cfr[r.cfr], n(r.n, 0), f"<strong>{n(r.rho, 3)}</strong>", fmt_p(r.p_value)]
+                   for r in r5.itertuples()], "num")
+    sig = r6[r6.significativo]
+    t_r6 = tabela(["Métrica", "Fator", "p (Holm)", "ε²"],
+                  [[nome_met[r.metrica], nome_fator[r.fator], fmt_p(r.p_holm), n(r.tamanho_efeito, 2)]
+                   for r in sig.itertuples()], "num")
+    rho_b = r5[r5.cfr.str.startswith("cfr_entrega")].rho
+    rho_a = float(r5[r5.cfr == "cfr_ci"].rho.iloc[0])
+    quartis = ds.groupby(pd.qcut(ds.age_years, 4, labels=False), observed=True)[
+        ["releases_por_semana", "lead_time_release_h", "cfr_entrega_v4_combinada"]].median()
+    contrib = ds.groupby(pd.qcut(ds.contributors, 4, labels=False), observed=True)[
+        "lead_time_release_h"].median()
     dados = json.dumps(dados_graficos(ds, dist, r7, d), ensure_ascii=False)
     SECAO_R8 = f'''<section id="rq08">
 <h2>5. Bônus: rework rate (RQ 08)</h2>
@@ -282,7 +309,9 @@ perto de zero, porque nenhuma correção cai a 7 dias da release anterior. O CFR
 frequência de releases (ρ ≈ 0,7) e o rework tem correlação fraca (ρ ≈ 0,15 a 0,26): isso é coerente com a
 hipótese de que a correlação positiva entre frequência e CFR (b) da RQ 05 seja em parte <strong>mecânica</strong>.
 Não é prova, mas pede cautela ao interpretar a RQ 05 pelo CFR (b).</p>
-<p class="pendente"><strong>Ressalva.</strong> A heurística corretiva foi validada contra a amostra-ouro e <strong>nenhuma versão atinge F1 ≥ 0,70</strong> (a melhor, v1, tem F1 = {n(melhor.f1, 3)}; ver seção 2). Os números acima são o que cada versão produz, não a taxa real de retrabalho.</p>
+<p class="pendente"><strong>Ressalva.</strong> A heurística corretiva foi validada contra a amostra-ouro e só a v5
+atinge F1 ≥ 0,70, de forma otimista (F1 = {n(melhor.f1, 3)}; ver seção 2). As versões usadas aqui (v1 a v4) ficam entre
+{n(av.f1.iloc[:4].min(), 2)} e {n(av.f1.iloc[:4].max(), 2)}. Os números acima são o que cada versão produz, não a taxa real de retrabalho.</p>
 </section>
 
 '''
@@ -323,7 +352,11 @@ medida pelo CI. A classificação, porém, <strong>não é robusta à definiçã
 definições de referência (C1) por outras igualmente plausíveis muda a categoria geral de
 {n(par('C1', 'C2', 'pct_mudou'), 0)}% dos repositórios (kappa linear {n(par('C1', 'C2', 'kappa_linear'), 2)}),
 e a taxa de falha é o eixo que mais pesa.</p>
-{pendente("Resumo final depende da RQ 05 e da RQ 06.")}
+<p>Velocidade e estabilidade <strong>não andam juntas</strong> nesta amostra: a frequência de deploy tem correlação
+positiva com o CFR (a) (ρ = {n(rho_a, 2)}) e forte com o CFR (b) (ρ de {n(rho_b.min(), 2)} a {n(rho_b.max(), 2)}), o oposto
+do que o DORA sugere (RQ 05). A <strong>idade</strong> do repositório é o fator mais associado ao desempenho: {len(sig)} dos
+{len(r6)} testes da RQ 06 são significativos depois da correção de Holm, a maioria envolvendo idade, contribuidores e
+linguagem no lead time (RQ 06).</p>
 </section>
 
 <section id="introducao">
@@ -373,7 +406,7 @@ pré-release. A data de um commit é a de autoria (<code>author_date</code>). A 
 <code>timed_out</code>, <code>startup_failure</code>; <code>cancelled</code>, <code>skipped</code>,
 <code>neutral</code>, <code>action_required</code>, <code>stale</code> e vazio são ignorados.
 <strong>(b), proxy de entrega:</strong> uma release falhou se foi seguida em até 7 dias por uma release
-<em>corretiva</em>, classificada por heurística em quatro versões (semver; semver ou nome; commits; combinada).
+<em>corretiva</em>, classificada por heurística em cinco versões (semver; semver ou nome; commits; combinada; patch e release notes).
 Releases dos últimos 7 dias da janela ficam fora do denominador (censura).</li>
 <li><strong>Tempo de recuperação:</strong> por workflow, da primeira falha após um sucesso até o sucesso seguinte.
 Episódios sem sucesso posterior na janela são <strong>censurados</strong>, não descartados.</li>
@@ -390,19 +423,20 @@ de Fleiss, e o consenso (maioria simples) é a referência para precisão, recal
 <p>O tipo do projeto tem concordância quase perfeita. As outras duas dimensões ficam só em <strong>razoável</strong>
 (≈ 0,3), o que indica que os critérios "release corretiva" e "releases são entregas reais" são ambíguos. A divergência
 vem sobretudo de <strong>um avaliador</strong>: o "gl" marcou 235 das 300 releases como corretivas, contra 101 (gc) e
-110 (mv). A concordância simples entre gc e mv é de 74,5%, e a do gl com cada um dos dois é de 47% e 43%.</p>
-<p class="pendente"><strong>Limitação dos dados.</strong> Kappa e F1 usam <strong>267 das 300 releases</strong>:
-33 releases (5 repositórios e parte de um sexto) ficaram de fora porque as tags da planilha do avaliador "mv" foram
-alteradas por um editor de planilhas (por exemplo, <code>22.1.0</code> virou <code>22.1.2000</code> e <code>3.1.2</code>
-virou <code>3.1.2002</code>), e o cruzamento por tag não as encontra. Corrigir essas tags no arquivo e rodar de novo
-altera os números.</p>
+110 (mv). A concordância simples entre gc e mv é de 93,7%, e a do gl com cada um dos dois é de 52% e 53%.</p>
+<p><strong>Correção nos dados.</strong> Numa primeira versão, 33 releases ficaram fora do kappa e do F1 porque o editor
+de planilhas alterou as tags da planilha do avaliador "mv" (por exemplo, <code>22.1.0</code> virou <code>22.1.2000</code>).
+As tags foram realinhadas pela URL de cada release, e os números desta seção já usam as 300 releases.</p>
 <h4>Precisão, recall e F1 da heurística contra o consenso</h4>
 {t_f1}
-<p>Nenhuma das quatro versões atinge a meta de F1 ≥ 0,70. A melhor é a <strong>{esc(melhor.variante)}</strong>
-(F1 = {n(melhor.f1, 3)}), com recall alto ({n(melhor.recall, 2)}) e precisão baixa ({n(melhor.precisao, 2)}): quase metade
-das releases que ela marca como corretivas não são corretivas segundo o consenso. A v1 marca todo incremento de
-<em>patch</em> como correção. A v3, baseada em commits, inverte o perfil: precisão mais alta e recall baixo.
-Pelo enunciado, a heurística deve ser refinada e cada versão testada registrada no artigo.</p>
+<p>As quatro primeiras versões não atingem a meta de F1 ≥ 0,70 (de {n(av.f1.iloc[:4].min(), 2)} a {n(av.f1.iloc[:4].max(), 2)}). As
+baseadas em semver (v1, v2, v4) têm recall alto e precisão baixa: cerca de metade das releases que marcam como corretivas
+não o são segundo o consenso, porque tratam todo incremento de <em>patch</em> como correção. A v3, baseada em commits,
+inverte o perfil. A <strong>v5</strong> refina a v1 exigindo também que as release notes citem correção
+e chega a F1 = {n(melhor.f1, 3)} (precisão {n(melhor.precisao, 2)}, recall {n(melhor.recall, 2)}).
+O valor é <strong>otimista</strong>: a v5 foi escolhida olhando parte da própria amostra. Nas 33 releases que
+não participaram da escolha o F1 foi 0,65, e o IC 95% do F1 sobre as 300 vai de 0,63 a 0,80. Detalhes e refinamentos
+descartados em <code>docs/heuristica_corretiva.md</code>.</p>
 <div class="grid">
 <div class="card"><h4>Kappa de Fleiss por dimensão</h4><p class="desc">0,41–0,60 moderada; 0,61–0,80 substancial; acima de 0,80 quase perfeita.</p><div class="chart" style="height:260px"><canvas id="c-kappa"></canvas></div></div>
 <div class="card"><h4>Precisão, recall e F1 por heurística</h4><p class="desc">Contra o rótulo de consenso. A meta de F1 é 0,70.</p><div class="chart" style="height:260px"><canvas id="c-f1"></canvas></div></div>
@@ -452,7 +486,28 @@ até o fim da janela.</p>
 <p>O perfil é de projetos <strong>estáveis e lentos</strong>: {elite_cfr} de {N} ({pct(elite_cfr / N, 0)}) são Elite
 no CFR (a), mas só {pct(g.loc['deployment_frequency', 'pct_elite_ou_high'] / 100, 0)} são Elite ou High em frequência.
 Essa nota alta em estabilidade vem do proxy mais otimista; a RQ 07 mostra o quanto ela se desfaz.</p>
-{pendente("RQ 05 (Spearman) e RQ 06 (fatores, tamanho de efeito e correção para comparações múltiplas): issues #72, ainda sem análise no repositório. Os Spearman da seção 4 são apenas uma checagem de robustez, não substituem a RQ 05.")}
+<h3>RQ 05: frequência de deploy × CFR (Spearman)</h3>
+{t_r5}
+<p>Não há a relação negativa que o DORA sugere. Com o CFR (a) a correlação é positiva e fraca; com o CFR (b) é positiva e
+<strong>forte</strong>. Parte disso pode ser <strong>mecânica</strong>: o CFR (b) conta a release que é seguida, em até 7 dias,
+por uma corretiva, e quem publica com frequência tem mais chance de ter a próxima release dentro desse prazo (e a
+heurística conta todo <em>patch</em> como correção). Os gráficos de dispersão estão em
+<a href="resultados_rq05_rq06.html">resultados_rq05_rq06.html</a>.</p>
+<h3>RQ 06: fatores associados às métricas DORA</h3>
+<p>Quatro fatores (linguagem; estrelas, contribuidores e idade em quartis) contra nove métricas, 36 testes de
+Kruskal-Wallis com correção de Holm. São significativos {len(sig)}:</p>
+{t_r6}
+<ul>
+<li><strong>Idade:</strong> repositórios mais velhos publicam menos ({n(quartis.releases_por_semana.iloc[0], 2)} releases por
+semana no primeiro quartil contra {n(quartis.releases_por_semana.iloc[3], 2)} no último), têm lead time muito maior
+({n(quartis.lead_time_release_h.iloc[0], 0)} h contra {n(quartis.lead_time_release_h.iloc[3], 0)} h) e CFR (b) menor
+({n(quartis.cfr_entrega_v4_combinada.iloc[0], 2)} contra {n(quartis.cfr_entrega_v4_combinada.iloc[3], 2)} na v4).</li>
+<li><strong>Contribuidores:</strong> mais contribuidores, maior lead time ({n(contrib.iloc[0], 0)} h no primeiro quartil
+contra {n(contrib.iloc[3], 0)} h no último).</li>
+<li><strong>Sem efeito:</strong> estrelas; e nenhum fator para o tempo de recuperação nem para o CFR (a).</li>
+</ul>
+<p>Idade é um fator de confusão natural: repositórios mais velhos acumulam commits antigos, o que alonga o lead time (a),
+que usa o commit mais antigo da release. O tipo do projeto (consenso da amostra-ouro) ainda não entrou como fator.</p>
 </section>
 
 <section id="sensibilidade">
@@ -510,8 +565,11 @@ reportada junto com a combinação que a produziu.</li>
 subestima sistematicamente a instabilidade.</li>
 <li><strong>Datas dos commits:</strong> <code>author_date</code> é distorcida por rebase e squash merge; commits com data
 posterior à release contam como 0 h.</li>
-<li><strong>Heurística corretiva:</strong> o melhor F1 contra a amostra-ouro é {n(melhor.f1, 3)}, abaixo da meta de 0,70, então o CFR (b) e o rework têm erro relevante (precisão {n(melhor.precisao, 2)} na melhor versão).</li>
-<li><strong>Amostra-ouro:</strong> o kappa de Fleiss é razoável (≈ 0,3) em duas das três dimensões, com um avaliador bem mais permissivo que os outros; e 33 de 300 releases ficaram fora do cálculo por tags alteradas na planilha de um avaliador.</li>
+<li><strong>Heurística corretiva:</strong> só a v5 atinge a meta de F1 (F1 = {n(melhor.f1, 3)}), e foi escolhida olhando a própria
+amostra; nas 33 releases fora da escolha o F1 foi 0,65. O CFR (b) e o rework têm, por isso, erro relevante, e o CFR (b)
+pode estar correlacionado com a frequência de deploy por construção.</li>
+<li><strong>Amostra-ouro:</strong> o kappa de Fleiss é razoável (≈ 0,3) em duas das três dimensões, com um avaliador bem
+mais permissivo que os outros dois (que concordam entre si em 93,7%).</li>
 <li><strong>Censura:</strong> releases dos últimos 7 dias ficam fora do CFR (b) e episódios de falha sem
 recuperação são censurados; ignorá-los faria os repositórios parecerem melhores.</li>
 <li><strong>Amostra:</strong> repositórios populares com Actions e releases regulares; não representa projetos
