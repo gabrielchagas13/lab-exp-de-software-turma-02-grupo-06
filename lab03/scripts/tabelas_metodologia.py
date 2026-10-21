@@ -54,16 +54,23 @@ DEFINICOES = [
      "Falhas / (falhas + sucessos) dos runs de push no default branch; falha = "
      "`failure`, `timed_out`, `startup_failure`", "proporção", "cfr_ci"),
     ("Change failure rate", "RQ03", "(b) v1 semver",
-     "Releases corretivas / releases da janela; corretiva = tag semver X.Y.Z com Z > 0",
-     "proporção", "cfr_release_v1_semver"),
+     "Releases seguidas, em até 7 dias, por uma release corretiva / releases avaliadas "
+     "(as dos últimos 7 dias da janela ficam fora, censuradas); corretiva = incremento de patch semver",
+     "proporção", "cfr_entrega_v1_semver"),
     ("Change failure rate", "RQ03", "(b) v2 semver ou nome",
-     "Como (b) v1, ou tag/título com fix, hotfix, bugfix ou revert",
-     "proporção", "cfr_release_v2_semver_ou_nome"),
+     "Como (b) v1, com corretiva = patch semver ou fix, hotfix, bugfix ou revert na tag/título",
+     "proporção", "cfr_entrega_v2_semver_ou_nome"),
     ("Change failure rate", "RQ03", "(b) v3 commits",
-     "Corretiva = ao menos metade dos commits novos (sem merges) com fix, hotfix, bugfix ou revert",
-     "proporção", "cfr_release_v3_commits"),
+     "Como (b) v1, com corretiva = ao menos metade dos commits novos (sem merges) com fix, hotfix, bugfix ou revert",
+     "proporção", "cfr_entrega_v3_commits"),
     ("Change failure rate", "RQ03", "(b) v4 combinada",
-     "Corretiva = qualquer um dos sinais de v1, v2 ou v3",
+     "Como (b) v1, com corretiva = qualquer um dos sinais de v1, v2 ou v3",
+     "proporção", "cfr_entrega_v4_combinada"),
+    ("Change failure rate", "RQ03", "(b) v5 patch e notas",
+     "Como (b) v1, com corretiva = incremento de patch e release notes que citam fix, bugfix, hotfix ou revert",
+     "proporção", "cfr_entrega_v5_patch_e_notas"),
+    ("Rework rate (bônus)", "RQ08", "proporção de corretivas",
+     "Releases que são corretivas (v4) / releases da janela; difere do CFR (b), que conta as releases seguidas por uma corretiva",
      "proporção", "cfr_release_v4_combinada"),
     ("Tempo de recuperação", "RQ04", "principal",
      "Mediana, por workflow, de sucesso seguinte − primeira falha após um sucesso "
@@ -74,7 +81,7 @@ DEFINICOES = [
 
 # Uma linha de DEFINICOES por variante de CFR (b): se alguém criar uma variante
 # nova na heurística, a tabela do artigo precisa acompanhar.
-assert {f"cfr_release_{v}" for v in VARIANTES} <= {d[5] for d in DEFINICOES}
+assert {f"cfr_entrega_{v}" for v in VARIANTES} <= {d[5] for d in DEFINICOES}
 
 
 # ---- renderização -----------------------------------------------------------

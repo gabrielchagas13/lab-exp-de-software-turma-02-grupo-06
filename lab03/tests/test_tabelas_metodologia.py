@@ -49,7 +49,7 @@ def test_definicoes_conta_cobertura_de_cada_coluna(cfg):
     por_coluna = {l[5]: l[6] for l in linhas}
     assert por_coluna["`cfr_ci`"] == "2/2"
     assert por_coluna["`lead_time_release_h`"] == "1/2"          # None não conta
-    assert por_coluna["`cfr_release_v1_semver`"] == "0/2"        # coluna ainda não coletada
+    assert por_coluna["`cfr_entrega_v1_semver`"] == "0/2"        # coluna ainda não coletada
 
 
 def test_markdown_escapa_barra_vertical():

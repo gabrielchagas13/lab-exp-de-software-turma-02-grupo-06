@@ -5,3 +5,4 @@ scipy
 statsmodels
 scikit-learn
 pyarrow
+matplotlib
