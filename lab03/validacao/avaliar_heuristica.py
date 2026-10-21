@@ -8,8 +8,8 @@ variante (inclusive as descartadas) fica registrada em `avaliacao_heuristica.csv
 
 A evidência de cada release (tag, título e mensagens de commit) vem da própria
 planilha de rotulagem, que é igual para os três avaliadores. A planilha mostra
-no máximo 12 commits por release; no pipeline a heurística vê todos, então o
-sinal `commits` pode diferir nas releases com muitos commits.
+no máximo 12 commits por release e só o início das release notes; no pipeline a
+heurística vê tudo, então os sinais `commits` e `notas` podem diferir.
 
 Rode só DEPOIS que os três avaliadores terminarem: o arquivo de itens mostra a
 saída da heurística na amostra, e ver isso antes de rotular contamina o rótulo.
@@ -59,7 +59,7 @@ def classificar(evidencia):
     out = evidencia.copy()
     for i, row in out.iterrows():
         msgs = [m for m in str(row.get("commits") or "").split(SEPARADOR_COMMITS) if m]
-        s = sinais(row["tag"], row.get("release_nome"), msgs)
+        s = sinais(row["tag"], row.get("release_nome"), msgs, row.get("notas"))
         for nome, regra in VARIANTES.items():
             out.loc[i, nome] = bool(regra(s))
     return out
@@ -89,7 +89,7 @@ def executar(dir_val):
     if not planilhas:
         raise SystemExit(f"Nenhuma planilha rotulos_releases_*.csv em {dir_val}.")
     evidencia = pd.read_csv(planilhas[0], dtype=str).fillna("")
-    evidencia = evidencia[["full_name", "tag", "release_nome", "commits"]]
+    evidencia = evidencia[["full_name", "tag", "release_nome", "notas", "commits"]]
 
     resumo, itens = avaliar(consenso, evidencia)
     resumo.to_csv(os.path.join(dir_val, "avaliacao_heuristica.csv"), index=False)

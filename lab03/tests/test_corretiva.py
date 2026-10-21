@@ -62,10 +62,20 @@ def test_sinal_commits_usa_limiar_de_metade():
     ("v2_semver_ou_nome", True),
     ("v3_commits", False),
     ("v4_combinada", True),
+    ("v5_patch_e_notas", False),
 ])
 def test_variantes_combinam_sinais(variante, esperado):
     # Só o sinal `nome` está ligado: minor, título com hotfix, commits de feature.
     assert eh_corretiva("v1.3.0", "Hotfix", ["feat: a", "feat: b"], variante) is esperado
+
+
+def test_v5_exige_patch_e_notas_que_citam_correcao():
+    notas = "### Bug Fixes\n- corrige crash ao abrir arquivo"
+    assert eh_corretiva("v1.2.4", "", [], "v5_patch_e_notas", notas)
+    assert not eh_corretiva("v1.2.4", "", [], "v5_patch_e_notas", "Nova API de plugins")  # patch, sem correção
+    assert not eh_corretiva("v1.3.0", "", [], "v5_patch_e_notas", notas)                # notas, sem patch
+    assert not eh_corretiva("v1.2.4", "", [], "v5_patch_e_notas")                        # sem notas
+    assert sinais("v1.2.4", "", [], notas)["notas"] is True
 
 
 def test_cfr_releases_por_variante():

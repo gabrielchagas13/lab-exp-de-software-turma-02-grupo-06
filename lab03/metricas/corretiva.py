@@ -14,10 +14,13 @@ heurística sobre três sinais, cada um com uma fraqueza conhecida:
 - `commits`: pelo menos metade dos commits novos da release (sem contar
   merges) menciona essas palavras na primeira linha da mensagem.
 
+- `notas`: as release notes citam `fix`, `bugfix`, `hotfix` ou `revert`. Sozinho
+  não serve: quase toda release tem uma seção "Bug Fixes", mesmo as de
+  funcionalidade. Só entra combinado com `patch` (variante v5).
+
 Cada variante combina os sinais de um jeito; todas são avaliadas contra o
 consenso da amostra-ouro (`validacao.avaliar_heuristica`) e o resultado de cada
-uma fica registrado, inclusive as descartadas. As release notes não entram como
-sinal: quase toda release tem uma seção "Bug Fixes", mesmo as de funcionalidade.
+uma fica registrado, inclusive as descartadas (`docs/heuristica_corretiva.md`).
 """
 import re
 from datetime import datetime, time, timedelta, timezone
@@ -54,11 +57,17 @@ def fracao_commits_corretivos(mensagens):
     return sum(bool(PALAVRAS.search(m.split("\n", 1)[0])) for m in validas) / len(validas)
 
 
-def sinais(tag, nome, mensagens):
-    """Os três sinais da heurística para uma release."""
+def notas_corretivas(notas):
+    """True se as release notes trazem uma palavra de correção."""
+    return bool(PALAVRAS.search(notas or ""))
+
+
+def sinais(tag, nome, mensagens, notas=None):
+    """Os sinais da heurística para uma release."""
     fracao = fracao_commits_corretivos(mensagens)
     return {"patch": eh_patch(tag), "nome": nome_corretivo(tag, nome),
-            "commits": fracao is not None and fracao >= LIMIAR_COMMITS}
+            "commits": fracao is not None and fracao >= LIMIAR_COMMITS,
+            "notas": notas_corretivas(notas)}
 
 
 # Variantes avaliadas, na ordem em que foram propostas. Cada uma recebe o dict
@@ -68,12 +77,13 @@ VARIANTES = {
     "v2_semver_ou_nome": lambda s: s["patch"] or s["nome"],
     "v3_commits": lambda s: s["commits"],
     "v4_combinada": lambda s: s["patch"] or s["nome"] or s["commits"],
+    "v5_patch_e_notas": lambda s: s["patch"] and s["notas"],
 }
 
 
-def eh_corretiva(tag, nome, mensagens, variante):
+def eh_corretiva(tag, nome, mensagens, variante, notas=None):
     """Classifica uma release com a variante pedida (chave de `VARIANTES`)."""
-    return VARIANTES[variante](sinais(tag, nome, mensagens))
+    return VARIANTES[variante](sinais(tag, nome, mensagens, notas))
 
 
 def cfr_releases(releases, commits_por_tag):
@@ -86,7 +96,8 @@ def cfr_releases(releases, commits_por_tag):
     """
     contagem = dict.fromkeys(VARIANTES, 0)
     for rel in releases:
-        s = sinais(rel["tag_name"], rel.get("name"), commits_por_tag.get(rel["tag_name"], []))
+        s = sinais(rel["tag_name"], rel.get("name"), commits_por_tag.get(rel["tag_name"], []),
+                   rel.get("body"))
         for nome, regra in VARIANTES.items():
             contagem[nome] += bool(regra(s))
     n = len(releases)
@@ -133,7 +144,8 @@ def cfr_entrega(releases, commits_por_tag, variante, fim_janela):
     corretiva_em = {}
     for quando, rel in datadas:
         corretiva_em[id(rel)] = eh_corretiva(
-            rel["tag_name"], rel.get("name"), commits_por_tag.get(rel["tag_name"], []), variante)
+            rel["tag_name"], rel.get("name"), commits_por_tag.get(rel["tag_name"], []), variante,
+            rel.get("body"))
 
     falhas = avaliadas = censuradas = 0
     for i, (quando, rel) in enumerate(datadas):

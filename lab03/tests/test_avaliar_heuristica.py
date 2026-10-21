@@ -6,6 +6,7 @@ matriz de confusão, não copiados da saída do código.
 import pandas as pd
 import pytest
 
+from metricas.corretiva import VARIANTES
 from validacao.avaliar_heuristica import avaliar, executar, metricas_binarias
 
 
@@ -41,6 +42,7 @@ def amostra():
         "full_name": ["o/r"] * 4,
         "tag": ["v1.0.1", "v1.1.0", "v1.2.0", "v1.3.0"],
         "release_nome": ["", "Hotfix", "", ""],
+        "notas": ["### Bug Fixes", "", "", ""],
         "commits": ["feat: a", "feat: a", "fix: a | fix: b", "fix: a"]})
     return consenso, evidencia
 
@@ -69,6 +71,6 @@ def test_executar_grava_resumo_e_itens(tmp_path, amostra):
     consenso.to_csv(tmp_path / "consenso_corretiva.csv", index=False)
     evidencia.to_csv(tmp_path / "rotulos_releases_gl.csv", index=False)
     resumo, n_sem = executar(str(tmp_path))
-    assert n_sem == 1 and len(resumo) == 4
+    assert n_sem == 1 and len(resumo) == len(VARIANTES)
     assert (tmp_path / "avaliacao_heuristica.csv").exists()
     assert (tmp_path / "avaliacao_heuristica_itens.csv").exists()
