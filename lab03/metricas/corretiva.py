@@ -20,6 +20,7 @@ uma fica registrado, inclusive as descartadas. As release notes não entram como
 sinal: quase toda release tem uma seção "Bug Fixes", mesmo as de funcionalidade.
 """
 import re
+from datetime import datetime, time, timedelta, timezone
 
 PALAVRAS = re.compile(r"\b(hot-?fix(es|ed)?|bug-?fix(es|ed)?|fix(es|ed)?|revert(s|ed)?)\b",
                       re.IGNORECASE)
@@ -90,3 +91,81 @@ def cfr_releases(releases, commits_por_tag):
             contagem[nome] += bool(regra(s))
     n = len(releases)
     return {f"cfr_release_{v}": (c / n if n else None) for v, c in contagem.items()}
+
+
+# ---- CFR (b): proxy de entrega -------------------------------------------
+# `cfr_releases` acima mede a proporção de releases que SÃO corretivas, que é a
+# *rework rate* do DORA 2024 (RQ 08 bônus). O CFR (b) do enunciado é outra
+# coisa: uma release falha quando é SEGUIDA, em até 7 dias, por uma release
+# corretiva. São métricas diferentes e ambas ficam registradas.
+
+JANELA_CORRETIVA_DIAS = 7
+
+
+def _instante(release):
+    """Momento da release, em datetime com fuso; `published_at` com `created_at`
+    como reserva (releases publicadas via API às vezes não trazem o primeiro)."""
+    texto = release.get("published_at") or release.get("created_at")
+    if not texto:
+        return None
+    return datetime.fromisoformat(texto.replace("Z", "+00:00"))
+
+
+def cfr_entrega(releases, commits_por_tag, variante, fim_janela):
+    """CFR (b) de um repositório: falhas / releases avaliadas.
+
+    Uma release R *falhou* se alguma release publicada depois dela, dentro de
+    `JANELA_CORRETIVA_DIAS`, for classificada como corretiva pela `variante`.
+
+    Releases publicadas nos últimos 7 dias da janela **não são avaliadas**: a
+    correção ainda poderia aparecer depois do fim da observação, e contá-las
+    como sucesso faria o repositório parecer mais estável do que é. Elas saem
+    do denominador e são reportadas como censuradas.
+
+    Retorna {"cfr_entrega": float|None, "cfr_entrega_avaliadas": int,
+             "cfr_entrega_censuradas": int}.
+    """
+    datadas = sorted(((_instante(r), r) for r in releases if _instante(r)),
+                     key=lambda par: par[0])
+    limite = datetime.combine(fim_janela, time.max, tzinfo=timezone.utc) - timedelta(
+        days=JANELA_CORRETIVA_DIAS)
+
+    corretiva_em = {}
+    for quando, rel in datadas:
+        corretiva_em[id(rel)] = eh_corretiva(
+            rel["tag_name"], rel.get("name"), commits_por_tag.get(rel["tag_name"], []), variante)
+
+    falhas = avaliadas = censuradas = 0
+    for i, (quando, rel) in enumerate(datadas):
+        if quando > limite:
+            censuradas += 1
+            continue
+        avaliadas += 1
+        prazo = quando + timedelta(days=JANELA_CORRETIVA_DIAS)
+        for quando_seg, seguinte in datadas[i + 1:]:
+            if quando_seg > prazo:
+                break
+            if corretiva_em[id(seguinte)]:
+                falhas += 1
+                break
+
+    return {"cfr_entrega": (falhas / avaliadas if avaliadas else None),
+            "cfr_entrega_avaliadas": avaliadas,
+            "cfr_entrega_censuradas": censuradas}
+
+
+def cfr_entrega_todas(releases, commits_por_tag, fim_janela):
+    """CFR (b) em todas as variantes de uma vez.
+
+    `avaliadas` e `censuradas` não dependem da variante (são função só das
+    datas), então saem uma vez só. A escolha de qual variante vira a referência
+    C1 é do grupo e se apoia no F1 contra a amostra-ouro
+    (`validacao.avaliar_heuristica`).
+    """
+    saida = {}
+    for nome in VARIANTES:
+        r = cfr_entrega(releases, commits_por_tag, nome, fim_janela)
+        saida[f"cfr_entrega_{nome}"] = r["cfr_entrega"]
+        saida["cfr_entrega_avaliadas"] = r["cfr_entrega_avaliadas"]
+        saida["cfr_entrega_censuradas"] = r["cfr_entrega_censuradas"]
+    return saida

@@ -1,6 +1,7 @@
 """Coleta dos commits entre releases consecutivas (endpoint compare)."""
 from urllib.parse import quote
 
+from pipeline import git_local
 from pipeline.http import NotFoundError
 from pipeline.store import load_or_build
 
@@ -34,7 +35,18 @@ def compare_commits(client, repo, base, head):
     return commits
 
 
-def collect_release_commits(client, repo, releases):
+def _commits_do_clone(repo_dir, base, head):
+    """Adapta o git local à mesma interface do `compare` da API.
+
+    Tag ausente no clone é o equivalente local do 404 da API (tag apagada ou
+    reescrita), e segue o mesmo tratamento: a release é registrada em `skipped`."""
+    for tag in (base, head):
+        if not git_local.tag_existe(repo_dir, tag):
+            raise NotFoundError(tag)
+    return git_local.commits_entre(repo_dir, base, head)
+
+
+def collect_release_commits(client, repo, releases, repo_dir=None):
     """Commits novos de cada release da janela, relativos à release anterior.
 
     `releases` vem de `pipeline.releases.collect_releases` (ordem cronológica,
@@ -59,7 +71,12 @@ def collect_release_commits(client, repo, releases):
             base = tag
             continue
         try:
-            commits = compare_commits(client, repo, base, tag) if rel["in_window"] else None
+            if not rel["in_window"]:
+                commits = None
+            elif repo_dir:
+                commits = _commits_do_clone(repo_dir, base, tag)
+            else:
+                commits = compare_commits(client, repo, base, tag)
         except NotFoundError:
             skipped.append({"tag": tag, "reason": "tag não encontrada (404)"})
             continue
@@ -70,9 +87,18 @@ def collect_release_commits(client, repo, releases):
     return out, skipped
 
 
-def collect_repo_commits(client, repo, releases, out_dir):
-    """Coleta e grava `out_dir/<owner>__<repo>.json`; pula se já existir (retomada)."""
+def collect_repo_commits(client, repo, releases, out_dir, clones_dir=None):
+    """Coleta e grava `out_dir/<owner>__<repo>.json`; pula se já existir (retomada).
+
+    Com `clones_dir`, os commits vêm de um clone local (rápido e sem teto de
+    10.000 commits); sem ele, do endpoint `compare` da API. A origem fica
+    registrada no JSON, porque as duas podem divergir em comparações muito
+    grandes e o artigo precisa dizer qual foi usada."""
     def build():
-        items, skipped = collect_release_commits(client, repo, releases)
-        return {"repo": repo, "releases": items, "skipped": skipped}
+        repo_dir = None
+        if clones_dir:
+            repo_dir = git_local.clonar(repo, clones_dir)
+        items, skipped = collect_release_commits(client, repo, releases, repo_dir)
+        return {"repo": repo, "fonte": "git" if repo_dir else "api",
+                "releases": items, "skipped": skipped}
     return load_or_build(out_dir, repo, build)

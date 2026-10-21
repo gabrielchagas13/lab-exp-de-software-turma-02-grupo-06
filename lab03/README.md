@@ -98,14 +98,36 @@ Os intervalos são configuráveis em `config.json`; aumente-os se a coleta conti
 
 Um 403 **sem** mensagem de rate limit (token sem permissão, repositório bloqueado) continua propagando como erro — não vira espera. Erros 5xx e de rede são repetidos com backoff exponencial (1 s, 2 s, 4 s, 8 s, 16 s).
 
-**Quanto tempo leva.** Com o ritmo padrão, ~100 repositórios levam da ordem de **2 a 3 horas**, e a amostra de 300+ da S02 passa de 6 h. É lento de propósito: o ritmo é a troca que evita o bloqueio. Como tudo é cacheado, dá para interromper com `Ctrl+C` e retomar depois. **Rode só uma instância por vez** — duas em paralelo somam requisições na mesma conta e disparam o limite secundário mesmo com o intervalo configurado.
+### Paralelismo (`workers`)
+Medindo a coleta com uma única thread, o pipeline usava só **20% da cota** (16 de 83 req/min disponíveis): as páginas de workflow runs são grandes e a coleta ficava ~80% do tempo parada esperando resposta. O gargalo era latência, não cota.
+
+Os 12 intervalos mensais de runs de um repositório são independentes, então são buscados em paralelo (`"workers": 4` no `config.json`). Isso **não aumenta as requisições por minuto**: o `GitHubClient` reserva os slots de ritmo **globalmente**, sob lock, então o teto continua sendo `60 / min_interval` ≈ 80 req/min independentemente do número de threads — o que muda é que o tempo ocioso de uma thread passa a ser usado por outra.
+
+O resultado é idêntico ao serial: a ordem dos meses é preservada na junção, a deduplicação por `id` é determinística, e `splits`/`capped_days` são acumulados por thread e mesclados no fim (um dicionário compartilhado perderia incrementos). Há teste comparando as duas saídas.
+
+Se mesmo assim o limite secundário disparar, baixe `workers` para 2 ou aumente `min_interval`.
+
+**Quanto tempo leva.** Com 4 workers e o ritmo padrão, a seleção roda a ~50-60 repositórios/hora; a amostra de 300 leva da ordem de **4 a 6 h** no total, contra ~27 h do caminho serial com `compare` via API. Como tudo é cacheado, dá para interromper com `Ctrl+C` e retomar depois. **Rode só uma instância por vez** — dois processos somam requisições na mesma conta sem compartilhar o limitador de ritmo, e aí sim o limite secundário dispara.
 
 ## Workflow runs
 `pipeline/runs.py` coleta runs do default branch com `event=push`, uma consulta por mês. Se um intervalo atinge o teto de 1.000 resultados da API, ele é dividido ao meio recursivamente. Os casos que ainda estouram (um único dia) ficam em `capped_days` no JSON do repositório.
 
 ## Releases e commits
 - `pipeline/releases.py`: releases não-rascunho (pré-releases marcadas em `prerelease`) e tags, com paginação via header `Link`. As releases anteriores à janela ficam no JSON com `in_window=false`, porque servem de base para a primeira release da janela.
-- `pipeline/commits.py`: `compare/{base}...{head}` entre releases consecutivas da definição principal (pré-releases são puladas e não servem de base), paginado com `per_page`/`page` (funciona com mais de 250 commits). Se uma tag foi apagada (404), a release vai para `skipped`, é ignorada, e a próxima usa a última release válida como base.
+- `pipeline/commits.py`: commits entre releases consecutivas da definição principal (pré-releases são puladas e não servem de base). Se uma tag foi apagada, a release vai para `skipped`, é ignorada, e a próxima usa a última release válida como base.
+
+### Commits via clone local (padrão)
+Por padrão os commits vêm de um **clone local** (`pipeline/git_local.py`), não do endpoint `compare`. Desligue com `"use_git_clones": false` no `config.json` para voltar ao caminho da API; o JSON de cada repositório registra a origem no campo `fonte` (`git` ou `api`).
+
+**Por que:** na coleta de 100 repositórios, o `compare` foi ~75% de todo o tráfego (≈22.000 de 29.276 chamadas). O `frappe/erpnext` sozinho custou ~5.600 chamadas e 1h23, porque mantém v14/v15/v16 em paralelo e o `compare` entre releases de ramos diferentes varre a divergência inteira, paginada de 100 em 100. Um clone `--bare --filter=tree:0` baixa só objetos de commit: o mesmo `erpnext` leva **17 s e 42 MB**, e daí em diante `git log base..head` responde localmente.
+
+**Também é mais correto.** O `compare` **trunca em 10.000 commits**. Na validação contra os dados já coletados do `erpnext`, 134 dos 184 pares bateram exatamente e os 50 divergentes eram todos casos em que a API parou em 10.000, com o conjunto dela contido no do git. Para essas releases, o "commit mais antigo" da variante (a) do lead time (RQ 02) estava errado.
+
+**Equivalência.** `GET /compare/base...head` devolve os commits alcançáveis de `head` e não de `base`, a partir do merge base — exatamente `git log base..head`. Verificado em `tests/test_git_local.py` e contra os dados reais: em 5 repositórios (120 releases, 2.567 commits) os conjuntos de SHA bateram 120/120.
+
+**Custos.** ~4 MB por repositório na mediana (o maior da amostra, `erpnext`, 42 MB), ou seja **1 a 4,5 GB** para 300 repositórios em `data/clones/` — ignorado pelo git. Requer `git` no PATH; sem ele o pipeline avisa e usa a API.
+
+Os **workflow runs** e as **releases** continuam vindo da API: não existem no clone, porque são recursos do GitHub e não do git. São eles que fixam o piso de tempo da coleta.
 
 ## Métricas (`metricas/`)
 - `cfr.py`: classificação de `conclusion` e CFR (a), proxy de CI.

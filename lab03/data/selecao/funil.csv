@@ -1,9 +1,9 @@
 etapa,restantes,descartados,motivo
 candidatos (busca),4511,0,
-fork_ou_arquivado,4475,36,fork ou arquivado
-sem_push_na_janela,4346,129,sem push durante a janela
-inacessivel,4346,0,erro ao acessar a API (404/451...)
-sem_actions,4304,42,não usa GitHub Actions (0 workflows)
-poucas_releases,4162,142,menos releases que o mínimo na janela
-poucos_runs,4141,21,menos workflow runs válidos que o mínimo na janela
-amostra_final,100,4041,não avaliados: amostra já completa
+fork_ou_arquivado,4407,104,fork ou arquivado
+sem_push_na_janela,4092,315,sem push durante a janela
+inacessivel,4092,0,erro ao acessar a API (404/451...)
+sem_actions,3985,107,não usa GitHub Actions (0 workflows)
+poucas_releases,3559,426,menos releases que o mínimo na janela
+poucos_runs,3492,67,menos workflow runs válidos que o mínimo na janela
+amostra_final,300,3192,não avaliados: amostra já completa

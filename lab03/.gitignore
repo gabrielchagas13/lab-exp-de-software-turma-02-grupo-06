@@ -15,3 +15,8 @@ data_smoke/
 data/runs/
 data/releases/
 data/commits/
+data/clones/
+
+# Backup da coleta bruta: passa do limite de 100 MB por arquivo do GitHub.
+# Para guardar, use um asset de Release ou um HD externo, nunca o repositorio.
+*.zip
