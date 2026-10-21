@@ -232,3 +232,20 @@ datas = pd.read_parquet("data/parquet/commits.parquet", columns=["repo", "author
 pytest --cov=metricas --cov=pipeline --cov-report=term-missing
 ```
 O CI (`.github/workflows/testes.yml`) roda os testes a cada push, exigindo ≥ 80% de cobertura do módulo `metricas`.
+
+## Análise de sensibilidade (RQ 07)
+```bash
+python -m analise.rq07 --config config.json
+```
+Compara cinco combinações de definições (unidade de deploy, lead time e CFR) por % de repositórios que mudam de categoria DORA e kappa linear ponderado. Saídas em `data/analise/rq07_*.csv`; resultados e discussão em `docs/resultados_rq07.md`.
+
+## Rework rate (RQ 08, bônus)
+```bash
+python -m analise.rq08 --config config.json
+```
+Proporção de releases corretivas sobre o total, nas quatro versões da heurística, comparada ao CFR (b). Saídas em `data/analise/rq08_*.csv`; resultados em `docs/resultados_rq08.md`.
+
+## Relatório em HTML
+```bash
+python -m scripts.gerar_relatorio_html --config config.json   # gera docs/index.html
+```

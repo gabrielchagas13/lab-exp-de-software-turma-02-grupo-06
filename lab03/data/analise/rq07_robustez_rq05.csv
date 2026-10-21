@@ -1,0 +1,6 @@
+combinacao,unidade,cfr,n,rho,p_valor
+C1,release,(a),300,0.178,0.001984934421674063
+C2,release + pré-release,(b) v2,300,0.691,6.455551758219995e-44
+C3,release,(a),300,0.178,0.001984934421674063
+C4,release,(b) v2,300,0.715,3.665289897075237e-48
+C5,release + pré-release,(a),300,0.176,0.002231379970260927
