@@ -1,0 +1,5 @@
+versao,n,rework_mediana,rework_q1,rework_q3,cfr_b_mediana,cfr_b_q1,cfr_b_q3,mediana_da_diferenca,pct_rework_maior,pct_rework_menor,spearman_rework_cfr_b,p_valor,spearman_freq_rework,spearman_freq_cfr_b
+v1_semver,300,0.6667,0.4286,0.8857,0.375,0.125,0.6398,0.1934,70.7,18.7,0.471,5.6490741702582166e-18,0.147,0.713
+v2_semver_ou_nome,300,0.6667,0.4371,0.8889,0.375,0.125,0.6415,0.1978,71.0,18.3,0.473,4.057718612882899e-18,0.15,0.715
+v3_commits,300,0.1461,0.0294,0.3244,0.1076,0.0,0.3164,0.0,35.7,34.0,0.682,1.9229358330024813e-42,0.261,0.635
+v4_combinada,300,0.7124,0.469,0.903,0.4045,0.1429,0.662,0.2143,75.0,19.0,0.41,1.363477292806721e-13,0.203,0.768
