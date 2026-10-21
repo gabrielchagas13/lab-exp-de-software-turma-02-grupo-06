@@ -121,8 +121,9 @@ def test_vinculo_permite_reconstruir_a_lista_por_release(data_dir):
 def test_exportar_grava_todas_as_tabelas(data_dir):
     resumo = exportar(data_dir)
     nomes = {r["tabela"] for r in resumo}
-    assert nomes == {"runs", "runs_coleta", "releases", "tags",
-                     "commits", "release_commits", "commits_coleta", "releases_puladas"}
+    assert nomes == {"runs", "runs_coleta", "releases", "tags", "releases_coleta",
+                     "commits", "release_commits", "comparacoes", "commits_coleta",
+                     "releases_puladas"}
     for r in resumo:
         caminho = os.path.join(data_dir, "parquet", f"{r['tabela']}.parquet")
         assert os.path.exists(caminho), r["tabela"]

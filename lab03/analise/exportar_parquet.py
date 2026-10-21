@@ -67,13 +67,20 @@ def tabelas_runs(data_dir):
 
 
 def tabelas_releases(data_dir):
-    """releases (com o `body` completo) e as tags, usadas na variante C3 da RQ 07."""
-    releases, tags = [], []
+    """releases (com o `body` completo) e as tags, usadas na variante C3 da RQ 07.
+
+    `releases_coleta` lista TODOS os repositórios visitados, inclusive os que
+    não têm nenhuma release — sem ela, a reconstrução não recria o JSON desses
+    e o pipeline acharia que precisa recoletá-los."""
+    releases, tags, coleta = [], [], []
     for d in _ler_json(os.path.join(data_dir, "releases")):
         repo = d["repo"]
+        coleta.append({"repo": repo, "n_releases": len(d.get("releases", [])),
+                       "n_tags": len(d.get("tags", []))})
         releases.extend({"repo": repo, **r} for r in d.get("releases", []))
         tags.extend({"repo": repo, **t} for t in d.get("tags", []))
-    return {"releases": pd.DataFrame(releases), "tags": pd.DataFrame(tags)}
+    return {"releases": pd.DataFrame(releases), "tags": pd.DataFrame(tags),
+            "releases_coleta": pd.DataFrame(coleta)}
 
 
 def tabelas_commits(data_dir):
@@ -81,10 +88,15 @@ def tabelas_commits(data_dir):
 
     - `commits`: um commit por (repo, sha), com data e mensagem.
     - `release_commits`: quais commits entram em cada release (só as chaves).
+    - `comparacoes`: uma linha por comparação release-a-release, com
+      `published_at` e a contagem de commits. É o que permite reconstruir
+      **releases sem nenhum commit novo** — elas não geram linha em
+      `release_commits` e sumiriam na volta (o enunciado lista esse caso de
+      borda explicitamente).
     - `commits_coleta`: procedência (`git` ou `api`) e releases puladas, com o
       motivo — primeira release do histórico ou tag apagada.
     """
-    vinculo, conteudo, coleta = [], {}, []
+    vinculo, conteudo, coleta, comparacoes = [], {}, [], []
     for d in _ler_json(os.path.join(data_dir, "commits")):
         repo = d["repo"]
         coleta.append({"repo": repo, "fonte": d.get("fonte"),
@@ -92,6 +104,10 @@ def tabelas_commits(data_dir):
         for pulada in d.get("skipped") or []:
             coleta[-1].setdefault("_puladas", []).append(pulada)
         for rel in d.get("releases", []):
+            comparacoes.append({"repo": repo, "tag": rel["tag"],
+                                "base_tag": rel["base_tag"],
+                                "published_at": rel.get("published_at"),
+                                "n_commits": len(rel["commits"])})
             for c in rel["commits"]:
                 vinculo.append({"repo": repo, "tag": rel["tag"],
                                 "base_tag": rel["base_tag"], "sha": c["sha"]})
@@ -103,6 +119,7 @@ def tabelas_commits(data_dir):
                for c in coleta for p in c.pop("_puladas", [])]
     return {"commits": pd.DataFrame(list(conteudo.values())),
             "release_commits": pd.DataFrame(vinculo),
+            "comparacoes": pd.DataFrame(comparacoes),
             "commits_coleta": pd.DataFrame(coleta),
             "releases_puladas": pd.DataFrame(puladas)}
 
