@@ -328,6 +328,7 @@ atinge F1 ≥ 0,70, de forma otimista (F1 = {n(melhor.f1, 3)}; ver seção 2). A
   <p class="sobre">Laboratório de Experimentação de Software · Lab03 · Grupo 06 · PUC Minas</p>
   <h1>Métricas DORA em repositórios populares do GitHub</h1>
   <p class="autores">Gabriel Chagas · Guilherme Lana · Marcus Vinicius</p>
+  <p class="meta">PUC Minas, Engenharia de Software · Belo Horizonte, MG</p>
   <p class="meta">{N} repositórios · janela de {esc(inicio)} a {esc(fim)} ·
   <span class="selo">versão de trabalho</span></p>
 </header>
@@ -337,7 +338,7 @@ atinge F1 ≥ 0,70, de forma otimista (F1 = {n(melhor.f1, 3)}; ver seção 2). A
   <a href="#resumo">Resumo</a><a href="#introducao">Introdução</a>
   <a href="#metodologia">Metodologia</a><a href="#resultados">Resultados</a>
   <a href="#sensibilidade">Sensibilidade (RQ 07)</a><a href="#rq08">Bônus (RQ 08)</a><a href="#discussao">Discussão</a>
-  <a href="#ameacas">Ameaças</a><a href="#replicacao">Replicação</a>
+  <a href="#ameacas">Ameaças</a><a href="#replicacao">Replicação</a><a href="#conclusao">Conclusão</a>
   <a href="#referencias">Referências</a>
 </nav>
 
@@ -350,8 +351,10 @@ a mediana é de {n(freq, 2)} releases por semana e de {n(ltr / 24)} dias de lead
 {pct(g.loc['change_failure_rate', 'pct_elite_ou_high'] / 100)} dos repositórios ficam em Elite ou High na taxa de falha
 medida pelo CI. A classificação, porém, <strong>não é robusta à definição operacional</strong>: trocar as
 definições de referência (C1) por outras igualmente plausíveis muda a categoria geral de
-{n(par('C1', 'C2', 'pct_mudou'), 0)}% dos repositórios (kappa linear {n(par('C1', 'C2', 'kappa_linear'), 2)}),
-e a taxa de falha é o eixo que mais pesa.</p>
+{n(par('C1', 'C2', 'pct_mudou'), 1)}% dos repositórios (kappa linear {n(par('C1', 'C2', 'kappa_linear'), 2)}),
+e a taxa de falha é o eixo que mais pesa: a mediana do CFR é {pct(ds.cfr_ci.median())} medida pelo CI e
+{pct(ds.cfr_entrega_v2_semver_ou_nome.median())} medida pela entrega (release seguida de uma corretiva). A validação manual
+mostrou que "release corretiva" é um critério ambíguo (kappa de Fleiss = {n(kap[kap.dimensao == "corretiva"].kappa.iloc[0], 2)}).</p>
 <p>Velocidade e estabilidade <strong>não andam juntas</strong> nesta amostra: a frequência de deploy tem correlação
 positiva com o CFR (a) (ρ = {n(rho_a, 2)}) e forte com o CFR (b) (ρ de {n(rho_b.min(), 2)} a {n(rho_b.max(), 2)}), o oposto
 do que o DORA sugere (RQ 05). A <strong>idade</strong> do repositório é o fator mais associado ao desempenho: {len(sig)} dos
@@ -377,6 +380,7 @@ definição da métrica muda</strong> (RQ 07).</p>
 <li><strong>RQ 05.</strong> Repositórios com maior frequência de deploy têm maior ou menor taxa de falha?</li>
 <li><strong>RQ 06.</strong> Que características dos repositórios se associam a melhor desempenho DORA?</li>
 <li><strong>RQ 07.</strong> O quanto a classificação DORA depende da definição operacional escolhida?</li>
+<li><strong>RQ 08 (bônus).</strong> Qual a <em>rework rate</em> e em que ela difere do CFR (b)?</li>
 </ol>
 {pendente("hipóteses informais por RQ (issue #62, fechada): o texto não está no repositório; colar aqui.")}
 </section>
@@ -388,7 +392,7 @@ definição da métrica muda</strong> (RQ 07).</p>
 resposta é guardada em cache, e a coleta pode ser interrompida e retomada. O cliente respeita o limite por
 hora e a proteção contra rajadas. Por repositório coletam-se: metadados e contribuidores; <em>workflow runs</em>
 disparados por <code>push</code> no <em>default branch</em>; releases não-rascunho e tags; e os commits entre
-releases consecutivas.</p>
+releases consecutivas, obtidos por clone local (sem o teto de commits do <code>compare</code>).</p>
 <h3>Seleção e funil</h3>
 <p>Os candidatos vêm de buscas por faixa de estrelas (a API limita cada busca a 1.000 resultados), são unidos,
 ordenados e embaralhados com semente fixa (42) e avaliados até completar {N} repositórios. Cada candidato sai no
@@ -545,38 +549,57 @@ semver as trata como correção); isto é uma hipótese não testada.</p>
 
 {SECAO_R8}<section id="discussao">
 <h2>6. Discussão</h2>
+<p><strong>Os proxies discordam, e isso muda a conclusão.</strong> O CFR é a métrica em que a escolha da definição mais
+pesa: o mesmo repositório é "Elite" pelo CI e "Medium" pela entrega. Isso reforça a leitura de que os proxies medem
+fenômenos diferentes (falha de pipeline contra correção que chegou ao usuário) e de que resultados em categorias DORA
+só fazem sentido acompanhados da definição usada.</p>
+<p><strong>Velocidade e estabilidade não andam juntas, mas parte disso é efeito da definição.</strong> O DORA afirma que
+as equipes de melhor desempenho vão bem nas duas dimensões. Aqui a frequência de deploy tem correlação positiva com a
+taxa de falha. Duas leituras convivem. A primeira é substantiva: projetos que publicam muito podem mudar mais e quebrar
+mais. A segunda é mecânica: o CFR (b) conta a release seguida de uma corretiva em até 7 dias, e quem publica com
+frequência tem mais chance de ter a próxima release dentro desse prazo, e a heurística conta todo <em>patch</em> como
+correção. O rework, que não depende do ritmo de releases, correlaciona pouco com a frequência, o que favorece a leitura
+mecânica. Correlação, de qualquer forma, não implica causalidade.</p>
+<p><strong>Idade é o fator mais associado, e é também um fator de confusão.</strong> Projetos mais novos publicam mais,
+têm lead time menor e mais releases corretivas. Projetos antigos publicam menos e acumulam commits antigos, o que
+alonga o lead time (a), que usa o commit mais antigo da release.</p>
+<p><strong>O critério de "corretiva" é ambíguo.</strong> O kappa de {n(kap[kap.dimensao == "corretiva"].kappa.iloc[0], 2)} e a
+divergência de um avaliador mostram que a própria definição precisa de refinamento antes de ser automatizada. Isso
+limita o F1 alcançável.</p>
+<h3>Robustez por questão de pesquisa</h3>
 <ul>
 <li><strong>RQ 01:</strong> a conclusão é robusta; contar pré-releases move poucas categorias de frequência.</li>
 <li><strong>RQ 02:</strong> o lead time de dias, não de horas, vale nas duas variantes, mas a categoria muda para
 parte dos repositórios conforme (a) ou (b).</li>
 <li><strong>RQ 03:</strong> depende totalmente da definição. Resultados de estabilidade devem apresentar as duas
 variantes de CFR lado a lado, nunca só uma.</li>
+<li><strong>RQ 05:</strong> o sinal (positivo) é robusto, a magnitude não.</li>
 <li><strong>Em geral:</strong> a classificação DORA não é robusta à definição operacional, e toda categoria deve ser
 reportada junto com a combinação que a produziu.</li>
 </ul>
-{pendente("discussão das RQ 04 a 06 e da relação com a literatura, após as análises restantes.")}
+{pendente("comparação com as hipóteses informais do grupo (o que se esperava, o que surpreendeu e por quê): depende das hipóteses originais da issue #62.")}
 </section>
 
 <section id="ameacas">
 <h2>7. Ameaças à validade</h2>
-<p>Pontos já identificados (rascunho; a seção final é dos três integrantes):</p>
+<p>Rascunho; a seção final é dos três integrantes.</p>
 <ul>
-<li><strong>Construto:</strong> release publicada é proxy de deploy e CI vermelho é proxy de falha; o segundo
-subestima sistematicamente a instabilidade.</li>
-<li><strong>Datas dos commits:</strong> <code>author_date</code> é distorcida por rebase e squash merge; commits com data
-posterior à release contam como 0 h.</li>
-<li><strong>Heurística corretiva:</strong> só a v5 atinge a meta de F1 (F1 = {n(melhor.f1, 3)}), e foi escolhida olhando a própria
-amostra; nas 33 releases fora da escolha o F1 foi 0,65. O CFR (b) e o rework têm, por isso, erro relevante, e o CFR (b)
-pode estar correlacionado com a frequência de deploy por construção.</li>
-<li><strong>Amostra-ouro:</strong> o kappa de Fleiss é razoável (≈ 0,3) em duas das três dimensões, com um avaliador bem
-mais permissivo que os outros dois (que concordam entre si em 93,7%).</li>
-<li><strong>Censura:</strong> releases dos últimos 7 dias ficam fora do CFR (b) e episódios de falha sem
-recuperação são censurados; ignorá-los faria os repositórios parecerem melhores.</li>
-<li><strong>Amostra:</strong> repositórios populares com Actions e releases regulares; não representa projetos
-privados nem os que publicam sem releases do GitHub.</li>
-<li><strong>Tags e pré-releases:</strong> tags não foram usadas como unidade de deploy (a API não traz data e não
-foram coletados commits entre tags); pré-releases só afetam a frequência na RQ 07.</li>
-<li><strong>Dados mudam:</strong> os repositórios seguem recebendo commits; a data de coleta afeta a replicação.</li>
+<li><strong>Construto:</strong> release publicada não é deploy, e CI vermelho não é falha em produção: o segundo proxy
+subestima sistematicamente a instabilidade. A <code>author_date</code> é distorcida por rebase e squash merge, e commits
+com data posterior à release contam como 0 h. A heurística corretiva tem erro relevante: nenhuma versão v1 a v4 atinge
+F1 de 0,70, a v5 (F1 = {n(melhor.f1, 3)}) foi escolhida olhando a própria amostra (nas 33 releases fora da escolha o F1 foi
+0,65), e o CFR (b) pode estar correlacionado com a frequência de deploy por construção. Tags não foram usadas como
+unidade de deploy (a API não traz data e não foram coletados commits entre tags).</li>
+<li><strong>Interna:</strong> repositórios mais antigos acumulam mais releases e commits antigos, e a idade se associa a
+várias métricas (RQ 06). O tipo do projeto, que seria um quinto fator, não entrou na análise.</li>
+<li><strong>Externa:</strong> repositórios populares com Actions e releases regulares; não representa projetos privados
+nem os que publicam sem releases do GitHub. A janela é de 12 meses, e os repositórios seguem recebendo commits, o que
+afeta a replicação.</li>
+<li><strong>Conclusão:</strong> são 36 testes no RQ 06, corrigidos por Holm, e alguns grupos têm poucos repositórios
+(linguagens raras). A amostra-ouro tem 300 releases de 60 repositórios, e o kappa de Fleiss é razoável (≈ 0,3) em duas
+das três dimensões, com um avaliador bem mais permissivo que os outros dois (que concordam entre si em 93,7%). A censura
+foi tratada (releases dos últimos 7 dias ficam fora do CFR (b)), mas episódios de falha sem recuperação reduzem o tempo de
+recuperação medido.</li>
 </ul>
 </section>
 
@@ -585,12 +608,28 @@ foram coletados commits entre tags); pré-releases só afetam a frequência na R
 {pendente("execução do pipeline de outro grupo, comparação com o CSV original e resposta às Issues recebidas (entrega final).")}
 </section>
 
+<section id="conclusao">
+<h2>9. Conclusão</h2>
+<p>Medimos as métricas DORA em {N} repositórios populares e mostramos que o valor da métrica depende mais da definição
+operacional do que se poderia esperar. A taxa de falha varia quase uma ordem de grandeza entre os dois proxies, e
+{n(par('C1', 'C2', 'pct_mudou'), 1)}% dos repositórios mudam de categoria quando as definições mudam. A frequência de deploy
+não se associa a menos falhas, e a idade é o fator mais ligado ao desempenho. A validação manual mostrou que a
+classificação de release corretiva é ambígua e que a heurística automática tem desempenho limitado. Como trabalho futuro:
+refinar o critério de "release corretiva" com mais avaliadores, usar tags como unidade de deploy e aplicar a v5 ao
+conjunto de dados.</p>
+<p>Código, dados e resultados: <a href="https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06">repositório do grupo</a>;
+processo: <a href="https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/projects">GitHub Projects</a>.</p>
+</section>
+
 <section id="referencias">
 <h2>Referências</h2>
 <ol class="refs">
 <li id="r1">Forsgren, N.; Humble, J.; Kim, G. <em>Accelerate: The Science of Lean Software and DevOps</em>. IT Revolution, 2018.</li>
-<li id="r2">DORA. <em>A history of DORA's software delivery metrics</em>. <a href="https://dora.dev/insights/dora-metrics-history/">dora.dev/insights/dora-metrics-history</a>.</li>
-<li id="r3">Landis, J. R.; Koch, G. G. The measurement of observer agreement for categorical data. <em>Biometrics</em>, 1977.</li>
+<li id="r2">DORA. <em>DORA's software delivery metrics: the four keys</em>. <a href="https://dora.dev/guides/dora-metrics-four-keys/">dora.dev/guides/dora-metrics-four-keys</a>.</li>
+<li id="r3">Wohlin, C. et al. <em>Experimentation in Software Engineering</em>. Springer, 2012.</li>
+<li id="r4">Romano, J.; Kromrey, J. D.; Coraggio, J.; Skowronek, J. Appropriate statistics for ordinal level data. 2006.</li>
+<li id="r5">Landis, J. R.; Koch, G. G. The measurement of observer agreement for categorical data. <em>Biometrics</em>, 33(1):159–174, 1977.</li>
+<li id="r6">Preston-Werner, T. <em>Versionamento Semântico 2.0.0</em>. <a href="https://semver.org/lang/pt-BR/">semver.org</a>.</li>
 </ol>
 </section>
 </main>
