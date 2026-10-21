@@ -4,3 +4,4 @@ pandas
 scipy
 statsmodels
 scikit-learn
+pyarrow

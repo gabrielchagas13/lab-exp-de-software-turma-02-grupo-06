@@ -194,6 +194,39 @@ python -m scripts.tabelas_metodologia --config config.json
 ```
 Gera, a partir dos dados, as tabelas da Metodologia em `docs/tabelas/` (`.md` e `.tex`): funil de seleção, definições operacionais e variantes (com quantos repositórios têm valor em cada coluna) e protocolo da amostra-ouro. As versões Markdown são escritas em `docs/relatorio.md` entre os marcadores `<!-- tabela:... -->`; rode de novo depois de cada coleta.
 
+## Dados brutos em Parquet (`data/parquet/`)
+Os JSON por repositório em `data/{runs,releases,commits}` somam ~1,45 GB e não cabem no git (limite de 100 MB **por arquivo**). O mesmo conteúdo, **sem perder nenhum campo**, é exportado para Parquet e versionado:
+
+```bash
+python -m analise.exportar_parquet --config config.json
+```
+
+| Tabela | Linhas | Tamanho | Conteúdo |
+|---|---|---|---|
+| `release_commits` | 2.896.721 | 51,5 MB | quais commits entram em cada release (`repo`, `tag`, `base_tag`, `sha`) |
+| `commits` | 911.421 | 48,7 MB | um commit por `(repo, sha)`: data do autor, do committer e mensagem |
+| `releases` | 80.070 | 39,8 MB | releases com `body` (release notes) completo |
+| `runs` | 2.115.418 | 21,2 MB | workflow runs com `conclusion`, `run_started_at`, `updated_at` |
+| `tags` | 165.970 | 3,1 MB | tags e seus commits — unidade de deploy da variante C3 (RQ 07) |
+| `runs_coleta` | 302 | — | `branch`, `splits` e `capped_days` por repositório |
+| `commits_coleta` | 300 | — | procedência dos commits (`git` ou `api`) |
+| `releases_puladas` | 54 | — | releases sem lead time e o motivo |
+| **Total** | | **164,3 MB** | maior arquivo: 51,5 MB |
+
+**Por que encolhe ~9x.** Parquet é colunar e usa dicionário para valores repetidos: `conclusion` tem três valores possíveis em 2,1 milhões de linhas. Além disso os commits são **normalizados** — o mesmo commit aparece em várias comparações release-a-release (2,9 milhões de linhas para 911 mil commits distintos, efeito dos `compare` que cruzam linhas de versão), então o conteúdo é guardado uma vez e o vínculo fica à parte. Nada se perde: `release_commits ⋈ commits` reconstrói o formato original, e há teste garantindo isso.
+
+**Nada foi truncado.** O `sha` é o completo de 40 caracteres e o `body` das releases vai inteiro — ele é o que o avaliador da amostra-ouro precisa ler (seção 6) e o sinal mais óbvio para refinar a heurística de release corretiva se o F1 não atingir 0,70.
+
+Leitura de volta, inclusive só das colunas necessárias:
+
+```python
+import pandas as pd
+runs = pd.read_parquet("data/parquet/runs.parquet")
+datas = pd.read_parquet("data/parquet/commits.parquet", columns=["repo", "author_date"])
+```
+
+> **Isto é exportação, não substituição.** Os JSON em `data/{runs,releases,commits}` continuam sendo o que o pipeline lê para retomar a coleta (`load_or_build`), e estão no `.gitignore`. Apagá-los achando que o Parquet os substitui faz a próxima execução recoletar tudo da API — horas de coleta. Rode `exportar_parquet` de novo sempre que a coleta mudar.
+
 ## Testes
 ```bash
 pytest --cov=metricas --cov=pipeline --cov-report=term-missing
