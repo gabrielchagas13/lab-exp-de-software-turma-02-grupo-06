@@ -229,8 +229,84 @@ def test_ritmo_minimo_entre_requisicoes(tmp_path):
 
 
 def test_busca_usa_intervalo_maior_que_o_core(tmp_path):
-    client, _, sleeps = make(tmp_path, FakeResp({"items": []}),
+    client, _, sleeps = make(tmp_path, FakeResp({"items": []}), FakeResp({"items": [1]}),
                              now=lambda: 1000, min_interval=0.75, search_interval=2.1)
-    client._last_request = 1000.0   # requisição imediatamente anterior
-    client.get("/search/repositories", {"q": "x"})
-    assert sleeps == [2.1]
+    # Duas chamadas seguidas com o relógio parado: a primeira sai na hora e a
+    # segunda espera o intervalo do recurso. /search tem cota de 30/min, então
+    # o intervalo dele é maior que o dos endpoints normais.
+    client.get("/search/repositories", {"q": "a"})
+    client.get("/search/repositories", {"q": "b"})
+    assert [round(x, 4) for x in sleeps] == [2.1]
+
+
+def test_core_usa_o_intervalo_menor(tmp_path):
+    client, _, sleeps = make(tmp_path, FakeResp({"a": 1}), FakeResp({"b": 2}),
+                             now=lambda: 1000, min_interval=0.75, search_interval=2.1)
+    client.get("/repos/o/r")
+    client.get("/repos/o/s")
+    assert [round(x, 4) for x in sleeps] == [0.75]
+
+
+def test_ritmo_global_nao_muda_com_varias_threads(tmp_path):
+    """Com N threads o ritmo total tem que continuar 1 requisição por intervalo.
+
+    Se cada thread medisse o próprio intervalo, 4 threads fariam 4x mais
+    requisições por minuto e estourariam a cota — que é exatamente o padrão de
+    rajada que dispara o limite secundário."""
+    import threading as _t
+    respostas = [FakeResp({"i": i}) for i in range(8)]
+    client, _, sleeps = make(tmp_path, *respostas, now=lambda: 1000, min_interval=0.75)
+    erros = []
+
+    def puxar(i):
+        try:
+            client.get(f"/repos/o/r{i}")
+        except Exception as exc:  # noqa: BLE001 - o teste reporta qualquer falha
+            erros.append(exc)
+
+    threads = [_t.Thread(target=puxar, args=(i,)) for i in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert not erros, erros
+    # 8 requisições, relógio parado: a 1ª sai livre e as 7 seguintes esperam
+    # slots acumulados de 0,75 em 0,75.
+    assert sorted(round(s, 2) for s in sleeps) == [0.75, 1.5, 2.25, 3.0, 3.75, 4.5, 5.25]
+
+
+# ---- falhas de transporte que nao herdam de OSError ----
+
+def test_resposta_truncada_e_repetida(tmp_path):
+    """IncompleteRead herda de HTTPException, nao de OSError/URLError.
+
+    Respostas de workflow runs passam de 3 MB e truncam com alguma frequencia
+    quando ha varias conexoes simultaneas. Antes isso escapava do retry e
+    derrubava a coleta inteira.
+    """
+    import http.client
+    truncada = http.client.IncompleteRead(b"x" * 10, 500)
+    client, opener, sleeps = make(tmp_path, truncada, FakeResp({"ok": 1}))
+    assert client.get("/x")[0] == {"ok": 1}
+    assert sleeps == [1] and len(opener.calls) == 2
+
+
+def test_conexao_derrubada_pelo_servidor_e_repetida(tmp_path):
+    import http.client
+    client, _, sleeps = make(tmp_path, http.client.RemoteDisconnected("fechou"),
+                             FakeResp({"ok": 1}))
+    assert client.get("/x")[0] == {"ok": 1}
+    assert sleeps == [1]
+
+
+def test_http_error_nao_cai_no_retry_de_transporte(tmp_path):
+    """HTTPError tambem e subclasse de OSError; a ordem dos except importa.
+
+    Se o except de transporte viesse antes, um 404 viraria 7 tentativas de
+    backoff em vez de NotFoundError imediato.
+    """
+    client, opener, sleeps = make(tmp_path, http_error(404))
+    with pytest.raises(NotFoundError):
+        client.get("/x")
+    assert sleeps == [] and len(opener.calls) == 1

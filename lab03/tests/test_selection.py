@@ -242,3 +242,27 @@ def test_select_repositories_avisa_amostra_incompleta(tmp_path):
 def test_defaults_seguem_a_especificacao():
     assert selection.DEFAULTS["min_releases"] == 5
     assert selection.DEFAULTS["min_runs"] == 50
+
+
+def test_falha_transitoria_descarta_o_repo_sem_derrubar_a_coleta(tmp_path):
+    """Uma URL que esgota as tentativas não pode matar uma coleta de horas.
+
+    O `_request` levanta RuntimeError quando o backoff acaba (5xx ou queda de
+    rede). Antes isso subia até o main e encerrava o processo no meio da
+    seleção; agora o candidato vira `inacessivel` no funil e a coleta segue.
+    """
+    class ClienteQueFalha:
+        def get(self, path, params=None):
+            if "actions/workflows" in path:
+                return {"total_count": 3}, {}
+            raise RuntimeError("falha após 7 tentativas: .../actions/runs?page=2")
+
+        def get_pages(self, path, params=None):
+            raise RuntimeError("falha após 7 tentativas")
+
+    item = {"full_name": "o/r", "default_branch": "main", "fork": False,
+            "archived": False, "pushed_at": "2026-05-01T00:00:00Z"}
+    cfg = {"min_releases": 5, "min_runs": 50}
+    status, _ = evaluate(ClienteQueFalha(), item, date(2025, 10, 1), date(2026, 9, 30),
+                         cfg, str(tmp_path))
+    assert status == "inacessivel"

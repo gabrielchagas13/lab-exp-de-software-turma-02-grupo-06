@@ -82,3 +82,71 @@ def test_collect_repo_grava_e_retoma_sem_chamar_api(tmp_path):
     again = collect_repo(client, "o/r", "main", date(2026, 1, 1), date(2026, 1, 31), str(tmp_path))
     assert again == first and len(client.queries) == n
     assert json.loads((tmp_path / "o__r.json").read_text())["repo"] == "o/r"
+
+
+# ---- paralelismo por intervalo mensal ----
+
+def _cliente_12_meses():
+    """Cada mês devolve uma run distinta, mais uma repetida entre meses."""
+    def total(lo, hi):
+        return 5
+
+    def runs(lo, hi):
+        return [raw(lo.month * 100), raw(999)]  # 999 aparece em todos os meses
+    return FakeClient(total, runs)
+
+
+def test_paralelo_devolve_o_mesmo_que_serial():
+    """Paralelizar não pode mudar o dado coletado — só o tempo de coleta."""
+    inicio, fim = date(2025, 10, 1), date(2026, 9, 30)
+    serial, st_s = collect_runs(_cliente_12_meses(), "o/r", "main", inicio, fim, workers=1)
+    paralelo, st_p = collect_runs(_cliente_12_meses(), "o/r", "main", inicio, fim, workers=4)
+    assert serial == paralelo
+    assert st_s == st_p
+
+
+def test_paralelo_consulta_todos_os_meses():
+    inicio, fim = date(2025, 10, 1), date(2026, 9, 30)
+    cli = _cliente_12_meses()
+    collect_runs(cli, "o/r", "main", inicio, fim, workers=4)
+    assert len(set(cli.queries)) == 12
+
+
+def test_stats_somam_corretamente_em_paralelo():
+    """`splits` e `capped_days` são acumulados por thread e mesclados no fim;
+    um dicionário compartilhado perderia incrementos."""
+    inicio, fim = date(2026, 1, 1), date(2026, 3, 31)
+
+    def total(lo, hi):
+        return 1000 if lo == hi else 1000  # sempre no teto: força divisão até o dia
+
+    cli = FakeClient(total, lambda lo, hi: [])
+    _, st_serial = collect_runs(cli, "o/r", "main", inicio, fim, workers=1)
+    cli2 = FakeClient(total, lambda lo, hi: [])
+    _, st_par = collect_runs(cli2, "o/r", "main", inicio, fim, workers=4)
+    assert st_serial["splits"] == st_par["splits"] > 0
+    assert sorted(st_serial["capped_days"]) == sorted(st_par["capped_days"])
+
+
+def test_campos_crus_sao_descartados_na_entrada():
+    """O objeto cru da API (~8 KB) nao pode ser acumulado ate o fim da coleta.
+
+    Guardar o cru e so filtrar em collect_runs fazia a memoria explodir em
+    repositorios com centenas de milhares de runs (16 GB observados com 3
+    threads). O filtro tem que acontecer assim que a pagina chega.
+    """
+    from pipeline.runs import KEEP_FIELDS, _fetch_range
+    cli = FakeClient(lambda lo, hi: 2, lambda lo, hi: [raw(1), raw(2)])
+    obtidos = _fetch_range(cli, "o/r", "main", date(2026, 1, 1), date(2026, 1, 31),
+                           {"splits": 0, "capped_days": []})
+    assert obtidos, "nenhuma run retornada"
+    for run in obtidos:
+        assert set(run) == set(KEEP_FIELDS)
+        assert "extra" not in run
+
+
+def test_runs_gravadas_mantem_apenas_os_campos_usados(tmp_path):
+    cli = FakeClient(lambda lo, hi: 1, lambda lo, hi: [raw(lo.month)])
+    runs, _ = collect_runs(cli, "o/r", "main", date(2026, 1, 1), date(2026, 3, 31), workers=3)
+    from pipeline.runs import KEEP_FIELDS
+    assert all(set(r) == set(KEEP_FIELDS) for r in runs)

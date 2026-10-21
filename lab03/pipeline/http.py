@@ -19,12 +19,14 @@ entre requisições (prevenção — é o que evita o bloqueio acontecer) e, se 
 assim disparar, uma espera antes de repetir (remediação).
 """
 import hashlib
+import http.client
 import json
 import os
 import re
 import sys
+import threading
 import time
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -60,7 +62,8 @@ class GitHubClient:
         self._sleep = sleep
         self._now = now
         self._limits = {}          # recurso -> (restantes, reset_epoch)
-        self._last_request = 0.0
+        self._lock = threading.Lock()   # protege _limits e a reserva de slots
+        self._next_slot = 0.0           # proximo instante livre para requisitar
         os.makedirs(cache_dir, exist_ok=True)
 
     # ---- API pública -------------------------------------------------
@@ -124,10 +127,12 @@ class GitHubClient:
             return
         resource = headers.get("x-ratelimit-resource", "core")
         try:
-            self._limits[resource] = (int(headers["x-ratelimit-remaining"]),
-                                      int(headers.get("x-ratelimit-reset", 0)))
+            valor = (int(headers["x-ratelimit-remaining"]),
+                     int(headers.get("x-ratelimit-reset", 0)))
         except ValueError:
-            pass
+            return
+        with self._lock:
+            self._limits[resource] = valor
 
     def _wait_for_quota(self, url):
         """Dorme até a cota primária daquele recurso renovar, se ela zerou."""
@@ -142,18 +147,26 @@ class GitHubClient:
 
     # ---- ritmo (prevenção do limite secundário) ----------------------
     def _throttle(self, url):
-        """Garante um intervalo mínimo desde a requisição anterior.
+        """Reserva o próximo instante livre e dorme até ele.
 
         É o que impede o limite secundário de disparar. Sem isso o cliente
         dispara requisições na velocidade da rede, que é justamente o padrão
-        que o detector de rajadas do GitHub bloqueia."""
+        que o detector de rajadas do GitHub bloqueia.
+
+        A reserva é GLOBAL e protegida por lock, então o ritmo total não muda
+        com o número de threads: com 4 threads e intervalo de 0,75 s continuam
+        saindo no máximo 80 requisições por minuto, só que o tempo ocioso de
+        espera por resposta passa a ser aproveitado por outra thread."""
         interval = self.search_interval if self._resource_for(url) == "search" else self.min_interval
         if interval <= 0:
             return
-        elapsed = self._now() - self._last_request
-        if 0 <= elapsed < interval:
-            self._sleep(interval - elapsed)
-        self._last_request = self._now()
+        with self._lock:
+            agora = self._now()
+            inicio = max(agora, self._next_slot)
+            self._next_slot = inicio + interval
+        espera = inicio - agora
+        if espera > 0:
+            self._sleep(espera)
 
     # ---- rede, rate limit e retry ------------------------------------
     @staticmethod
@@ -199,7 +212,14 @@ class GitHubClient:
                     raise NotFoundError(url) from err
                 if err.code < 500:
                     raise
-            except (URLError, TimeoutError, ConnectionError):
+            except (OSError, http.client.HTTPException):
+                # Qualquer falha de transporte: timeout, conexao recusada, DNS,
+                # SSL e tambem IncompleteRead (resposta cortada no meio), que
+                # nao herda de OSError e por isso escapava do retry. Respostas
+                # de workflow runs passam de 3 MB e truncam com alguma
+                # frequencia quando ha varias conexoes simultaneas.
+                # HTTPError e tratado acima e nao cai aqui, apesar de tambem
+                # ser subclasse de OSError.
                 pass
             attempt += 1  # 5xx ou falha de rede: backoff exponencial 1s, 2s, 4s...
             if attempt > self.max_retries:

@@ -2,6 +2,7 @@
 import csv
 import os
 import random
+import sys
 from datetime import date
 from urllib.error import HTTPError
 
@@ -89,7 +90,7 @@ def _pushed_in_window(item, start):
     return pushed is not None and date.fromisoformat(pushed[:10]) >= start
 
 
-def evaluate(client, item, start, end, cfg, runs_dir):
+def evaluate(client, item, start, end, cfg, runs_dir, workers=1):
     """Aplica os filtros em ordem, do mais barato ao mais caro em chamadas.
 
     Retorna (status, info): status é `incluido` ou o primeiro motivo de descarte;
@@ -109,8 +110,15 @@ def evaluate(client, item, start, end, cfg, runs_dir):
             return "poucas_releases", info
         if runs_upper_bound(client, repo, branch, start, end) < cfg["min_runs"]:
             return "poucos_runs", info
-        data = collect_repo(client, repo, branch, start, end, runs_dir)
+        data = collect_repo(client, repo, branch, start, end, runs_dir, workers)
     except (NotFoundError, HTTPError):
+        return "inacessivel", info
+    except RuntimeError as exc:
+        # Falha transitória que esgotou as tentativas (5xx ou queda de rede).
+        # Um candidato entre milhares não vale derrubar uma coleta de horas:
+        # descarta este, registra o motivo no funil e segue. Rodar de novo
+        # reavalia o repositório, porque nada foi gravado no cache para ele.
+        print(f"[selecao] {repo}: descartado por falha transitoria ({exc})", file=sys.stderr)
         return "inacessivel", info
     info["valid_runs"] = count_valid_runs(data["runs"])
     if info["valid_runs"] < cfg["min_runs"]:
@@ -146,7 +154,7 @@ def _write_csv(path, fields, rows):
 
 
 # ---- etapa completa ------------------------------------------------------
-def select_repositories(client, selection, start, end, data_dir, log=print):
+def select_repositories(client, selection, start, end, data_dir, log=print, workers=1):
     """Busca, filtra e amostra repositórios; grava funil, candidatos e metadados.
 
     Os candidatos são embaralhados com a semente da config (reprodutível) e
@@ -171,7 +179,7 @@ def select_repositories(client, selection, start, end, data_dir, log=print):
         rec = {"full_name": item["full_name"], "stars": item["stargazers_count"],
                "status": NOT_EVALUATED, "releases": None, "valid_runs": None}
         if len(metadata) < cfg["sample_size"]:
-            status, info = evaluate(client, item, start, end, cfg, runs_dir)
+            status, info = evaluate(client, item, start, end, cfg, runs_dir, workers)
             rec.update(status=status, **info)
             if status == INCLUDED:
                 metadata.append(collect_metadata(client, item, end))
