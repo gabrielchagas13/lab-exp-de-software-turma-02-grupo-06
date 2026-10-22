@@ -12,6 +12,7 @@ def repo(nome, freq, lead, cfr, rec, **extra):
     return {"repo": nome, "releases_por_semana": freq, "lead_time_release_h": lead,
             "cfr_ci": cfr, "recovery_median_h": rec,
             "lead_time_commit_h": extra.get("lead_commit", lead),
+            "cfr_entrega_v5_patch_e_notas": extra.get("cfr_b", cfr),
             "recovery_censored_ratio": extra.get("censurados", 0.0)}
 
 

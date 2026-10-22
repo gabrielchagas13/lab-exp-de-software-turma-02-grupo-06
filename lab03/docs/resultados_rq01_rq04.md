@@ -30,12 +30,13 @@ A consequência prática é que a escolha da variante muda a categoria DORA de m
 | Variante | Mediana | IQR |
 |---|---|---|
 | (a) proxy de CI | **4,9 %** | 2,1 – 10,9 % |
-| (b) proxy de entrega — `v1_semver` | **37,5 %** | 12,5 – 64,0 % |
+| (b) proxy de entrega — `v5_patch_e_notas` **(referência)** | **23,5 %** | 0,0 – 49,4 % |
+| (b) — `v1_semver` | 37,5 % | 12,5 – 64,0 % |
 | (b) — `v2_semver_ou_nome` | 37,5 % | 12,5 – 64,1 % |
 | (b) — `v3_commits` | 10,8 % | 0,0 – 31,6 % |
 | (b) — `v4_combinada` | 40,5 % | 14,3 – 66,2 % |
 
-**Esse é o resultado mais importante da análise.** As duas variantes medem o mesmo conceito — "que proporção das entregas dá errado" — e discordam em quase uma ordem de grandeza. Pelo proxy de CI a mediana é 4,9 %, bem dentro do Elite (≤ 15 %); pelo proxy de entrega é 37,5 %, que cai em **Medium**, a duas categorias de distância.
+**Esse é o resultado mais importante da análise.** As duas variantes medem o mesmo conceito — "que proporção das entregas dá errado" — e discordam por um fator de cinco. Pelo proxy de CI a mediana é 4,9 %, bem dentro do Elite (≤ 15 %); pelo proxy de entrega é 23,5 % na variante de referência (v5), que cai em **High**, uma categoria abaixo. Com as variantes baseadas só em *patch* a distância é maior ainda: 37,5 % a 40,5 %, já em **Medium**.
 
 A explicação é que os dois medem coisas diferentes apesar do nome comum. O CFR (a) mede **falha de pipeline no default branch**, e um pipeline que quebra é corrigido antes do merge na maioria dos projetos maduros — por isso 248 dos 300 repositórios (83 %) aparecem como Elite nessa dimensão. O CFR (b) mede **falha que chegou ao usuário e exigiu uma release corretiva**, que é o que a definição DORA realmente descreve.
 
@@ -43,7 +44,7 @@ Isso é material direto para a seção de ameaças à validade (construto): *"re
 
 Censura: **869 releases** publicadas nos últimos 7 dias da janela ficaram fora do denominador, contra 18.095 avaliadas (4,6 %). Descartá-las silenciosamente teria inflado artificialmente a taxa de sucesso.
 
-> **Pendência.** Qual variante do CFR (b) vira a referência do grupo depende do F1 contra a amostra-ouro (`validacao.avaliar_heuristica`), que ainda não pôde rodar: falta a rotulagem de um dos três avaliadores. As quatro variantes ficam calculadas no dataset para que a escolha seja feita com evidência, não por preferência.
+> **Variante de referência.** O grupo adotou a **v5** (`patch` semver **e** release notes citando *fix/bugfix/hotfix/revert*) como CFR (b) principal: é a única com F1 ≥ 0,70 contra o consenso da amostra-ouro (0,723 em 300 releases). O valor é otimista, porque a v5 foi escolhida olhando parte da própria amostra — nas 33 releases fora da escolha o F1 foi 0,65, e o IC de 95 % vai de 0,63 a 0,80. As versões v1 a v4 continuam calculadas e entram como análise de sensibilidade na RQ 07 e na RQ 08.
 
 ## RQ 04 — Tempo de recuperação
 
@@ -72,7 +73,7 @@ A categoria geral é a mediana das quatro notas (Elite = 4 … Low = 1) arredond
 
 **Leitura.** O perfil da amostra é de projetos **estáveis e lentos**: muito bem nas duas dimensões de estabilidade (CFR 94,7 % e recuperação 85,9 % em Elite+High) e mal nas duas de velocidade (frequência 25,3 %, lead time 43,0 %). Metade da amostra fica em Elite ou High no geral, mas quase sempre carregada pelas notas de estabilidade.
 
-Vale reportar esse desequilíbrio com cuidado: a nota alta em estabilidade vem do CFR (a), que é justamente o proxy que a RQ 03 mostrou ser otimista. Trocando para o CFR (b), a mediana de 37,5 % rebaixaria essa dimensão de Elite para Medium — e é exatamente isso que a RQ 07 vai quantificar.
+Vale reportar esse desequilíbrio com cuidado: a nota alta em estabilidade vem do CFR (a), que é justamente o proxy que a RQ 03 mostrou ser otimista. Trocando para o CFR (b) na v5, a mediana de 23,5 % rebaixa essa dimensão de Elite para High, e 62,0 % dos repositórios mudam de categoria nela — é exatamente isso que a RQ 07 quantifica.
 
 ## Arquivos gerados
 

@@ -38,8 +38,8 @@ fig.savefig("artigo/fig_dora_c1.pdf")
 # Figura 2: frequência de deploy x CFR (a) e (b)
 ds = pd.read_csv("data/dataset.csv")
 fig, axs = plt.subplots(1, 2, figsize=(6.2, 2.6), sharex=True)
-for ax, col, titulo in zip(axs, ["cfr_ci", "cfr_entrega_v2_semver_ou_nome"],
-                           ["CFR (a), proxy de CI ($\\rho$ = 0,18)", "CFR (b), v2 ($\\rho$ = 0,72)"]):
+for ax, col, titulo in zip(axs, ["cfr_ci", "cfr_entrega_v5_patch_e_notas"],
+                           ["CFR (a), proxy de CI ($\\rho$ = 0,18)", "CFR (b), v5 ($\\rho$ = 0,62)"]):
     ax.scatter(ds.releases_por_semana, ds[col], s=7, color="#444444", alpha=0.5, linewidths=0)
     ax.set_xscale("log")
     ax.set_title(titulo, fontsize=9)

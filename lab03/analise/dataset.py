@@ -56,15 +56,19 @@ COLUNAS = [
     ("cfr_ci", "metricas", "decimal", "proporção 0–1",
      "RQ 03 (a) — runs com falha ÷ (falhas + sucessos); conclusion cancelled/skipped/"
      "neutral/action_required/stale e vazio são ignorados"),
+    ("cfr_entrega_v5_patch_e_notas", "metricas", "decimal", "proporção 0–1",
+     "RQ 03 (b) — **variante de referência do grupo**. Releases seguidas em até 7 dias "
+     "por uma corretiva ÷ releases avaliadas; corretiva = incremento de patch semver "
+     "E release notes citando fix/bugfix/hotfix/revert. Escolhida por ser a única com "
+     "F1 >= 0,70 contra o consenso da amostra-ouro (0,723 em 300 releases)"),
     ("cfr_entrega_v1_semver", "metricas", "decimal", "proporção 0–1",
-     "RQ 03 (b) — releases seguidas em até 7 dias por uma corretiva ÷ releases avaliadas; "
-     "corretiva = incremento de patch semver"),
+     "RQ 03 (b) — sensibilidade; corretiva = incremento de patch semver"),
     ("cfr_entrega_v2_semver_ou_nome", "metricas", "decimal", "proporção 0–1",
-     "RQ 03 (b) — corretiva = patch semver OU fix/hotfix/revert na tag ou título"),
+     "RQ 03 (b) — sensibilidade; corretiva = patch semver OU fix/hotfix/revert na tag ou título"),
     ("cfr_entrega_v3_commits", "metricas", "decimal", "proporção 0–1",
-     "RQ 03 (b) — corretiva = ≥50% dos commits novos (sem merges) com fix/hotfix/revert"),
+     "RQ 03 (b) — sensibilidade; corretiva = >=50% dos commits novos (sem merges) com fix/hotfix/revert"),
     ("cfr_entrega_v4_combinada", "metricas", "decimal", "proporção 0–1",
-     "RQ 03 (b) — corretiva = qualquer um dos três sinais"),
+     "RQ 03 (b) — sensibilidade; corretiva = qualquer um dos sinais patch/nome/commits"),
     ("cfr_entrega_avaliadas", "metricas", "inteiro", "contagem",
      "releases no denominador do CFR (b)"),
     ("cfr_entrega_censuradas", "metricas", "inteiro", "contagem",

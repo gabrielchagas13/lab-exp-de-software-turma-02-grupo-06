@@ -126,11 +126,11 @@ def dados_graficos(ds, dist, r7, d):
                  "b": contar(ds.lead_time_commit_h, [24, 72, 168, 336, 720, 2160])},
         "cfr": {"rotulos": ["0–5%", "5–15%", "15–30%", "30–45%", "45–60%", "60–80%", "80–100%"],
                 "a": contar(ds.cfr_ci, [.05, .15, .30, .45, .60, .80]),
-                "b": contar(ds.cfr_entrega_v2_semver_ou_nome, [.05, .15, .30, .45, .60, .80])},
+                "b": contar(ds.cfr_entrega_v5_patch_e_notas, [.05, .15, .30, .45, .60, .80])},
         "rec": {"rotulos": ["< 1 h", "1–6 h", "6–24 h", "1–3 d", "3–7 d", "≥ 7 d"],
                 "n": contar(ds.recovery_median_h, [1, 6, 24, 72, 168])},
         "disp_a": ponto(ds.releases_por_semana, ds.cfr_ci),
-        "disp_b": ponto(ds.releases_por_semana, ds.cfr_entrega_v2_semver_ou_nome),
+        "disp_b": ponto(ds.releases_por_semana, ds.cfr_entrega_v5_patch_e_notas),
         "r7_dist": {r.combinacao: [int(getattr(r, c)) for c in CATEGORIAS]
                     for r in r7["distribuicao"].itertuples()},
         "r7_pares": {"rotulos": [f"{r.combinacao_a} × {r.combinacao_b}" for r in pares.itertuples()],
@@ -144,7 +144,7 @@ def dados_graficos(ds, dist, r7, d):
                  ["Releases por semana (mediana)", n(ds.releases_por_semana.median(), 2)],
                  ["Lead time (mediana)", n(ds.lead_time_release_h.median() / 24) + " dias"],
                  ["CFR proxy de CI (mediana)", pct(ds.cfr_ci.median())],
-                 ["CFR proxy de entrega (mediana)", pct(ds.cfr_entrega_v2_semver_ou_nome.median())],
+                 ["CFR proxy de entrega (mediana)", pct(ds.cfr_entrega_v5_patch_e_notas.median())],
                  ["Mudam de categoria (C1 × C2)", n(float(pares.pct_mudou.iloc[0]), 0) + "%"]],
     }
 
@@ -192,6 +192,7 @@ def montar(cfg):
             ("cfr_ci", "RQ 03 (a) — CFR, proxy de CI", "", 3),
             ("recovery_median_h", "RQ 04 — tempo de recuperação", "h", 2)]], "num")
     cfr_b = {v: ds[c].median() for v, c in [
+        ("v5 (patch e notas) - referencia", "cfr_entrega_v5_patch_e_notas"),
         ("v1 (semver)", "cfr_entrega_v1_semver"), ("v2 (semver ou nome)", "cfr_entrega_v2_semver_ou_nome"),
         ("v3 (commits)", "cfr_entrega_v3_commits"), ("v4 (combinada)", "cfr_entrega_v4_combinada")]}
     t_cfrb = tabela(["CFR (b) — heurística corretiva", "Mediana"],
@@ -244,7 +245,7 @@ def montar(cfg):
         [[esc(r.versao), f"<strong>{pct(r.rework_mediana)}</strong>",
           f"{pct(r.rework_q1)} – {pct(r.rework_q3)}", pct(r.cfr_b_mediana), n(r.pct_rework_maior),
           n(r.spearman_freq_rework, 3), n(r.spearman_freq_cfr_b, 3)] for r in r8.itertuples()], "num")
-    v2 = r8[r8.versao == "v2_semver_ou_nome"].iloc[0]
+    v2 = r8[r8.versao == "v5_patch_e_notas"].iloc[0]
     kap = pd.read_csv(os.path.join(d, "validacao", "concordancia.csv"))
     av = pd.read_csv(os.path.join(d, "validacao", "avaliacao_heuristica.csv"))
     nomes_dim = {"tipo_projeto": "Tipo do projeto", "releases_sao_entregas": "Releases são entregas",
@@ -261,7 +262,9 @@ def montar(cfg):
 
     r5 = pd.read_csv(os.path.join(d, "analise", "rq05_spearman.csv"))
     r6 = pd.read_csv(os.path.join(d, "analise", "rq06_fatores.csv"))
-    nome_cfr = {"cfr_ci": "CFR (a), proxy de CI", "cfr_entrega_v1_semver": "CFR (b) v1 semver",
+    nome_cfr = {"cfr_ci": "CFR (a), proxy de CI",
+                "cfr_entrega_v5_patch_e_notas": "CFR (b) v5 patch e notas (referência)",
+                "cfr_entrega_v1_semver": "CFR (b) v1 semver",
                 "cfr_entrega_v2_semver_ou_nome": "CFR (b) v2 semver ou nome",
                 "cfr_entrega_v3_commits": "CFR (b) v3 commits",
                 "cfr_entrega_v4_combinada": "CFR (b) v4 combinada"}
@@ -353,7 +356,7 @@ medida pelo CI. A classificação, porém, <strong>não é robusta à definiçã
 definições de referência (C1) por outras igualmente plausíveis muda a categoria geral de
 {n(par('C1', 'C2', 'pct_mudou'), 1)}% dos repositórios (kappa linear {n(par('C1', 'C2', 'kappa_linear'), 2)}),
 e a taxa de falha é o eixo que mais pesa: a mediana do CFR é {pct(ds.cfr_ci.median())} medida pelo CI e
-{pct(ds.cfr_entrega_v2_semver_ou_nome.median())} medida pela entrega (release seguida de uma corretiva). A validação manual
+{pct(ds.cfr_entrega_v5_patch_e_notas.median())} medida pela entrega (release seguida de uma corretiva). A validação manual
 mostrou que "release corretiva" é um critério ambíguo (kappa de Fleiss = {n(kap[kap.dimensao == "corretiva"].kappa.iloc[0], 2)}).</p>
 <p>Velocidade e estabilidade <strong>não andam juntas</strong> nesta amostra: a frequência de deploy tem correlação
 positiva com o CFR (a) (ρ = {n(rho_a, 2)}) e forte com o CFR (b) (ρ de {n(rho_b.min(), 2)} a {n(rho_b.max(), 2)}), o oposto

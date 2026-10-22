@@ -35,15 +35,15 @@ Kappa de Cohen com ponderação linear; IC 95% por bootstrap dos repositórios (
 
 | Par | % que mudou | subiu / desceu | Kappa linear | IC 95% |
 |---|---|---|---|---|
-| C1 × C2 | **38,7** | 7,3 / 31,3 | **0,445** | 0,366 – 0,521 |
+| C1 × C2 | **34,3** | 9,7 / 24,7 | **0,496** | 0,414 – 0,574 |
 | C1 × C3 | 19,3 | 12,3 / 7,0 | 0,732 | 0,669 – 0,800 |
-| C2 × C3 | 34,7 | 32,7 / 2,0 | 0,545 | 0,474 – 0,611 |
-| C1 × C4 | 31,7 | 1,3 / 30,3 | 0,558 | 0,490 – 0,625 |
+| C2 × C3 | 26,0 | 23,7 / 2,3 | 0,647 | 0,574 – 0,710 |
+| C1 × C4 | 23,3 | 1,3 / 22,0 | 0,660 | 0,591 – 0,726 |
 | C1 × C5 | 1,0 | 1,0 / 0,0 | 0,986 | 0,971 – 1,000 |
 
 (Os 10 pares estão em `rq07_pares.csv`; "subiu" significa que o segundo membro do par classifica o repositório melhor que o primeiro.)
 
-Pela escala usual de Landis & Koch (1977), 0,41–0,60 é concordância moderada e 0,61–0,80 substancial. Entre a referência e a troca completa (C1 × C2) a concordância é só **moderada**: **cerca de 4 em cada 10 repositórios mudam de categoria**. A mudança é quase toda para pior (31% descem, 7% sobem).
+Pela escala usual de Landis & Koch (1977), 0,41–0,60 é concordância moderada e 0,61–0,80 substancial. Entre a referência e a troca completa (C1 × C2) a concordância é **moderada**: **cerca de 1 em cada 3 repositórios muda de categoria**. A mudança é quase toda para pior (24,7% descem, 9,7% sobem).
 
 ## De onde vem a mudança: eixo por eixo
 
@@ -51,23 +51,24 @@ Pela escala usual de Landis & Koch (1977), 0,41–0,60 é concordância moderada
 |---|---|---|---|
 | Unidade de deploy | release → release + pré-release | 8,3 | 0,887 |
 | Lead time | (a) → (b) | 43,3 | 0,558 |
-| CFR | (a) → (b) | **71,3** | **0,013** |
+| CFR | (a) → (b) v5 | **62,0** | **0,008** |
 | Recuperação | sem variante | 0,0 | 1,000 |
 
 - **Unidade de deploy tem efeito pequeno.** Só 25 repositórios sobem de categoria de frequência ao contar pré-releases, e no geral só 1% muda (C1 × C5).
 - **Lead time tem efeito médio.** (a) e (b) concordam só moderadamente por métrica. As trocas vão nos dois sentidos (24,7% sobem e 18,7% descem), então não há viés sistemático para um lado.
-- **O CFR domina.** Entre (a) e (b) o kappa é 0,013, ou seja, **não há concordância além do acaso**: 66% dos repositórios descem na métrica. O proxy de CI põe 83% dos repositórios em Elite nessa dimensão. O proxy de entrega espalha-os por todas as categorias. Medem fenômenos diferentes (falha de pipeline no default branch contra release que precisou de correção), como já discutido na RQ 03.
+- **O CFR domina.** Entre (a) e (b) o kappa é 0,008, ou seja, **não há concordância além do acaso**: 54,3% dos repositórios descem na métrica e 7,7% sobem. O proxy de CI põe 83% dos repositórios em Elite nessa dimensão. O proxy de entrega espalha-os por todas as categorias. Medem fenômenos diferentes (falha de pipeline no default branch contra release que precisou de correção), como já discutido na RQ 03.
 
 ### Dentro do CFR (b): a versão da heurística também importa
 
 | Heurística corretiva | Mediana do CFR | % que mudou (geral, C1 × C1 + versão) | Kappa linear |
 |---|---|---|---|
+| **v5 patch e notas (referência)** | **23,5%** | **23,3** | **0,660** |
 | v1 semver | 37,5% | 31,7 | 0,558 |
 | v2 semver ou nome | 37,5% | 31,7 | 0,558 |
 | v3 commits | 10,8% | **15,3** | 0,775 |
 | v4 combinada | 40,5% | 34,0 | 0,522 |
 
-A escolha entre (a) e (b) importa mais que a escolha da versão, mas a versão não é neutra: a v3 muda a metade dos repositórios que as demais mudam. Isto reforça a necessidade de a validação (F1 contra a amostra-ouro) justificar a versão adotada.
+A escolha entre (a) e (b) importa mais que a escolha da versão, mas a versão não é neutra: a v3 muda menos da metade dos repositórios que a v4 muda. Foi por isso que o grupo deixou a escolha da versão depender do F1 contra a amostra-ouro, e não da preferência: a **v5** foi adotada como referência por ser a única com F1 >= 0,70 (0,723).
 
 ## As conclusões das RQ 01 a 06 são robustas?
 

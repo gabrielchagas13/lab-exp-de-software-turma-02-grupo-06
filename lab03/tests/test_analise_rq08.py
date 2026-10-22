@@ -4,12 +4,14 @@ import json
 import pandas as pd
 import pytest
 
-from analise.rq08 import PADRAO, comparar_versao, executar, por_repo, tabela_versoes
+from analise.rq08 import VERSOES, PADRAO, comparar_versao, executar, por_repo, tabela_versoes
 
 
 def repo(nome, rework, cfr_b, freq=1.0, releases=10):
+    # Itera por VERSOES do próprio módulo: assim uma variante nova da heurística
+    # entra na fixture sozinha, em vez de quebrar os testes meses depois.
     colunas = {}
-    for v in ("v1_semver", "v2_semver_ou_nome", "v3_commits", "v4_combinada"):
+    for v in VERSOES:
         colunas[f"cfr_release_{v}"] = rework
         colunas[f"cfr_entrega_{v}"] = cfr_b
     return {"repo": nome, "releases": releases, "releases_por_semana": freq, **colunas}
@@ -49,8 +51,9 @@ def test_repositorio_sem_valor_fica_fora_do_n():
 
 def test_tabela_tem_uma_linha_por_versao():
     df = pd.DataFrame([repo("a", 0.5, 0.2), repo("b", 0.1, 0.3), repo("c", 0.2, 0.2)])
-    assert list(tabela_versoes(df).versao) == [
-        "v1_semver", "v2_semver_ou_nome", "v3_commits", "v4_combinada"]
+    assert list(tabela_versoes(df).versao) == list(VERSOES)
+    # a referência do grupo precisa estar entre elas, e é a primeira da tabela
+    assert VERSOES[0] == PADRAO == "v5_patch_e_notas"
 
 
 def test_por_repo_usa_a_versao_padrao():

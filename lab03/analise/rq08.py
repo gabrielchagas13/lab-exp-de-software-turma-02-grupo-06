@@ -33,8 +33,9 @@ import sys
 import pandas as pd
 from scipy.stats import spearmanr
 
-VERSOES = ("v1_semver", "v2_semver_ou_nome", "v3_commits", "v4_combinada")
-PADRAO = "v2_semver_ou_nome"      # a que o pipeline usa por padrão (README)
+VERSOES = ("v5_patch_e_notas", "v1_semver", "v2_semver_ou_nome",
+           "v3_commits", "v4_combinada")
+PADRAO = "v5_patch_e_notas"       # variante de referencia do grupo (F1 >= 0,70)
 
 
 def _spearman(x, y):

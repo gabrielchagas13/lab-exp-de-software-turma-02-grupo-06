@@ -18,7 +18,8 @@ def linha(nome, freq, freq_pre, lead_a, lead_b, cfr_a, cfr_b, rec):
             "lead_time_release_h": lead_a, "lead_time_commit_h": lead_b,
             "cfr_ci": cfr_a, "cfr_entrega_v1_semver": cfr_b,
             "cfr_entrega_v2_semver_ou_nome": cfr_b, "cfr_entrega_v3_commits": cfr_b,
-            "cfr_entrega_v4_combinada": cfr_b, "recovery_median_h": rec}
+            "cfr_entrega_v4_combinada": cfr_b,
+            "cfr_entrega_v5_patch_e_notas": cfr_b, "recovery_median_h": rec}
 
 
 # ---- concordância ----
@@ -160,7 +161,7 @@ def test_pares_cobre_todos_os_pares():
 def test_robustez_rq05_detecta_inversao_de_sinal():
     df = pd.DataFrame({"releases_por_semana": [1, 2, 3, 4, 5], PRE: [1, 2, 3, 4, 5],
                        "cfr_ci": [.5, .4, .3, .2, .1],            # cai com a frequência
-                       "cfr_entrega_v2_semver_ou_nome": [.1, .2, .3, .4, .5]})  # sobe
+                       "cfr_entrega_v5_patch_e_notas": [.1, .2, .3, .4, .5]})  # sobe
     r = robustez_rq05(df).set_index("combinacao")
     assert r.loc["C1", "rho"] == -1.0 and r.loc["C4", "rho"] == 1.0
 

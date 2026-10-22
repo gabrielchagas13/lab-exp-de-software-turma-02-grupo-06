@@ -10,7 +10,7 @@
 | Change failure rate | RQ03 | (b) v2 semver ou nome | Como (b) v1, com corretiva = patch semver ou fix, hotfix, bugfix ou revert na tag/título | proporção | `cfr_entrega_v2_semver_ou_nome` | 300/300 |
 | Change failure rate | RQ03 | (b) v3 commits | Como (b) v1, com corretiva = ao menos metade dos commits novos (sem merges) com fix, hotfix, bugfix ou revert | proporção | `cfr_entrega_v3_commits` | 300/300 |
 | Change failure rate | RQ03 | (b) v4 combinada | Como (b) v1, com corretiva = qualquer um dos sinais de v1, v2 ou v3 | proporção | `cfr_entrega_v4_combinada` | 300/300 |
-| Change failure rate | RQ03 | (b) v5 patch e notas | Como (b) v1, com corretiva = incremento de patch e release notes que citam fix, bugfix, hotfix ou revert | proporção | `cfr_entrega_v5_patch_e_notas` | 0/300 |
+| Change failure rate | RQ03 | (b) v5 patch e notas | Como (b) v1, com corretiva = incremento de patch e release notes que citam fix, bugfix, hotfix ou revert | proporção | `cfr_entrega_v5_patch_e_notas` | 300/300 |
 | Rework rate (bônus) | RQ08 | proporção de corretivas | Releases que são corretivas (v4) / releases da janela; difere do CFR (b), que conta as releases seguidas por uma corretiva | proporção | `cfr_release_v4_combinada` | 300/300 |
 | Tempo de recuperação | RQ04 | principal | Mediana, por workflow, de sucesso seguinte − primeira falha após um sucesso (episódios sem sucesso posterior são censurados) | horas | `recovery_median_h` | 276/300 |
 | Tempo de recuperação | RQ04 | censura | Proporção de episódios de falha censurados | proporção | `recovery_censored_ratio` | 280/300 |

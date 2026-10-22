@@ -28,8 +28,12 @@ from scipy import stats  # noqa: E402
 from statsmodels.stats.multitest import multipletests  # noqa: E402
 
 X = "releases_por_semana"
-CFRS = ["cfr_ci", "cfr_entrega_v1_semver", "cfr_entrega_v2_semver_ou_nome",
-        "cfr_entrega_v3_commits", "cfr_entrega_v4_combinada"]
+# A v5 e a variante de referencia do grupo (unica com F1 >= 0,70 contra o
+# consenso da amostra-ouro); as demais ficam como analise de sensibilidade.
+CFR_B_REFERENCIA = "cfr_entrega_v5_patch_e_notas"
+CFRS = ["cfr_ci", CFR_B_REFERENCIA, "cfr_entrega_v1_semver",
+        "cfr_entrega_v2_semver_ou_nome", "cfr_entrega_v3_commits",
+        "cfr_entrega_v4_combinada"]
 METRICAS = ["releases_por_semana", "lead_time_release_h", "lead_time_commit_h", *CFRS, "recovery_median_h"]
 CATEGORICOS = ["language"]
 NUMERICOS = ["stars", "contributors", "age_years"]

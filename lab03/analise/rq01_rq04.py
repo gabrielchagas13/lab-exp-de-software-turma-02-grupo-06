@@ -39,8 +39,14 @@ METRICAS_C1 = {
 }
 
 # Métricas descritas além das quatro do C1, para a seção de resultados.
+# CFR (b) de referência do grupo: v5 (patch semver E release notes citando
+# fix/bugfix/hotfix/revert). É a única variante com F1 >= 0,70 contra o consenso
+# da amostra-ouro; as outras ficam como sensibilidade na RQ 07 e na RQ 08.
+CFR_B_REFERENCIA = "cfr_entrega_v5_patch_e_notas"
+
 EXTRAS = {
     "lead_time_commit_h": ("horas", "RQ 02 (b) — lead time por commit"),
+    CFR_B_REFERENCIA: ("proporção", "RQ 03 (b) — CFR proxy de entrega, variante v5"),
     "recovery_censored_ratio": ("proporção", "RQ 04 — episódios censurados"),
 }
 

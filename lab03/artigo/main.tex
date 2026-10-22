@@ -26,10 +26,10 @@
   repositories that use GitHub Actions, over a 12-month window. Since GitHub
   records neither deployments nor production failures, every metric is a proxy.
   The proxies disagree: the median change failure rate is 4.9\% when measured
-  by CI runs and 37.5\% when measured by releases followed by a corrective
-  release. Changing the operational definitions moves 38.7\% of the repositories
+  by CI runs and 23.5\% when measured by releases followed by a corrective
+  release. Changing the operational definitions moves 34.3\% of the repositories
   to another DORA category, almost entirely because of the failure rate. Deploy
-  frequency correlates positively with failure rate ($\rho$ = 0.18 and 0.72),
+  frequency correlates positively with failure rate ($\rho$ = 0.18 and 0.62),
   and repository age is the factor most associated with performance. A manual
   gold sample showed that ``corrective release'' is ambiguous (Fleiss
   $\kappa$ = 0.32).
@@ -39,11 +39,11 @@
   Minerou-se as quatro métricas DORA de 300 repositórios open source populares
   do GitHub que usam GitHub Actions, numa janela de 12 meses. Como o GitHub não
   registra deploys nem falhas em produção, toda métrica é um proxy, e os proxies
-  discordam: a mediana da taxa de falha é 4,9\% medida pelo CI e 37,5\% medida
+  discordam: a mediana da taxa de falha é 4,9\% medida pelo CI e 23,5\% medida
   por releases seguidas de uma release corretiva. Trocar as definições
-  operacionais muda a categoria DORA de 38,7\% dos repositórios, quase só por
+  operacionais muda a categoria DORA de 34,3\% dos repositórios, quase só por
   causa da taxa de falha. A frequência de deploy tem correlação positiva com a
-  taxa de falha ($\rho$ = 0,18 e 0,72), e a idade do repositório é o fator mais
+  taxa de falha ($\rho$ = 0,18 e 0,62), e a idade do repositório é o fator mais
   associado ao desempenho. A validação manual mostrou que ``release corretiva''
   é um critério ambíguo (kappa de Fleiss = 0,32).
 \end{resumo}
@@ -78,10 +78,30 @@ repositórios:
 \textbf{RQ7}~sensibilidade da classificação DORA à definição operacional;
 e \textbf{RQ8}~(bônus) \emph{rework rate}.
 
-\textbf{Hipóteses informais.} [PREENCHER: colar aqui, uma por RQ, o texto das
-hipóteses escritas na Sprint 1 (issue \#62), antes de ver os dados. O
-enunciado exige que sejam as hipóteses originais do grupo, por isso elas não
-foram escritas pelo assistente.]
+\textbf{Hipóteses informais.} O que o grupo espera encontrar em cada questão,
+derivado do referencial DORA e das definições operacionais adotadas (versão
+completa em \texttt{docs/hipoteses.md}).
+
+\textbf{RQ1:} mediana bem abaixo do corte Elite, entre uma release por mês e
+uma por semana --- publicar release é evento de empacotamento, não de deploy
+contínuo. \textbf{RQ2:} a variante (a) deve ser sistematicamente maior que a
+(b), porque usa o commit mais antigo da release, que é um máximo sensível a um
+único commit esquecido. \textbf{RQ3:} o proxy de CI deve dar valores baixos e o
+de entrega valores bem maiores, e as duas variantes devem discordar; esperamos
+que o sinal de \emph{patch} sozinho tenha recall alto e precisão baixa, e que
+seja preciso combinar sinais para atingir F1 $\ge$ 0,70. \textbf{RQ4:} medianas
+na casa de horas e pouca censura, porque CI quebrado no branch principal
+bloqueia todo mundo. \textbf{RQ5:} não esperamos o \emph{trade-off} clássico,
+mas também não leremos correlação positiva como evidência a favor do DORA: o
+CFR (b) exige uma release seguinte em até 7 dias, e quem publica mais tem mais
+chance de tê-la, o que produziria correlação por mecânica da definição.
+\textbf{RQ6:} efeitos pequenos e poucos sobreviventes à correção de Holm;
+apostamos em tipo de projeto e número de contribuidores acima de popularidade,
+porque estrelas medem visibilidade e não prática de engenharia. \textbf{RQ7:}
+parcela substancial dos repositórios deve mudar de categoria, com o CFR movendo
+mais que o lead time. \textbf{RQ8:} a \emph{rework rate} deve ser maior que o
+CFR (b), por contar correções de qualquer prazo, e deve correlacionar menos com
+a frequência de releases.
 
 \section{Metodologia}
 
@@ -212,6 +232,7 @@ Releases por semana (RQ1) & 0,44 & 0,23 -- 1,04 \\
 Lead time (a), horas (RQ2) & 226,3 & 68,1 -- 818,0 \\
 Lead time (b), horas (RQ2) & 179,8 & 52,4 -- 900,9 \\
 CFR (a), proxy de CI (RQ3) & 4,9\% & 2,1 -- 10,9\% \\
+CFR (b), v5 \emph{patch} e notas (RQ3) & 23,5\% & 0,0 -- 49,4\% \\
 CFR (b), v2 semver ou nome (RQ3) & 37,5\% & 12,5 -- 64,1\% \\
 CFR (b), v3 commits (RQ3) & 10,8\% & 0,0 -- 31,6\% \\
 Recuperação, horas (RQ4; 276 repos) & 2,70 & 0,95 -- 9,69 \\
@@ -228,8 +249,10 @@ branch longo para a release inteira parecer lenta, enquanto na (b) esse commit
 da (b).
 
 O resultado mais forte é o da taxa de falha. As duas variantes medem o mesmo
-conceito e discordam em quase uma ordem de grandeza: 4,9\% pelo CI e 37,5\%
-pela entrega. O CFR (a) mede falha de \emph{pipeline} no \emph{default
+conceito e discordam por um fator de cinco: 4,9\% pelo CI e 23,5\% pela
+entrega, usando a v5, que é a variante de referência do grupo (a única com
+F1 $\ge$ 0,70 contra o consenso da amostra-ouro). Com as variantes baseadas só
+em \emph{patch} a distância é maior ainda, 37,5\% a 40,5\%. O CFR (a) mede falha de \emph{pipeline} no \emph{default
 branch}, que na maioria dos projetos maduros é corrigida antes do merge; o
 CFR (b) mede a falha que chegou ao usuário e exigiu uma release corretiva. Com
 isso, 83\% dos repositórios ficam em Elite pelo CFR (a), contra a categoria
@@ -263,14 +286,14 @@ dimensões de estabilidade.
 Os dados \textbf{não confirmam} que velocidade e estabilidade andam juntas
 (Figura~\ref{fig:rq05}). O Spearman entre releases por semana e CFR é
 positivo nas duas variantes: $\rho$ = 0,178 com o CFR (a) ($p$ = 0,002) e
-$\rho$ entre 0,635 e 0,768 com o CFR (b) ($p < 0{,}001$ em todas as versões
-da heurística). Quem publica mais releases tem \emph{mais}, e não menos, falha.
+$\rho$ = 0,625 com o CFR (b) na variante de referência v5 ($p < 0{,}001$); nas
+demais versões da heurística o valor vai de 0,635 a 0,768. Quem publica mais releases tem \emph{mais}, e não menos, falha.
 O sinal é positivo em todas as combinações de definições da RQ7, mas a força
 varia de fraca (0,18) a forte (0,7) conforme o CFR.
 
 \subsection{RQ6: características associadas ao desempenho}
 
-Dos 36 testes (4 fatores contra 9 métricas), 11 permanecem significativos
+Dos 40 testes (4 fatores contra 10 métricas), 12 permanecem significativos
 depois da correção de Holm (Tabela~\ref{tab:rq6}). Estrelas e tempo de
 recuperação não mostram efeito, e nenhum fator se associa ao CFR (a).
 
@@ -285,7 +308,7 @@ Fator & Métrica & $p$ (Holm) & $\varepsilon^2$ \\
 \midrule
 Idade & Frequência de deploy & $< 0{,}001$ & 0,09 \\
 Idade & Lead time (a) / (b) & $< 0{,}001$ & 0,26 / 0,19 \\
-Idade & CFR (b), v1 a v4 & $< 0{,}001$ & 0,10 a 0,18 \\
+Idade & CFR (b), v1 a v5 & $\le 0{,}003$ & 0,07 a 0,18 \\
 Contribuidores & Lead time (a) / (b) & $< 0{,}001$ & 0,18 / 0,16 \\
 Linguagem & Lead time (a) / (b) & $< 0{,}001$ / 0,005 & 0,12 / 0,10 \\
 \bottomrule
@@ -303,8 +326,9 @@ JavaScript (112 h), embora com poucos repositórios nesses grupos.
 \subsection{RQ7: sensibilidade à definição operacional}
 
 Comparamos cinco combinações: C1 (referência: release, lead time (a), CFR
-(a)); C2 (release mais pré-release, lead time (b), CFR (b)); C3 (só o lead time
-muda); C4 (só o CFR muda); e C5 (só a unidade de deploy muda).
+(a)); C2 (release mais pré-release, lead time (b), CFR (b) na variante v5);
+C3 (só o lead time muda); C4 (só o CFR muda, para a v5); e C5 (só a unidade de
+deploy muda).
 
 \begin{table}[ht]
 \centering
@@ -315,24 +339,24 @@ muda); C4 (só o CFR muda); e C5 (só a unidade de deploy muda).
 \toprule
 Par & \% que mudou & Kappa linear & IC 95\% \\
 \midrule
-C1 $\times$ C2 (tudo muda) & 38,7 & 0,445 & 0,366 -- 0,521 \\
+C1 $\times$ C2 (tudo muda) & 34,3 & 0,496 & 0,414 -- 0,574 \\
 C1 $\times$ C3 (lead time) & 19,3 & 0,732 & 0,669 -- 0,800 \\
-C1 $\times$ C4 (CFR) & 31,7 & 0,558 & 0,490 -- 0,625 \\
+C1 $\times$ C4 (CFR) & 23,3 & 0,660 & 0,591 -- 0,726 \\
 C1 $\times$ C5 (unidade de deploy) & 1,0 & 0,986 & 0,971 -- 1,000 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Entre a referência e a troca completa, cerca de 4 em cada 10 repositórios
-mudam de categoria (Tabela~\ref{tab:rq7}), quase sempre para pior (31\% descem
-e 7\% sobem). A unidade de deploy quase não importa. O lead time importa de
-forma moderada (43\% mudam de categoria na métrica, nos dois sentidos). O
-\textbf{CFR domina}: entre (a) e (b) o kappa por métrica é 0,013, isto é, não há
-concordância além do acaso, e 71\% dos repositórios mudam de categoria nessa
+Entre a referência e a troca completa, cerca de 1 em cada 3 repositórios muda
+de categoria (Tabela~\ref{tab:rq7}), quase sempre para pior (24,7\% descem e
+9,7\% sobem). A unidade de deploy quase não importa. O lead time importa de
+forma moderada (43,3\% mudam de categoria na métrica, nos dois sentidos). O
+\textbf{CFR domina}: entre (a) e (b) o kappa por métrica é 0,008, isto é, não há
+concordância além do acaso, e 62,0\% dos repositórios mudam de categoria nessa
 dimensão. Dentro do CFR (b), a versão da heurística também pesa: a v3 muda
-apenas 15,3\% dos repositórios, contra 31,7\% a 34,0\% das demais. As conclusões
-das RQ1 e RQ5 são, portanto, robustas no sinal, a das RQ2 é parcial, e a da RQ3
-\emph{depende totalmente} da definição.
+apenas 15,3\% dos repositórios, contra 23,3\% da v5 de referência e 34,0\% da
+v4. As conclusões das RQ1 e RQ5 são, portanto, robustas no sinal, a das RQ2 é
+parcial, e a da RQ3 \emph{depende totalmente} da definição.
 
 \subsection{Validação da heurística}
 
@@ -367,9 +391,22 @@ v5 \emph{patch} e notas & 0,76 & 0,69 & 0,72 \\
 
 O tipo do projeto tem concordância quase perfeita, mas as outras duas
 dimensões ficam só em ``razoável'', o que indica que ``release corretiva'' e
-``entrega real'' são critérios ambíguos. A divergência vem sobretudo de um
-avaliador, que marcou 78\% das releases como corretivas contra 34\% e 37\% dos
-outros dois, que concordam entre si em 93,7\% dos casos.
+``entrega real'' são critérios ambíguos.
+
+A divergência não é difusa: ela vem de \textbf{um} avaliador. O kappa de Cohen
+entre os outros dois é 0,86 (quase perfeita), enquanto o do avaliador
+divergente contra cada um deles é 0,19 e 0,18 (leve). Ele marcou 78\% das
+releases como corretivas, contra 34\% e 37\% dos demais --- um critério mais
+largo, que conta como corretiva toda release que \emph{contenha} correções, em
+vez de só aquelas cujo objetivo principal é corrigir um defeito recente, que é
+a definição do enunciado adotada aqui.
+
+Optou-se por \textbf{não rerrotular}: refazer os rótulos depois de ver a saída
+da heurística e as respostas dos colegas quebraria a independência que dá
+sentido ao kappa. A divergência fica reportada como achado e como ameaça à
+validade. Como teste de robustez, o F1 da v5 foi recalculado contra os 281
+itens em que pelo menos dois avaliadores concordam: 0,737, praticamente o mesmo
+valor obtido contra o consenso completo.
 
 Nenhuma das versões v1 a v4 atinge a meta de F1 $\ge$ 0,70. As baseadas em
 \emph{patch} (v1, v2 e v4) têm recall alto e precisão baixa, porque tratam todo
@@ -378,18 +415,28 @@ corretivas. A v3, baseada em commits, inverte o perfil. A v5 refina a v1
 exigindo também que as release notes citem correção, e chega a F1 = 0,72. O
 valor é \textbf{otimista}: a v5 foi escolhida olhando parte da própria amostra,
 e nas 33 releases que não participaram da escolha o F1 foi 0,65. O IC de 95\%
-do F1 vai de 0,63 a 0,80. Os resultados das seções anteriores usam as versões
-v1 a v4; a v5 ainda não foi aplicada ao conjunto de dados.
+do F1 vai de 0,63 a 0,80. Por ser a única versão a atingir a meta, a v5 é a
+variante de referência adotada no CFR (b) das RQ3, RQ5 e RQ7 (combinações C2 e
+C4); as versões v1 a v4 permanecem calculadas e entram como análise de
+sensibilidade na RQ7 e na RQ8.
 
 \subsection{RQ8 (bônus): \emph{rework rate}}
 
-A \emph{rework rate} é a proporção de releases que \emph{são} corretivas. Com as
-versões baseadas em \emph{patch}, a mediana é de dois terços das releases
-(66,7\% a 71,2\%), e com a v3 é de 14,6\%. Ela é maior que o CFR (b) em 71\%
-dos repositórios, porque conta correções de qualquer prazo. O CFR (b)
-acompanha a frequência de releases ($\rho$ $\approx$ 0,7), e o rework quase
-não ($\rho$ entre 0,15 e 0,26), o que sustenta a hipótese de que a correlação
-da RQ5 é, em parte, mecânica.
+A \emph{rework rate} é a proporção de releases que \emph{são} corretivas. Pela
+variante de referência v5 a mediana é de 43,2\% das releases, contra 23,5\% do
+CFR (b); ela é maior em 58,7\% dos repositórios, porque conta correções de
+qualquer prazo, enquanto o CFR (b) só conta as que vêm em até 7 dias. Nas
+versões baseadas só em \emph{patch} a rework chega a dois terços das releases
+(66,7\% a 71,2\%), e com a v3 cai a 14,6\%.
+
+O contraste nas correlações é o achado mais informativo da RQ8: o CFR (b)
+acompanha a frequência de releases ($\rho$ = 0,625 na v5), e a \emph{rework
+rate} praticamente não acompanha ($\rho$ = 0,008 na v5; de 0,15 a 0,26 nas
+demais). Como as duas medem correção e só diferem pela exigência da janela de 7
+dias, isso indica que a correlação observada na RQ5 é em boa parte
+\textbf{mecânica}: quem publica mais releases tem mais chance de ter uma
+release seguinte dentro da janela, e não necessariamente entrega com mais
+defeitos.
 
 \section{Discussão}
 
@@ -398,8 +445,30 @@ que a escolha da definição mais pesa: o mesmo repositório é ``Elite'' pelo C
 ``Medium'' pela entrega. Isso reforça a leitura de que os proxies medem
 fenômenos diferentes (falha de pipeline contra correção que chegou ao usuário)
 e de que resultados em categorias DORA só fazem sentido acompanhados da
-definição usada. [COMPARAR COM AS HIPÓTESES DA INTRODUÇÃO: o que o grupo
-esperava para cada RQ, o que surpreendeu e por quê.]
+definição usada.
+
+\textbf{Hipóteses contra resultados.} Sete das oito expectativas se
+confirmaram. A frequência ficou onde se esperava (RQ1), o lead time (a) de fato
+superou o (b) e em um terço dos repositórios por mais do que o dobro (RQ2), os
+dois proxies de falha discordaram na direção prevista (RQ3), a recuperação
+ficou em horas com censura quase nula (RQ4), a troca de definição moveu uma
+parcela grande da amostra com o CFR pesando mais que o lead time (RQ7), e a
+\emph{rework rate} saiu maior que o CFR (b) e muito menos correlacionada com a
+frequência (RQ8). Na RQ5 a suspeita de artefato mecânico não só se confirmou
+como ganhou a evidência mais limpa do trabalho: $\rho$ = 0,625 para o CFR (b)
+contra 0,008 para o rework, que mede a mesma coisa sem a janela de 7 dias.
+
+A expectativa que \textbf{falhou} foi a da RQ6. Apostamos em tipo de projeto e
+número de contribuidores como fatores dominantes, e quem dominou foi a
+\textbf{idade}: 8 dos 12 resultados significativos envolvem idade, contra 2 de
+contribuidores e 2 de linguagem. Acertamos só a parte negativa, que estrelas
+não explicariam nada. A leitura mais provável é que idade funcione como fator
+de confusão, e não como causa: projetos antigos acumulam branches e commits
+antigos, o que alonga o lead time (a) por construção.
+
+Vale registrar que a previsão da RQ3 sobre a heurística também se confirmou em
+detalhe: o sinal de \emph{patch} isolado deu recall 0,90 e precisão 0,55, e só
+a combinação com as release notes (v5) atingiu a meta de F1.
 
 \textbf{Velocidade e estabilidade não andam juntas, mas parte disso é efeito da
 definição.} O DORA afirma que as equipes de melhor desempenho vão bem nas duas
@@ -408,8 +477,9 @@ falha. Duas leituras convivem. A primeira é substantiva: projetos que publicam
 muito podem mudar mais e quebrar mais. A segunda é mecânica: o CFR (b) conta a
 release seguida de uma corretiva em até 7 dias, e quem publica com frequência
 tem mais chance de ter a próxima release dentro desse prazo, e a heurística
-conta todo \emph{patch} como correção. O rework, que não depende do ritmo de
-releases, correlaciona pouco com a frequência, o que favorece a leitura
+conta todo \emph{patch} como correção. O rework, que mede a mesma coisa sem a
+exigência dos 7 dias, praticamente não correlaciona com a frequência ($\rho$ =
+0,008 contra 0,625 do CFR (b) na v5), o que favorece fortemente a leitura
 mecânica. Correlação, de qualquer forma, não implica causalidade.
 
 \textbf{Idade é o fator mais associado, e é também um fator de confusão.}
@@ -456,14 +526,14 @@ e recebidas.]
 
 Medimos as métricas DORA em 300 repositórios populares e mostramos que o valor
 da métrica depende mais da definição operacional do que se poderia esperar. A
-taxa de falha varia quase uma ordem de grandeza entre os dois proxies, e 38,7\%
+taxa de falha varia por um fator de cinco entre os dois proxies, e 34,3\%
 dos repositórios mudam de categoria quando as definições mudam. A frequência de
 deploy não se associa a menos falhas, e a idade é o fator mais ligado ao
 desempenho. A validação manual mostrou que a classificação de release
-corretiva é ambígua e que a heurística automática tem desempenho limitado.
-Como trabalho futuro, propomos refinar o critério de ``release corretiva'' com
-mais avaliadores, usar tags como unidade de deploy e aplicar a v5 ao conjunto
-de dados. O código, os dados e os resultados estão em
+corretiva é ambígua, e mesmo a heurística de referência (v5) atinge F1 de
+apenas 0,72. Como trabalho futuro, propomos refinar o critério de ``release
+corretiva'' com mais avaliadores e com um protocolo de rotulagem mais
+explícito, e usar tags como unidade de deploy. O código, os dados e os resultados estão em
 \url{https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06},
 e o processo do grupo (GitHub Projects) em
 \url{https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/projects}.

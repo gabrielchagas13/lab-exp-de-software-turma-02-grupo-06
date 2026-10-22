@@ -62,18 +62,18 @@ COMBINACOES = {
            "colunas": {"deployment_frequency": "releases_por_semana",
                        "lead_time": "lead_time_release_h",
                        "change_failure_rate": "cfr_ci"}},
-    "C2": {"unidade": "release + pré-release", "lead_time": "(b)", "cfr": "(b) v2",
+    "C2": {"unidade": "release + pré-release", "lead_time": "(b)", "cfr": "(b) v5",
            "colunas": {"deployment_frequency": PRE,
                        "lead_time": "lead_time_commit_h",
-                       "change_failure_rate": "cfr_entrega_v2_semver_ou_nome"}},
+                       "change_failure_rate": "cfr_entrega_v5_patch_e_notas"}},
     "C3": {"unidade": "release", "lead_time": "(b)", "cfr": "(a)",
            "colunas": {"deployment_frequency": "releases_por_semana",
                        "lead_time": "lead_time_commit_h",
                        "change_failure_rate": "cfr_ci"}},
-    "C4": {"unidade": "release", "lead_time": "(a)", "cfr": "(b) v2",
+    "C4": {"unidade": "release", "lead_time": "(a)", "cfr": "(b) v5",
            "colunas": {"deployment_frequency": "releases_por_semana",
                        "lead_time": "lead_time_release_h",
-                       "change_failure_rate": "cfr_entrega_v2_semver_ou_nome"}},
+                       "change_failure_rate": "cfr_entrega_v5_patch_e_notas"}},
     "C5": {"unidade": "release + pré-release", "lead_time": "(a)", "cfr": "(a)",
            "colunas": {"deployment_frequency": PRE,
                        "lead_time": "lead_time_release_h",
@@ -83,6 +83,7 @@ RECUPERACAO = "recovery_median_h"
 
 # Versões da heurística corretiva que o dataset traz para o CFR (b).
 VERSOES_CFR_B = {
+    "v5_patch_e_notas": "cfr_entrega_v5_patch_e_notas",   # referencia do grupo
     "v1_semver": "cfr_entrega_v1_semver",
     "v2_semver_ou_nome": "cfr_entrega_v2_semver_ou_nome",
     "v3_commits": "cfr_entrega_v3_commits",
