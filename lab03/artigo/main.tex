@@ -189,8 +189,8 @@ commits novos cita essas palavras. As versões v1 a v4 combinam esses sinais
 (v1: \emph{patch}; v2: \emph{patch} ou nome; v3: commits; v4: qualquer um).
 
 Para medir o erro, sorteamos 60 repositórios (semente 42) e, em cada um, até 5
-releases (300 no total). Os três autores rotularam a amostra de forma
-independente, sem consultar os colegas e sem ver a saída da heurística, em três
+releases (300 no total). Cada um dos três autores rotulou a amostra
+sem consultar os colegas e sem ver a saída da heurística, em três
 dimensões: tipo do projeto, se as releases são entregas reais e se cada release
 é corretiva. A concordância foi medida pelo kappa de Fleiss e interpretada
 pela escala de Landis e Koch \cite{landis:1977}. O consenso é a maioria
@@ -396,10 +396,20 @@ dimensões ficam só em ``razoável'', o que indica que ``release corretiva'' e
 A divergência não é difusa: ela vem de \textbf{um} avaliador. O kappa de Cohen
 entre os outros dois é 0,86 (quase perfeita), enquanto o do avaliador
 divergente contra cada um deles é 0,19 e 0,18 (leve). Ele marcou 78\% das
-releases como corretivas, contra 34\% e 37\% dos demais --- um critério mais
-largo, que conta como corretiva toda release que \emph{contenha} correções, em
-vez de só aquelas cujo objetivo principal é corrigir um defeito recente, que é
-a definição do enunciado adotada aqui.
+releases como corretivas, contra 34\% e 37\% dos demais. O critério dele foi
+marcar ``corretiva'' quando a release entrega a correção de \emph{pelo menos um}
+defeito, aplicado em duas etapas: (i) uma regra automática sobre as mensagens de
+commit (prefixo \texttt{fix}, \texttt{bugfix} ou \texttt{hotfix}, ou palavras como
+\emph{bug} e \emph{crash}, incluindo termos equivalentes em chinês e em português,
+e ignorando correções de CI, documentação, \emph{typo}, \emph{lint}, testes,
+\emph{build}, dependências e \emph{workflow}); e (ii) a leitura das notas das 90
+releases sem commit de correção claro, marcando as que descreviam uma correção
+real. Uma release de funcionalidades com um único \texttt{fix} entre dezenas de
+commits também foi marcada. É um critério mais permissivo que a definição do
+enunciado adotada aqui, em que a release é corretiva quando seu objetivo
+\emph{principal} é corrigir um defeito recente. Como a etapa (i) usa um sinal
+parecido com o da v3 (palavras de correção nos commits), esses rótulos são menos
+independentes desse sinal do que os de uma leitura integral de cada release.
 
 Optou-se por \textbf{não rerrotular}: refazer os rótulos depois de ver a saída
 da heurística e as respostas dos colegas quebraria a independência que dá
@@ -511,7 +521,10 @@ sem releases do GitHub. A janela é de 12 meses.
 
 \textbf{Conclusão.} Foram 36 testes no RQ6, corrigidos por Holm, e alguns
 grupos têm poucos repositórios (linguagens raras). A amostra-ouro tem 300
-releases de 60 repositórios, e o kappa em duas dimensões é apenas razoável. A
+releases de 60 repositórios, e o kappa em duas dimensões é apenas razoável. Os
+rótulos de um avaliador vieram em parte de uma regra automática sobre
+mensagens de commit, aplicada a um critério mais permissivo que o do enunciado,
+o que reduz a independência entre esses rótulos e a heurística. A
 censura foi tratada, mas episódios de falha sem recuperação reduzem o tempo de
 recuperação medido.
 

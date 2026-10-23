@@ -1,0 +1,361 @@
+nivel,full_name,tag,justificativa
+repo,AlistGo/alist,,Servidor de listagem de arquivos; releases versionadas com features e correções
+repo,BigPizzaV3/CodexPlusPlus,,Ferramenta desktop para Codex; releases com mudanças descritas
+repo,CherryHQ/cherry-studio,,Cliente desktop de LLM com instaladores; releases reais
+repo,HKUDS/Vibe-Trading,,Agente de trading com web UI e CLI; releases com notas detalhadas
+repo,K-Dense-AI/scientific-agent-skills,,Coleção de skills para agentes; versões adicionam skills
+repo,NG-ZORRO/ng-zorro-antd,,Biblioteca de componentes Angular; changelog semântico
+repo,acmesh-official/acme.sh,,Script de linha de comando ACME; releases com mudanças
+repo,aleo-labs-protocol/leo,,Compilador/linguagem usado via CLI leo; releases versionadas
+repo,alpinejs/alpine,,Framework JavaScript; releases com changelog
+repo,apify/crawlee-python,,Biblioteca Python de crawling; releases semânticas com changelog
+repo,ariga/atlas,,Ferramenta CLI de gestão de schemas; releases com anúncios
+repo,basecamp/once,,Ferramenta de linha de comando para instalar apps; releases versionadas
+repo,chatwoot/chatwoot,,Plataforma web de atendimento; releases e hotfixes reais
+repo,clojure/clojurescript,,Compilador publicado como dependência Maven; releases versionadas
+repo,cloudflare/workerd,,"Runtime servidor; releases diárias automáticas, muitas com um commit"
+repo,code-yeongyu/oh-my-openagent,,Harness de agentes usado via CLI/plugin; releases com mudanças
+repo,conductor-oss/conductor,,Servidor de orquestração de workflows; releases versionadas
+repo,coollabsio/coolify,,Plataforma self-hosted de deploy; releases com changelog
+repo,coreyhaines31/marketingskills,,Coleção de skills de marketing; versões adicionam conteúdo
+repo,crazywhalecc/static-php-cli,,Ferramenta CLI para compilar PHP estático; releases versionadas
+repo,crewAIInc/crewAI,,Framework Python de agentes; releases versionadas com changelog
+repo,dotnetcore/BootstrapBlazor,,Biblioteca de componentes UI Blazor; releases com notas de mudanças
+repo,feyninc/chonkie,,Biblioteca Python de chunking; releases com destaques e correções
+repo,firezone/firezone,,Plataforma de acesso/VPN com clientes; releases por cliente publicado
+repo,frappe/erpnext,,ERP web; releases versionadas com mudanças descritas
+repo,getsentry/self-hosted,,Distribuição self-hosted do Sentry operada como serviço; releases mensais
+repo,gradio-app/gradio,,Biblioteca Python/JS de UI; releases de pacotes versionados
+repo,guhcostan/mac-cleaner-cli,,Ferramenta de linha de comando via npx; releases com mudanças
+repo,headroomlabs-ai/headroom,,Pacote Python com proxy/CLI; releases versionadas com changelog
+repo,kata-containers/kata-containers,,Runtime de containers operado em infraestrutura; releases versionadas
+repo,kestra-io/kestra,,Plataforma de orquestração; releases com changelog
+repo,keycloak/keycloak,,Servidor de identidade; releases com issues resolvidas
+repo,keystonejs/keystone,,Framework/CMS consumido como pacotes npm; releases publicam pacotes
+repo,lfnovo/open-notebook,,Aplicação web de notebooks com IA; releases com novidades
+repo,lineofflight/frankfurter,,API de câmbio operada como serviço; releases com changelog
+repo,max-sixty/worktrunk,,Ferramenta CLI wt para worktrees; releases com notas
+repo,microsoft/playwright,,Framework de testes; releases versionadas com notas
+repo,microsoft/vcpkg,,Registro de ports; releases são snapshots periódicos do catálogo
+repo,moscajs/aedes,,Broker MQTT como módulo Node; releases versionadas
+repo,nguyenphutrong/quotio,,App macOS com dmg; releases com mudanças
+repo,nicolargo/glances,,ferramenta de monitoramento com interface terminal/web; versões publicadas
+repo,nocodb/nocodb,,plataforma web no-code; releases com notas de funcionalidades e correções
+repo,openebs/openebs,,plataforma de armazenamento para Kubernetes; release notes versionadas
+repo,openwrt/openwrt,,sistema operacional/firmware para roteadores; releases estáveis com imagens
+repo,openziti/zrok,,ferramenta de compartilhamento usada via linha de comando; changelog por versão
+repo,pocket-id/pocket-id,,servidor de identidade OIDC auto-hospedado; versões com changelog
+repo,pola-rs/polars,,biblioteca de DataFrames; releases Python/Rust com mudanças
+repo,puppeteer/puppeteer,,biblioteca Node para automação de navegador; releases por pacote
+repo,securego/gosec,,analisador de segurança Go usado na linha de comando
+repo,spring-cloud/spring-cloud-gateway,,framework/biblioteca Spring; versões publicadas no Maven
+repo,sqlfluff/sqlfluff,,linter SQL de linha de comando; releases versionadas no PyPI
+repo,storytold/artcraft,,aplicativo desktop; releases com instaladores para download
+repo,sublimehq/package_control,,gerenciador de pacotes do Sublime Text; versões com mudanças
+repo,unslothai/unsloth,,biblioteca Python de fine-tuning (com Studio); releases com novidades
+repo,virgiliojr94/book-to-skill,,conversor de livros em skills via script/CLI; releases com changelog
+repo,warpdotdev/warp,,terminal desktop; builds stable/preview distribuídos aos usuários
+repo,werf/werf,,ferramenta CLI de CI/CD; releases com changelog e binários
+repo,xyflow/xyflow,,bibliotecas React/Svelte de diagramas; releases por pacote npm
+repo,yamadashy/repomix,,ferramenta CLI para empacotar repositórios; releases com notas
+repo,zhouxiaoka/autoclip,,aplicativo desktop de edição de vídeo; releases com instaladores
+release,AlistGo/alist,v3.54.0,Novos drivers e suporte a URL signing
+release,AlistGo/alist,v3.55.0,"Novos drivers bitqiu e Gitee, poucas correções"
+release,AlistGo/alist,v3.57.0,Correções de segurança junto com novo driver em versão minor
+release,AlistGo/alist,v3.60.0,"Novas funcionalidades: driver GuangYaPan, frp, suporte MCP"
+release,AlistGo/alist,v3.64.0,Release composta apenas de correções de bugs
+release,BigPizzaV3/CodexPlusPlus,v1.1.4,Correção de problema de plugin e fallback do zed
+release,BigPizzaV3/CodexPlusPlus,v1.1.6,"Várias funcionalidades novas: conversão de protocolo, marketplace de scripts"
+release,BigPizzaV3/CodexPlusPlus,v1.2.14,"Novo repasse de User-Agent e melhorias, com algumas correções"
+release,BigPizzaV3/CodexPlusPlus,v1.2.22,Corrige comportamento indevido introduzido em PR anterior
+release,BigPizzaV3/CodexPlusPlus,v1.2.33,Predominam correções de catálogo de modelos e compatibilidade
+release,CherryHQ/cherry-studio,v1.7.13,Release mista com novidades como cache Anthropic
+release,CherryHQ/cherry-studio,v1.7.24,Release regular mista de features e correções
+release,CherryHQ/cherry-studio,v1.8.4,Entrega suporte Linux e API REST de knowledge base
+release,CherryHQ/cherry-studio,v1.9.12,Quase todos os commits corrigem suporte a modelos e bugs
+release,CherryHQ/cherry-studio,v2.0.12,Release regular mista com features e correções
+release,HKUDS/Vibe-Trading,v0.1.6,Foco em correção crítica de empacotamento e bugs de providers
+release,HKUDS/Vibe-Trading,v0.1.7,Hardening de segurança junto com novas features de UI
+release,HKUDS/Vibe-Trading,v0.1.8,Grande release de conteúdo: Alpha Zoo
+release,HKUDS/Vibe-Trading,v0.1.9,Roll-up com novos conectores e funcionalidades
+release,HKUDS/Vibe-Trading,v0.1.15,Grande release com centenas de commits e features
+release,K-Dense-AI/scientific-agent-skills,v1.60.0,Adiciona nova skill de revisão de literatura
+release,K-Dense-AI/scientific-agent-skills,v2.40.0,Adiciona novas skills
+release,K-Dense-AI/scientific-agent-skills,v2.45.0,Adiciona suporte a Nextflow
+release,K-Dense-AI/scientific-agent-skills,v2.50.0,Atualização de versão e contagem de skills
+release,K-Dense-AI/scientific-agent-skills,v2.52.0,Adiciona skill arbor
+release,NG-ZORRO/ng-zorro-antd,21.0.0,Major com refatorações e novas features
+release,NG-ZORRO/ng-zorro-antd,21.0.2,Patch apenas com correções de bugs
+release,NG-ZORRO/ng-zorro-antd,22.0.0,Major com novas features e remoção de APIs
+release,NG-ZORRO/ng-zorro-antd,22.1.0,Minor com várias features novas
+release,NG-ZORRO/ng-zorro-antd,22.1.1,Patch apenas com correções de bugs
+release,acmesh-official/acme.sh,3.1.2,Novos recursos de perfil de certificado e deployhooks
+release,acmesh-official/acme.sh,3.1.3,Release regular grande com ARI e novos plugins
+release,acmesh-official/acme.sh,3.1.4,"Novas funcionalidades: ARI, dns-persist-01"
+release,acmesh-official/acme.sh,3.1.5,Novo modo ACME_PACKAGED e notificadores
+release,acmesh-official/acme.sh,3.1.6,Sem mudança funcional; corrige assinatura ausente da tag anterior
+release,aleo-labs-protocol/leo,v3.4.0,Suporte a arrays e loops vazios
+release,aleo-labs-protocol/leo,v3.5.0,"Novo formatador, ABI e comando devnode"
+release,aleo-labs-protocol/leo,leo-fmt-v4.3.1,Mistura de correções e novas features de CLI
+release,aleo-labs-protocol/leo,leo-lang-v4.3.3,Patch pequeno que habilita novos usos em views
+release,aleo-labs-protocol/leo,leo-lang-v4.3.4,Sem commits nem notas indicando correção
+release,alpinejs/alpine,v3.15.3,Melhorias no evaluator e suporte a ShadowRoot
+release,alpinejs/alpine,v3.15.7,Única mudança corrige disparo indevido de $watch
+release,alpinejs/alpine,v3.15.9,Release mista com novas features e correções
+release,alpinejs/alpine,v3.15.11,Correções junto com novos modificadores e suportes
+release,alpinejs/alpine,v3.17.2,Corrige alerta de segurança e inicialização CSP
+release,apify/crawlee-python,v1.3.1,Patch com seção apenas de correções
+release,apify/crawlee-python,v1.6.3,Patch corrigindo deadlocks e falhas
+release,apify/crawlee-python,v1.9.0,Nova FileDownloadCrawler e outras features
+release,apify/crawlee-python,v1.10.0,Minor com features de cliente HTTP e timeouts
+release,apify/crawlee-python,v1.10.2,Patch com única correção de bug
+release,ariga/atlas,v0.38.0,Release com novas features de banco de dados
+release,ariga/atlas,v1.0.0,Marco v1.0 com novas capacidades
+release,ariga/atlas,v1.1.0,Entrega Database Security as Code e novos bancos
+release,ariga/atlas,v1.2.0,"Novas features: data lineage, backups"
+release,ariga/atlas,v1.3.0,"Novas features: security graph, Atlas Scripts"
+release,basecamp/once,v0.1.2,"Pequenas correções de destroy, update e mensagens"
+release,basecamp/once,v0.1.3,"Patch com correções de race, logs e docs"
+release,basecamp/once,v0.1.5,Adiciona suporte a registries privados
+release,basecamp/once,v0.1.8,Nova opção de desativar animação
+release,basecamp/once,v0.3.0,Novos comandos de reset de secrets
+release,chatwoot/chatwoot,v4.8.0,Release com várias funcionalidades novas
+release,chatwoot/chatwoot,v4.9.0,Novos canais TikTok e Voice
+release,chatwoot/chatwoot,v4.9.1,Hotfix de atributos customizados
+release,chatwoot/chatwoot,v4.9.2,Hotfix de segurança sanitizando HTML de e-mail
+release,chatwoot/chatwoot,v4.14.2,Changelog com várias funcionalidades novas
+release,clojure/clojurescript,r1.12.110,"Melhorias de DCE, performance e build"
+release,clojure/clojurescript,r1.12.112,Corrige problema de REPL com :refer-global
+release,clojure/clojurescript,r1.12.116,Corrige processo de publicação no Maven Central
+release,clojure/clojurescript,r1.12.134,Mudanças em lite mode e melhorias mistas
+release,clojure/clojurescript,r1.12.145,Adiciona suporte a async/await além de correções
+release,cloudflare/workerd,v1.20260303.1,Release mista com propriedade nova e correções
+release,cloudflare/workerd,v1.20260517.1,Release diária automática sem mudanças descritas
+release,cloudflare/workerd,v1.20260630.1,Release diária automática sem mudanças descritas
+release,cloudflare/workerd,v1.20260801.1,Release diária automática sem mudanças descritas
+release,cloudflare/workerd,v1.20260904.1,"Suporte experimental de subscribe e testes, com correções"
+release,code-yeongyu/oh-my-openagent,v0.1.19,Adiciona dicas para padrões incompletos
+release,code-yeongyu/oh-my-openagent,v2.4.7,Patch corrigindo registro de tool_result e contexto
+release,code-yeongyu/oh-my-openagent,v3.7.2,"Mistura de correções, refatorações e novos hooks"
+release,code-yeongyu/oh-my-openagent,v5.0.0-beta.53,Beta com perfis de modelo e várias mudanças
+release,code-yeongyu/oh-my-openagent,v5.0.0-beta.66,Atualização de engine com novas capacidades
+release,conductor-oss/conductor,v3.21.23,Execução síncrona de workflows e upgrade JDK
+release,conductor-oss/conductor,v3.30.0,Grande release com testes e refatorações
+release,conductor-oss/conductor,v3.30.1,Patch com correção de thinking em Claude
+release,conductor-oss/conductor,v3.32.0,Suporte a agentes/A2A estável e muitas features
+release,conductor-oss/conductor,v3.33.0-rc10,Release candidate com features de agente Bedrock
+release,coollabsio/coolify,v4.0.0-beta.433,Novas features de UI e suporte a repositórios
+release,coollabsio/coolify,v4.0.0-beta.453,Focada em correções e segurança
+release,coollabsio/coolify,v4.0.0-beta.466,Correções de segurança contra command injection e bugs
+release,coollabsio/coolify,v4.3.12,Patch apenas com correções
+release,coollabsio/coolify,v4.3.18,Novas funcionalidades de alertas e backups
+release,coreyhaines31/marketingskills,v1.6.0,Nova skill e novas ferramentas
+release,coreyhaines31/marketingskills,v2.0.0,Major com renomeações e consolidação
+release,coreyhaines31/marketingskills,v2.5.0,Adiciona nova skill de ofertas
+release,coreyhaines31/marketingskills,v2.8.9,Adiciona novo ramo à skill prospecting
+release,coreyhaines31/marketingskills,v2.10.2,Adiciona camada de agent-readiness
+release,crazywhalecc/static-php-cli,2.7.7,Novas opções de build e frankenphp
+release,crazywhalecc/static-php-cli,2.7.8,Suporte a PHP 8.5 e novas libs
+release,crazywhalecc/static-php-cli,2.8.1,Corrige compatibilidade com gettext 1.0
+release,crazywhalecc/static-php-cli,2.8.2,Nova extensão com uma correção
+release,crazywhalecc/static-php-cli,2.8.3,Novas opções de build e correções
+release,crewAIInc/crewAI,0.203.2,Hotfix de versão sem funcionalidade nova
+release,crewAIInc/crewAI,1.10.1,Mistura de feature (Gemini) e várias correções
+release,crewAIInc/crewAI,1.14.4,Várias features novas além de correções
+release,crewAIInc/crewAI,1.15.10,Feature de coleta de eventos e documentação
+release,crewAIInc/crewAI,1.15.23,"Features novas (Gemini Flash, eval) com correções"
+release,dotnetcore/BootstrapBlazor,v9.11.1,"Release regular com features, docs e correções"
+release,dotnetcore/BootstrapBlazor,v9.11.2,Novos parâmetros e features junto a correções
+release,dotnetcore/BootstrapBlazor,v10.5.0,Predominam features e documentação
+release,dotnetcore/BootstrapBlazor,v10.9.1,Correções misturadas a novos parâmetros do DateTimePicker
+release,dotnetcore/BootstrapBlazor,v10.10.0,Release minor com novos parâmetros e correções
+release,feyninc/chonkie,v1.4.0,"Introduz Pipeline, TableChef e novos recursos"
+release,feyninc/chonkie,v1.5.0,"Suporte Py3.13, RowTokenizer e melhorias"
+release,feyninc/chonkie,v1.5.5,Patch focado em estabilidade e correção de bugs
+release,feyninc/chonkie,v1.6.0,"Suporte a tabelas HTML, API e async"
+release,feyninc/chonkie,v1.6.2,Adiciona novo chunker TeraflopAI
+release,firezone/firezone,android-client-1.5.6,Notas genéricas; commits mistos de refatoração e features
+release,firezone/firezone,macos-client-1.5.12,Commits majoritariamente refatoração e testes
+release,firezone/firezone,headless-client-1.5.9,Sem evidência de propósito corretivo
+release,firezone/firezone,macos-client-1.5.18,Apenas dois commits de correção
+release,firezone/firezone,gui-client-1.5.17,Sem evidência de propósito corretivo
+release,frappe/erpnext,v15.87.1,Patch corrigindo validação de delivery note parcial
+release,frappe/erpnext,v15.91.3,Patch corrigindo validação de endereço em drop ship
+release,frappe/erpnext,v15.108.2,Notas listam apenas correções de bugs
+release,frappe/erpnext,v16.23.0,Release com seção de features
+release,frappe/erpnext,v15.120.0,Breaking changes e novos campos/funcionalidades
+release,getsentry/self-hosted,26.1.0,Release mensal regular com feature e dependências
+release,getsentry/self-hosted,26.3.0,Release regular com feature e correção
+release,getsentry/self-hosted,26.6.0,Mudança de configuração do taskbroker e features
+release,getsentry/self-hosted,26.7.0,Hard stop com features e segurança misturadas
+release,getsentry/self-hosted,26.7.2,Patch de vulnerabilidade crítica SAML SSO
+release,gradio-app/gradio,@gradio/dropdown@0.11.2,"Apenas correções, incluindo segurança"
+release,gradio-app/gradio,@gradio/accordion@0.5.33,Apenas atualização de dependências
+release,gradio-app/gradio,@gradio/highlightedtext@0.11.6,Apenas atualização de dependências
+release,gradio-app/gradio,@gradio/annotatedimage@0.12.1,Apenas atualização de dependências
+release,gradio-app/gradio,@gradio/json@0.8.1,Apenas atualização de dependências
+release,guhcostan/mac-cleaner-cli,v1.1.5,Renomeação do pacote e melhorias de README
+release,guhcostan/mac-cleaner-cli,v1.1.8,Release para corrigir erro de versão do Node.js
+release,guhcostan/mac-cleaner-cli,v1.1.9,Foco em corrigir cálculo de tamanho de symlinks
+release,guhcostan/mac-cleaner-cli,v1.3.0,Nova funcionalidade File Picker e melhorias
+release,guhcostan/mac-cleaner-cli,v1.3.3,Patch corrigindo erros EPERM na limpeza
+release,headroomlabs-ai/headroom,v0.9.5,Apenas correções de bugs
+release,headroomlabs-ai/headroom,v0.20.17,Correções de extra image e janela de assinatura
+release,headroomlabs-ai/headroom,v0.21.6,Hotfix de teste de empacotamento
+release,headroomlabs-ai/headroom,v0.21.9,Corrige flag duplicada que quebrava import
+release,headroomlabs-ai/headroom,v0.21.26,Sem notas nem commits indicando correção
+release,kata-containers/kata-containers,3.22.0,Release minor regular com muitas mudanças
+release,kata-containers/kata-containers,3.23.0,Novas funcionalidades como VM template
+release,kata-containers/kata-containers,3.25.0,Release regular com features e correções
+release,kata-containers/kata-containers,3.27.0,Release regular com features e manutenção
+release,kata-containers/kata-containers,4.2.0,Release regular com atualizações e features
+release,kestra-io/kestra,v0.24.9,Inclui features e melhorias de desempenho
+release,kestra-io/kestra,v1.0.22,Patch com uma única correção
+release,kestra-io/kestra,v1.0.24,Patch com correções de concorrência e trigger
+release,kestra-io/kestra,v0.23.33,Patch LTS apenas com correções
+release,kestra-io/kestra,v1.0.50,Patch LTS majoritariamente correções
+release,keycloak/keycloak,26.4.2,Patch com correções e ajustes de documentação
+release,keycloak/keycloak,26.4.4,Patch majoritariamente com correções
+release,keycloak/keycloak,26.5.1,Patch com correções de bugs
+release,keycloak/keycloak,26.7.1,Patch com correções de segurança (CVEs)
+release,keycloak/keycloak,26.7.3,Patch com correções de segurança e bugs
+release,keystonejs/keystone,2026-03-19,Correção de vulnerabilidade de segurança
+release,keystonejs/keystone,2026-07-01,Backport de correção de segurança
+release,keystonejs/keystone,2026-07-31,Patch corrigindo comboboxes de relacionamento
+release,keystonejs/keystone,2026-08-03,Correções de basePath e alinhamento de dependência
+release,keystonejs/keystone,2026-08-31,Novas features como tipo Session
+release,lfnovo/open-notebook,v1.5.0,Adiciona suporte a internacionalização
+release,lfnovo/open-notebook,v1.6.2,Hotfix de erro de conexão llama.cpp
+release,lfnovo/open-notebook,v1.7.0,Major feature de gerenciamento de credenciais
+release,lfnovo/open-notebook,v1.8.2,"Novos provedores e idioma, além de correções"
+release,lfnovo/open-notebook,v1.11.0,Hardening de segurança junto a novas features
+release,lineofflight/frankfurter,v2.1.1,Corrige ordenação da resposta de rates
+release,lineofflight/frankfurter,v2.3.1,Corrige término de containers no startup
+release,lineofflight/frankfurter,v2.3.3,Restaura provedores de taxas quebrados
+release,lineofflight/frankfurter,v2.3.5,Mudança de escopo de dados do provedor BSP
+release,lineofflight/frankfurter,v2.5.0,Adiciona provedor e novas rotas
+release,max-sixty/worktrunk,v0.4.0,Nova flag e mudança de comportamento
+release,max-sixty/worktrunk,v0.13.2,Patch corrigindo hashes do Homebrew
+release,max-sixty/worktrunk,v0.18.1,Patch com correções de submódulos e mensagens
+release,max-sixty/worktrunk,v0.38.0,Melhorias e features em hooks
+release,max-sixty/worktrunk,v0.52.0,Nova operação wt step tether
+release,microsoft/playwright,v1.56.1,Patch com cherry-picks de correções
+release,microsoft/playwright,v1.58.2,Patch com correções do trace viewer e chromium
+release,microsoft/playwright,v1.59.0,Release minor com nova API screencast
+release,microsoft/playwright,v1.61.1,Patch listando apenas bug fixes
+release,microsoft/playwright,v1.62.0,Novo modelo de component testing
+release,microsoft/vcpkg,2025.10.17,Snapshot periódico com atualizações de ports
+release,microsoft/vcpkg,2026.04.27,Snapshot periódico com atualizações e novos ports
+release,microsoft/vcpkg,2026.05.25,Snapshot periódico com atualizações de ports
+release,microsoft/vcpkg,2026.06.01,Snapshot periódico com novos ports e atualizações
+release,microsoft/vcpkg,2026.07.29,Snapshot periódico com atualizações de ports
+release,moscajs/aedes,v1.0.0,Major com migração ESM e novas opções
+release,moscajs/aedes,v1.0.1,Corrige condição de types no package.json
+release,moscajs/aedes,v1.0.2,Corrige imports em arquivos .d.ts
+release,moscajs/aedes,v1.1.0,"Redução de dependências, não é correção"
+release,moscajs/aedes,v1.1.3,Correção de vulnerabilidade de DoS
+release,nguyenphutrong/quotio,v0.5.0,Novo modo de operação e correções
+release,nguyenphutrong/quotio,v0.7.3,Refatoração de fallback com feature e correção
+release,nguyenphutrong/quotio,v0.7.10,Mistura de features de UI e correções
+release,nguyenphutrong/quotio,v0.26.0,Novas features como upload de auth files
+release,nguyenphutrong/quotio,v0.29.0,Única mudança corrige prompts do keychain
+release,nicolargo/glances,v4.4.1,"corrige problema da API REST, sem novidades"
+release,nicolargo/glances,v4.5.0,release grande com novas funcionalidades de monitoramento
+release,nicolargo/glances,v4.5.1,release de estabilidade corrigindo regressões da 4.5.0
+release,nicolargo/glances,v4.5.3,"mistura correções com novas funções (LXC, ClickHouse)"
+release,nicolargo/glances,v4.5.4,correções junto com novo plugin Rockchip MPP
+release,nocodb/nocodb,0.265.1,release declarada de correção de bugs
+release,nocodb/nocodb,0.301.0,"release de funcionalidades: dark mode, webhooks, agregações"
+release,nocodb/nocodb,0.301.1,bug fix release corrigindo regressão da 0.301.0
+release,nocodb/nocodb,2026.05.2,introduz Gantt View e Shared Pages
+release,nocodb/nocodb,2026.06.1,introduz Custom Sync e outras funcionalidades
+release,openebs/openebs,v4.4.0,versão minor com novas funcionalidades e correções
+release,openebs/openebs,v4.5.0,versão minor com melhorias funcionais
+release,openebs/openebs,v4.5.1,"patch com correções, inclusive problema crítico no Mayastor"
+release,openebs/openebs,v4.6.0,versão minor com novas versões dos engines e funções
+release,openebs/openebs,v4.6.1,patch com correções direcionadas sobre a 4.6.0
+release,openwrt/openwrt,v24.10.6,"release de manutenção da série estável, foco em correções"
+release,openwrt/openwrt,v25.12.3,service release da série estável com correções
+release,openwrt/openwrt,v25.12.4,service release com suporte a novos dispositivos
+release,openwrt/openwrt,v25.12.5,service release de manutenção com backports de correções
+release,openwrt/openwrt,v24.10.8,release de segurança da série em manutenção
+release,openziti/zrok,v1.1.7,traz nova opção de agente além do ajuste de build
+release,openziti/zrok,v1.1.10,inclui mudança funcional (cookies) além de correção
+release,openziti/zrok,v2.0.2,corrige vulnerabilidade de symlink traversal no WebDAV
+release,openziti/zrok,v1.1.13,corrige liberação de nomes ao remover shares via v1
+release,openziti/zrok,v2.0.6,notas centradas em correções de falhas no controlador
+release,pocket-id/pocket-id,v2.0.0,versão major com novas funcionalidades e breaking changes
+release,pocket-id/pocket-id,v2.0.1,patch corrigindo perda de privilégio admin e UI
+release,pocket-id/pocket-id,v2.2.0,correções acompanhadas de novas funcionalidades
+release,pocket-id/pocket-id,v2.4.0,versão minor mista com correções e novidades
+release,pocket-id/pocket-id,v2.13.0,versão minor com correções e melhorias
+release,pola-rs/polars,py-1.38.0,versão minor com melhorias de desempenho e novidades
+release,pola-rs/polars,py-1.39.0,versão minor com desempenho e novas funções
+release,pola-rs/polars,py-1.41.0,versão minor com destaques de funcionalidades
+release,pola-rs/polars,rs-0.55.1,melhorias de desempenho e funções junto a correções
+release,pola-rs/polars,py-1.44.2,patch de backport com correções
+release,puppeteer/puppeteer,puppeteer-v24.26.0,adiciona funcionalidade fetchPostData
+release,puppeteer/puppeteer,puppeteer-v24.26.1,patch sincronizando correções de a11y e Chrome
+release,puppeteer/puppeteer,puppeteer-core-v24.26.1,patch com correções de a11y e Chrome
+release,puppeteer/puppeteer,puppeteer-v24.37.3,patch de sincronização com correção em dependência
+release,puppeteer/puppeteer,browsers-v2.13.2,patch corrigindo uso de shell no setup.exe
+release,securego/gosec,v2.23.0,adiciona motor de análise taint e regras
+release,securego/gosec,v2.26.1,"apenas atualização do cosign, sem correção relevante"
+release,securego/gosec,v2.27.0,novas opções e ajustes de dependências
+release,securego/gosec,v2.27.1,reverte dependência para evitar quebra de versão Go
+release,securego/gosec,v2.29.0,maioria das mudanças são correções de falsos positivos e bugs
+release,spring-cloud/spring-cloud-gateway,v5.0.0-M3,milestone com nova funcionalidade
+release,spring-cloud/spring-cloud-gateway,v4.2.6,atualização de documentação e dependências
+release,spring-cloud/spring-cloud-gateway,v4.3.2,release regular com dependências e novas funções
+release,spring-cloud/spring-cloud-gateway,v5.0.1,traz novas funcionalidades
+release,spring-cloud/spring-cloud-gateway,v4.3.5,corrige CVE mas também entrega novas funcionalidades
+release,sqlfluff/sqlfluff,4.0.0,versão major com suporte a Rust
+release,sqlfluff/sqlfluff,4.0.1.post1,post release para corrigir pipeline de publicação
+release,sqlfluff/sqlfluff,4.0.4,re-release corrigindo publicação do pacote rust
+release,sqlfluff/sqlfluff,4.2.1,release declarada de correção de distribuição
+release,sqlfluff/sqlfluff,4.2.2,patch focado em correções do parser
+release,storytold/artcraft,artcraft-v0.2.0,release de app sem evidência de correção
+release,storytold/artcraft,artcraft-v0.3.0,adiciona suporte Hunyuan 3D e outras funções
+release,storytold/artcraft,artcraft-windows-v0.5.0,build Windows sem evidência de correção
+release,storytold/artcraft,artcraft-v0.23.0,novos parâmetros e recursos de interface
+release,storytold/artcraft,artcraft-v0.24.0,"mistura de limpeza, ajustes e pequenas melhorias"
+release,sublimehq/package_control,4.2.4,maioria das mudanças são correções
+release,sublimehq/package_control,4.2.5,correções de bibliotecas e cacert
+release,sublimehq/package_control,4.2.6,corrige repositórios e limpeza de bibliotecas
+release,sublimehq/package_control,4.2.7,corrige ordem das versões Python suportadas
+release,sublimehq/package_control,4.2.8,principalmente correções de remoção de bibliotecas
+release,unslothai/unsloth,v0.1.25-beta,melhorias de desempenho e novas detecções
+release,unslothai/unsloth,v0.1.41-beta,release focada em correções do Studio
+release,unslothai/unsloth,v0.1.42-beta,novo suporte a chamadas de API e outras funções
+release,unslothai/unsloth,v0.1.512-beta,"novos modelos, modo Deep Research e funções"
+release,unslothai/unsloth,v0.1.808-beta,ganhos de desempenho e novidades além de correções
+release,virgiliojr94/book-to-skill,v1.0.0,primeira release formal com funcionalidades
+release,virgiliojr94/book-to-skill,v1.1.0,adiciona suporte ao GitHub Copilot CLI
+release,virgiliojr94/book-to-skill,v1.2.0,transforma em pacote instalável e novas funções
+release,virgiliojr94/book-to-skill,v1.3.0,segurança e nova detecção de capítulos
+release,virgiliojr94/book-to-skill,v1.4.0,release de confiabilidade com correções de extração
+release,warpdotdev/warp,v0.2026.04.29.08.56.stable_00,release estável regular sem indício de correção
+release,warpdotdev/warp,v0.2026.05.20.09.21.preview_00,release preview regular
+release,warpdotdev/warp,v0.2026.05.27.09.22.preview_00,preview com mudanças variadas e novidades
+release,warpdotdev/warp,v0.2026.05.27.09.22.stable_00,release estável regular sem indício de correção
+release,warpdotdev/warp,v0.2026.06.03.09.49.preview_00,preview com novas funcionalidades
+release,werf/werf,v2.52.0,adiciona novas flags de deploy
+release,werf/werf,v2.51.7,patch corrigindo colisão de variável no build
+release,werf/werf,v2.55.6,patch com correções de symlinks e hooks
+release,werf/werf,v2.69.0,adiciona suporte a unidades absolutas
+release,werf/werf,v2.72.0,nova funcionalidade de limpeza junto a correção
+release,xyflow/xyflow,@xyflow/svelte@1.4.1,patch com correções de seleção
+release,xyflow/xyflow,@xyflow/system@0.0.75,"melhoria de tipo, não correção"
+release,xyflow/xyflow,@xyflow/svelte@1.5.2,patch com correções de tipos
+release,xyflow/xyflow,@xyflow/react@12.11.1,patch com correções de tipos e desempenho
+release,xyflow/xyflow,@xyflow/svelte@1.6.1,patch com correções de tipos
+release,yamadashy/repomix,v1.9.2,melhoria no tratamento de .gitignore
+release,yamadashy/repomix,v1.11.0,nova opção --split-output
+release,yamadashy/repomix,v1.14.0,grande melhoria de desempenho e novidades
+release,yamadashy/repomix,v1.16.0,novos níveis de inclusão por arquivo
+release,yamadashy/repomix,v1.17.0,novos processadores de arquivo customizados
+release,zhouxiaoka/autoclip,v1.2.0,novo cliente desktop para macOS
+release,zhouxiaoka/autoclip,v1.3.1,interface em oito idiomas e melhorias
+release,zhouxiaoka/autoclip,v1.3.2,nova publicação em plataformas externas
+release,zhouxiaoka/autoclip,v1.3.5,release dominada por correções de importação e preview
+release,zhouxiaoka/autoclip,v1.4.0,nova análise visual e editor unificado
