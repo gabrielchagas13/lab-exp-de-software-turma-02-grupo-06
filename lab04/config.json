@@ -9,5 +9,11 @@
     "n_por_grupo": 30,
     "seed": 42,
     "saida": "data/real.csv"
+  },
+  "dashboard": {
+    "saida": "dashboard/index.html",
+    "repo_url": "https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06",
+    "projects_url": null,
+    "pages_url": null
   }
 }

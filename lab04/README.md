@@ -84,7 +84,43 @@ média do grupo tratado é puxada por poucos valores extremos, o que infla o
 erro-padrão do t; o Mann-Whitney usa só a ordenação. Sob `--efeito 0` nenhum
 dos dois rejeita.
 
-### Testes
+## Dashboard (#78)
+
+Um comando gera o dashboard inteiro em um único HTML, publicável no GitHub Pages:
+
+```bash
+python -m dashboard --config config.json
+```
+
+A saída vai para `dashboard/index.html` (configurável em `config.json`, chave
+`dashboard.saida`, ou com `--saida`). O dashboard reaproveita `simulacao.executar`,
+então o conjunto simulado e os testes são os mesmos de `python -m simulacao` com
+a mesma semente, e rodar duas vezes gera um HTML idêntico.
+
+A página segue as sete seções do enunciado. Por enquanto estão prontas:
+
+| Seção | Gráfico | Conteúdo |
+|---|---|---|
+| 1. Cenário e dados | **G1** | histogramas reais × simulados por grupo, com a curva da lognormal do gerador; botão para alternar entre escala log e horas |
+| 2. Estatística sob H0 | **G2** | distribuição da estatística sob H0 de cada teste, região de rejeição (α = 5%, bicaudal) sombreada e p-valor do exemplo como área hachurada |
+
+As seções 3 a 7 aparecem como "em construção", com link para a issue que vai
+preenchê-las (#79 a #84).
+
+**Cores:** cada teste tem uma cor fixa em todos os gráficos (t de Welch
+`#0072B2`, Mann-Whitney `#D55E00`). Os gráficos novos devem importar
+`CORES_TESTE` de `dashboard/graficos.py` em vez de escolher cores próprias.
+
+**Links do topo:** vêm de `config.json` (`dashboard.repo_url`, `projects_url`,
+`pages_url`). Enquanto um deles for `null`, aparece como "(pendente)".
+
+| Arquivo | Conteúdo |
+|---|---|
+| `dashboard/distribuicoes.py` | curvas sob H0 com a mesma aproximação do scipy, para que a área desenhada seja o p-valor da tabela |
+| `dashboard/graficos.py` | G1, G2 e a paleta fixa por teste |
+| `dashboard/pagina.py` | HTML e as sete seções |
+
+## Testes
 
 ```bash
 python -m pytest tests -q
