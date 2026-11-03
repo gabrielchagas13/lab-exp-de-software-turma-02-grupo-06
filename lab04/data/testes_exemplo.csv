@@ -1,0 +1,3 @@
+teste,estatistica,p_valor,efeito_nome,efeito,efeito_interpretacao,rejeita_h0
+t de Welch,1.6894561086044322,0.10184751234965568,d de Cohen,0.43621569151822365,pequeno,False
+Mann-Whitney U,736.0,2.4327116616469627e-05,delta de Cliff,0.6355555555555557,grande,True
