@@ -1,0 +1,13 @@
+{
+  "seed": 42,
+  "coleta": {
+    "repo": "MCPJam/inspector",
+    "bot": "coderabbitai[bot]",
+    "janela": "2026-07-01..2026-09-30",
+    "excluir_autores": ["app/dependabot", "app/renovate", "app/github-actions"],
+    "paginas": 3,
+    "n_por_grupo": 30,
+    "seed": 42,
+    "saida": "data/real.csv"
+  }
+}
