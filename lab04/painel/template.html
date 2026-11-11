@@ -110,7 +110,7 @@ footer{padding:40px 0 70px;color:var(--muted);font-size:13px;border-top:1px soli
   <h2>60 pull requests, cada ponto é um</h2>
   <p class="sub"><b>Pergunta:</b> o tempo até o merge de PRs revisados pelo CodeRabbit é diferente do tempo dos PRs que ele não revisou? <b>H0:</b> as distribuições são iguais (para o Welch, as médias). <b>H1:</b> são diferentes. O teste é <b>bicaudal</b> porque o bot poderia tanto acelerar o merge (feedback imediato) quanto atrasar (mais rodadas de correção). O eixo está em escala log. Clique em um ponto para abrir o PR.</p>
   <div class="card"><div id="strip"></div></div>
-  <div class="pend">⚠ Expectativa do grupo (qual teste deve ganhar e por quê): pendente, #77 / #83.</div>
+  <div class="card" style="margin-top:16px"><div class="kicker" style="margin-bottom:8px">o que o grupo previu antes de simular</div><ol id="prev" class="note" style="margin:0;padding-left:20px"></ol></div>
 </section>
 
 <section id="modelo">
@@ -120,7 +120,7 @@ footer{padding:40px 0 70px;color:var(--muted);font-size:13px;border-top:1px soli
   <div class="row" style="margin-bottom:12px"><button class="btn" id="resample">↻ sortear amostra simulada</button></div>
   <div class="grid2"><div class="card" id="g1-com_bot"></div><div class="card" id="g1-sem_bot"></div></div>
   <div class="leg"><span><i style="background:var(--real)"></i>real (n=30)</span><span><i style="background:var(--sim)"></i>simulado</span><span><i style="background:var(--ok)"></i>lognormal ajustada</span></div>
-  <div class="pend">⚠ Texto de 2–4 frases sobre o G1 (o que mostra + o que concluímos): pendente, #83.</div>
+  <p class="note">Em horas, os dados têm uma cauda longa: a média do grupo com bot (22,8 h) é cinco vezes a mediana. Em escala log, a assimetria desaparece e a lognormal ajustada acompanha bem a densidade real dos dois grupos. As amostras sorteadas do modelo se espalham como as reais, então é razoável simular com esse modelo. Essa é justamente a situação em que um teste de médias e um teste de postos podem discordar.</p>
 </section>
 
 <section id="nula">
@@ -132,7 +132,7 @@ footer{padding:40px 0 70px;color:var(--muted);font-size:13px;border-top:1px soli
     <span class="live" id="perm-live"><i></i><span id="perm-n">0</span> permutações</span>
   </div>
   <div class="grid2"><div class="card" id="g2-welch"></div><div class="card" id="g2-mw"></div></div>
-  <div class="pend">⚠ Texto de 2–4 frases sobre o G2: pendente, #83.</div>
+  <p class="note">O histograma de permutações converge para a curva teórica nos dois testes, o que mostra que o p-valor é só a fração de “mundos sem efeito” que produzem algo tão extremo quanto o observado. O valor do Mann-Whitney (z ≈ 3,1) fica bem além da região de rejeição. O do Welch (t ≈ 2,2) fica na borda dela. Além disso, o p empírico do Welch se afasta do teórico, porque com dados tão assimétricos a aproximação pela t de Student deixa de ser exata.</p>
 </section>
 
 <section id="lab">
@@ -171,7 +171,7 @@ footer{padding:40px 0 70px;color:var(--muted);font-size:13px;border-top:1px soli
   <div class="card" id="g3"></div>
   <div class="leg"><span><i style="background:var(--welch)"></i>t de Welch</span><span><i style="background:var(--mw)"></i>Mann-Whitney</span></div>
   <p class="note" id="t1-note"></p>
-  <div class="pend">⚠ Texto de 2–4 frases sobre o G3: pendente, #79 / #83.</div>
+  
 </section>
 
 <section id="poder">
@@ -181,7 +181,7 @@ footer{padding:40px 0 70px;color:var(--muted);font-size:13px;border-top:1px soli
   <div class="row" id="g4-tabs" style="margin-bottom:12px"></div>
   <div class="card" id="g4"></div>
   <p class="note" id="g4-note"></p>
-  <div class="pend">⚠ Texto de 2–4 frases sobre o G4: pendente, #80 / #83.</div>
+  <p class="note">No efeito observado nos dados reais (≈ 5×), com 30 PRs por grupo, o poder do Mann-Whitney fica entre 62% (4×) e 84% (6×), enquanto o do Welch fica entre 15% e 24%. Essa é a contrapartida da Q1: o Welch economiza em falsos positivos e paga com efeitos reais que passam sem ser detectados.</p>
 </section>
 
 <section id="amostra">
@@ -189,7 +189,7 @@ footer{padding:40px 0 70px;color:var(--muted);font-size:13px;border-top:1px soli
   <h2>Quantos PRs seriam necessários?</h2>
   <p class="sub">Poder no cenário base para cada combinação de n por grupo e razão de medianas. As células com contorno atingem 80%. Compare os dois mapas: a região “clara” do Mann-Whitney é muito maior.</p>
   <div class="grid2"><div class="card" id="hm-welch"></div><div class="card" id="hm-mw"></div></div>
-  <div class="pend">⚠ Discussão de tamanho de amostra (poder com o n real, n necessário para 80%): pendente, #83.</div>
+  <p class="note" id="amostra-note"></p>
 </section>
 
 <section id="reais">
@@ -205,11 +205,11 @@ footer{padding:40px 0 70px;color:var(--muted);font-size:13px;border-top:1px soli
 <section id="conclusao">
   <div class="kicker">09 · conclusão</div>
   <h2>Esperado × encontrado</h2>
-  <div class="pend">⚠ Seção 7 (esperado × encontrado, recomendação e quando ela muda): pendente, #84.</div>
+  <div class="card" style="overflow-x:auto"><table id="conc"></table></div><div class="card" style="margin-top:16px;border-left:4px solid var(--mw)"><div class="kicker" style="margin-bottom:6px">recomendação</div><p class="note" id="rec" style="margin:0"></p></div><p class="note"><b>Quando a recomendação muda:</b> com dados pouco assimétricos (use o botão “quase normal” no laboratório) ou com amostras grandes, o Welch se recupera e os dois testes empatam. Se a pergunta for de fato sobre a <b>média</b> em horas (por exemplo, custo total de espera), o Mann-Whitney responde a outra pergunta; nesse caso, aplique o t aos dados em escala log.</p>
 </section>
 
 </main>
-<footer><div class="wrap">Gerado por <span class="mono">python -m painel</span> · seed <span class="mono" id="f-seed"></span> · dados: <span class="mono">lab04/data/real.csv</span> · grupo 06, turma 02.</div></footer>
+<footer><div class="wrap">Navegue com ← → como slides. Gerado por <span class="mono">python -m painel</span> · seed <span class="mono" id="f-seed"></span> · dados: <span class="mono">lab04/data/real.csv</span> · grupo 06, turma 02.</div></footer>
 <div class="tip" id="tip"></div>
 
 <script>
@@ -555,6 +555,38 @@ const lab = (()=>{
   d3.select('#tab').html('<thead><tr><th>Teste</th><th>Estatística</th><th>p-valor</th><th>Tamanho de efeito</th><th>Conclusão (α = 5%)</th></tr></thead><tbody>'+
     R.tabela.map(r=>`<tr><td>${r.teste}</td><td class="mono">${r.estatistica.replace('.',',')}</td><td class="mono">${fp(r.p)}</td><td class="mono">${r.efeito}</td><td><span class="tag ${r.p<.05?'rej':'nrej'}">${r.conclusao}</span></td></tr>`).join('')+'</tbody>');
   d3.select('#real-note').html(`Os dois testes rejeitam H0: PRs revisados pelo CodeRabbit levam mais tempo até o merge, com mediana ${f2(R.razao)}× maior. A evidência do Mann-Whitney (p ≈ ${f3(R.mw.p)}) é cerca de ${int(Math.round(R.welch.p/R.mw.p))}× mais forte que a do Welch (p ≈ ${f3(R.welch.p)}), o que é coerente com a simulação: com σ(log) ≈ ${f2(D.base.sigma)}, o Welch perde muito poder. Cliff δ = ${f2(R.mw.delta)} fica no limite de um efeito grande (|δ| ≥ 0,474, Romano et al.). Já o Cohen d (${f2(R.welch.d)}) não é confiável aqui, porque média e desvio são puxados por poucos PRs muito longos.`);
+}
+
+/* ---------- previsões, tamanho de amostra, conclusão ---------- */
+{
+  const md=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>');
+  d3.select('#prev').selectAll('li').data(D.previsoes).join('li').style('margin','6px 0').html(d=>md(d.previsto));
+  const gw=D.grade.filter(r=>r.teste==='welch'),gm=D.grade.filter(r=>r.teste==='mann_whitney');
+  const nmin=(rows,ef)=>{const r=rows.filter(x=>x.efeito===ef&&x.taxa>=.8).sort((a,b)=>a.n-b.n)[0];return r?'n = '+r.n:'mais de '+d3.max(rows,x=>x.n)};
+  const at=(rows,n,ef)=>rows.find(x=>x.n===n&&x.efeito===ef).taxa;
+  d3.select('#amostra-note').html(`Com o n da coleta (30 por grupo) e efeito de 4×, o poder é de ${pct(at(gm,30,4))} no Mann-Whitney e ${pct(at(gw,30,4))} no Welch. Para chegar a 80% com efeito de 2×, o Mann-Whitney precisa de <b>${nmin(gm,2)}</b> PRs por grupo, e o Welch de <b>${nmin(gw,2)}</b>. Com efeito de 3×, os números são ${nmin(gm,3)} e ${nmin(gw,3)}. Em dados tão assimétricos, coletar mais PRs ajuda os dois testes, mas não elimina a desvantagem do Welch.`);
+  const w1=simAt('base',1,'welch'),m1=simAt('base',1,'mann_whitney'),w2=simAt('base',2,'welch'),m2=simAt('base',2,'mann_whitney');
+  const tag=(t,c)=>`<span class="tag ${c}">${t}</span>`;
+  const linhas=[
+    [D.previsoes[0].previsto,`Poder com razão 2×: Mann-Whitney ${pct(m2.taxa)} contra Welch ${pct(w2.taxa)}. Nos dados reais, p = ${fp(R.mw.p)} contra ${f3(R.welch.p)}.`,tag('confirmada','rej')],
+    [D.previsoes[1].previsto,`${pct(w1.taxa)} contra 5% nominais (IC ${pct(w1.ic_inf)}–${pct(w1.ic_sup)}). O desvio existe, mas para o lado <b>conservador</b>, ou seja, menos falsos positivos e não mais.`,tag('parcial','nrej')],
+    [D.previsoes[2].previsto,`${pct(m1.taxa)} (IC ${pct(m1.ic_inf)}–${pct(m1.ic_sup)}), calibrado em todos os cenários de Q3.`,tag('confirmada','rej')],
+  ];
+  d3.select('#conc').html('<thead><tr><th>Previsto (antes de simular)</th><th>Encontrado</th><th>Veredito</th></tr></thead><tbody>'+linhas.map(l=>`<tr><td>${md(l[0])}</td><td>${l[1]}</td><td>${l[2]}</td></tr>`).join('')+'</tbody>');
+  d3.select('#rec').html(md(D.recomendacao));
+}
+
+/* ---------- modo apresentação: ← → / PageUp PageDown / espaço ---------- */
+{
+  const secs=[document.querySelector('header.hero'),...document.querySelectorAll('main section')];
+  const cur=()=>{let i=0;secs.forEach((s,k)=>{if(s.getBoundingClientRect().top<=80)i=k});return i};
+  addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT')return;
+    const f=['ArrowRight','PageDown',' '].includes(e.key),b=['ArrowLeft','PageUp'].includes(e.key);
+    if(!f&&!b)return;e.preventDefault();
+    const i=Math.max(0,Math.min(secs.length-1,cur()+(f?1:-1)));
+    window.scrollTo({top:secs[i].getBoundingClientRect().top+scrollY-54,behavior:'smooth'});
+  });
 }
 </script>
 </body>

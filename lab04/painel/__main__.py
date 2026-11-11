@@ -10,6 +10,7 @@ import numpy as np
 from scipy import stats
 
 import sim
+from simulacao.cenario import PREVISOES, RECOMENDACAO
 
 AQUI = Path(__file__).resolve().parent
 
@@ -27,6 +28,8 @@ def payload(reps):
     reais = sim.testes_reais(df)
     return {
         "reps": reps,
+        "previsoes": PREVISOES,
+        "recomendacao": RECOMENDACAO,
         "seed": sim.SEED,
         "pontos": df[["grupo", "numero", "autor", "horas_ate_merge", "url"]]
         .rename(columns={"horas_ate_merge": "h"}).to_dict("records"),

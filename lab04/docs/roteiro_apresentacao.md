@@ -11,17 +11,21 @@ a uma seção da página, e a barra de navegação do topo serve de índice.
 > estiverem abertas, a seção correspondente aparece como "em construção" no
 > dashboard e o número a dizer na fala ainda não existe.
 
-| # | Bloco | Quem | Tempo | Seção do dashboard |
+> **Página da apresentação:** [painel interativo](https://gabrielchagas13.github.io/lab-exp-de-software-turma-02-grupo-06/lab04/painel/)
+> (navegar com ← → como slides). O [dashboard estático](https://gabrielchagas13.github.io/lab-exp-de-software-turma-02-grupo-06/lab04/dashboard/)
+> fica como material de apoio/entrega.
+
+| # | Bloco | Quem | Tempo | Seção do painel |
 |---|---|---|---|---|
-| 1 | Abertura e pergunta | — | 1 min | 1 |
-| 2 | Dados e por que lognormal | — | 2 min | 1 (G1) |
-| 3 | Hipóteses: os dois testes não testam a mesma coisa | — | 2 min | 1 |
-| 4 | De onde vem o p-valor | — | 2 min | 2 (G2) |
-| 5 | Q1: erro tipo I | — | 3 min | 3 (G3) |
-| 6 | ⏳ Q2: poder | — | 2 min | 4 (G4) |
-| 7 | Q3: violações de pressupostos | — | 1 min | 5 |
-| 8 | Os testes nos dados reais | — | 1 min | 6 |
-| 9 | Conclusão e recomendação | — | 1 min | 7 |
+| 1 | Abertura e pergunta | — | 1 min | topo + 01 (os 60 PRs) |
+| 2 | Dados e por que lognormal | — | 2 min | 02 (G1, botão “sortear”) |
+| 3 | Hipóteses: os dois testes não testam a mesma coisa | — | 2 min | 01 (hipóteses e previsões) |
+| 4 | De onde vem o p-valor | — | 2 min | 03 (G2, permutações ao vivo) |
+| 5 | Q1: erro tipo I | — | 3 min | 04 (laboratório, preset “H0 base”) + 05 (G3) |
+| 6 | Q2: poder | — | 2 min | 04 (preset “efeito real”) + 06 (G4) + 07 |
+| 7 | Q3: violações de pressupostos | — | 1 min | 04 (presets “outliers”, “n = 10”) + abas do G4 |
+| 8 | Os testes nos dados reais | — | 1 min | 08 (veredito) |
+| 9 | Conclusão e recomendação | — | 1 min | 09 (esperado × encontrado) |
 
 Preencher a coluna "Quem" na reunião de alinhamento. Sugestão: quem fez a issue
 apresenta o bloco correspondente.
