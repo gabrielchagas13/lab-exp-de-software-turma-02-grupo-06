@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welch × Mann-Whitney</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<style>
+:root{
+  --bg:#0a0d14; --panel:#111725; --panel2:#161e2f; --line:#232c40; --text:#e8ebf2; --muted:#8a93a8;
+  --welch:#4f8cff; --mw:#ff8a3d; --rej:#ff4d6d; --ok:#3ddc97; --real:#e8ebf2; --sim:#6b7590;
+  --mono:'JetBrains Mono',ui-monospace,monospace; --sans:'Space Grotesk',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;font-size:16px}
+a{color:var(--welch)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+nav{position:sticky;top:0;z-index:20;background:rgba(10,13,20,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:18px;align-items:center;height:52px;overflow-x:auto;white-space:nowrap;font-size:14px}
+nav a{color:var(--muted);text-decoration:none} nav a:hover{color:var(--text)}
+nav .brand{font-family:var(--mono);color:var(--text);font-weight:600}
+nav .sp{flex:1}
+.hero{padding:72px 0 40px}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(34px,6vw,64px);line-height:1.04;margin:14px 0 18px;letter-spacing:-.02em;font-weight:700}
+h1 .w{color:var(--welch)} h1 .m{color:var(--mw)}
+.lede{font-size:19px;color:#c3c9d6;max-width:760px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:36px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.kpi b{display:block;font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-.02em}
+.kpi span{color:var(--muted);font-size:13.5px}
+section{padding:56px 0;border-top:1px solid var(--line)}
+h2{font-size:clamp(24px,3.4vw,34px);margin:6px 0 8px;letter-spacing:-.01em}
+.sub{color:var(--muted);max-width:780px;margin:0 0 22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{fill:var(--muted);font-family:var(--mono);font-size:11px}
+.axis path,.axis line{stroke:var(--line)}
+.gridl line{stroke:var(--line);stroke-dasharray:2 4}
+.gridl path{display:none}
+.btn{font:500 14px var(--sans);background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+.btn:hover{border-color:var(--muted)} .btn.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tip{position:fixed;pointer-events:none;background:#000;border:1px solid var(--line);padding:6px 9px;border-radius:8px;font:12px var(--mono);opacity:0;transition:opacity .1s;z-index:50}
+.leg{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:6px 0 10px}
+.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.mono{font-family:var(--mono)}
+.note{color:#c3c9d6;max-width:860px}
+.pend{background:rgba(255,196,0,.08);border:1px dashed #b88a00;color:#e8c766;border-radius:10px;padding:10px 14px;margin-top:14px;font-size:14px}
+/* laboratório */
+.lab{display:grid;grid-template-columns:300px 1fr;gap:16px}
+@media (max-width:900px){.lab{grid-template-columns:1fr}}
+.ctrl label{display:block;font-size:13px;color:var(--muted);margin-top:14px}
+.ctrl label b{float:right;color:var(--text);font-family:var(--mono);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--text)}
+.presets .btn{font-size:12.5px;padding:5px 11px}
+.score{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.score .s{background:var(--panel2);border-radius:12px;padding:12px 14px;border-left:4px solid}
+.score .s b{font-family:var(--mono);font-size:34px;display:block;line-height:1.1}
+.score .s small{color:var(--muted);font-family:var(--mono)}
+.verdict{font-size:14px;color:#c3c9d6;min-height:44px;margin-top:6px}
+.live{display:inline-flex;align-items:center;gap:6px;font:12px var(--mono);color:var(--muted)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.live.off i{background:var(--muted);box-shadow:none}
+/* tabela */
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font:600 12px var(--mono)}
+.tag.rej{background:rgba(255,77,109,.15);color:var(--rej)}
+.tag.nrej{background:rgba(138,147,168,.15);color:var(--muted)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.vs{grid-template-columns:1fr}}
+.vcard{border-radius:16px;padding:20px;background:var(--panel);border:1px solid var(--line);border-top:4px solid}
+.vcard h3{margin:0 0 4px;font-size:20px}
+.vcard .big{font:600 44px var(--mono);letter-spacing:-.03em}
+.vcard dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0 0;font-size:14px}
+.vcard dt{color:var(--muted)} .vcard dd{margin:0;font-family:var(--mono)}
+.meter{height:10px;border-radius:5px;background:var(--panel2);position:relative;margin-top:12px;overflow:hidden}
+.meter i{position:absolute;top:0;bottom:0;left:0;border-radius:5px}
+footer{padding:40px 0 70px;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <span class="brand">lab04 · welch×mw</span>
+  <a href="#prs">PRs</a><a href="#modelo">Modelo</a><a href="#nula">H0</a><a href="#lab">Laboratório</a>
+  <a href="#tipo1">Tipo I</a><a href="#poder">Poder</a><a href="#amostra">Amostra</a><a href="#reais">Veredito</a><a href="#conclusao">Conclusão</a>
+  <span class="sp"></span>
+  <a href="https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/tree/main/lab04">código ↗</a>
+  <a href="https://github.com/gabrielchagas13/lab-exp-de-software-turma-02-grupo-06/issues?q=LAB04">issues ↗</a>
+</div></nav>
+
+<header class="wrap hero">
+  <div class="kicker">Lab 04 · Testes de hipótese por dentro · MCPJam/inspector · jul–set 2026</div>
+  <h1>O CodeRabbit atrasa o merge?<br>E em qual teste dá pra <span class="w">confiar</span>, no <span class="w">t de Welch</span> ou no <span class="m">Mann-Whitney</span>?</h1>
+  <p class="lede">Pegamos 60 PRs reais, ajustamos um modelo, simulamos <span class="mono" id="h-reps"></span> réplicas por cenário e colocamos os dois testes para disputar sob as mesmas condições. Cada gráfico abaixo pode ser explorado: passe o mouse, clique, arraste os controles.</p>
+  <div class="kpis" id="kpis"></div>
+</header>
+
+<main class="wrap">
+
+<section id="prs">
+  <div class="kicker">01 · cenário</div>
+  <h2>60 pull requests, cada ponto é um</h2>
+  <p class="sub"><b>Pergunta:</b> o tempo até o merge de PRs revisados pelo CodeRabbit é diferente do tempo dos PRs que ele não revisou? <b>H0:</b> as distribuições são iguais (para o Welch, as médias). <b>H1:</b> são diferentes. O teste é <b>bicaudal</b> porque o bot poderia tanto acelerar o merge (feedback imediato) quanto atrasar (mais rodadas de correção). O eixo está em escala log. Clique em um ponto para abrir o PR.</p>
+  <div class="card"><div id="strip"></div></div>
+  <div class="pend">⚠ Expectativa do grupo (qual teste deve ganhar e por quê): pendente, #77 / #83.</div>
+</section>
+
+<section id="modelo">
+  <div class="kicker">02 · G1 · real × simulado</div>
+  <h2>Uma lognormal descreve bem esses tempos?</h2>
+  <p class="sub">A curva é a lognormal ajustada a cada grupo e a área cinza é a densidade dos dados reais. Use o botão para sortear uma amostra simulada de 30 PRs do modelo e comparar com os 30 reais logo abaixo. Se o modelo for bom, as duas fileiras de pontos têm que parecer da mesma família.</p>
+  <div class="row" style="margin-bottom:12px"><button class="btn" id="resample">↻ sortear amostra simulada</button></div>
+  <div class="grid2"><div class="card" id="g1-com_bot"></div><div class="card" id="g1-sem_bot"></div></div>
+  <div class="leg"><span><i style="background:var(--real)"></i>real (n=30)</span><span><i style="background:var(--sim)"></i>simulado</span><span><i style="background:var(--ok)"></i>lognormal ajustada</span></div>
+  <div class="pend">⚠ Texto de 2–4 frases sobre o G1 (o que mostra + o que concluímos): pendente, #83.</div>
+</section>
+
+<section id="nula">
+  <div class="kicker">03 · G2 · a distribuição sob H0</div>
+  <h2>De onde sai o p-valor: embaralhando os rótulos ao vivo</h2>
+  <p class="sub">Se o bot não fizesse diferença, os rótulos “com bot” e “sem bot” seriam arbitrários. Aqui eles são <b>embaralhados milhares de vezes</b> e a estatística de cada teste é recalculada a cada embaralhamento. O histograma que vai se formando é a distribuição nula empírica. A curva é a teórica (t de Student / Normal), em vermelho fica a região de rejeição a 5%, e a linha tracejada marca o valor observado nos dados reais. O p-valor é a fração do histograma que fica além dessa linha.</p>
+  <div class="row" style="margin-bottom:12px">
+    <button class="btn on" id="perm-play">❚❚ pausar</button><button class="btn" id="perm-reset">↺ recomeçar</button>
+    <span class="live" id="perm-live"><i></i><span id="perm-n">0</span> permutações</span>
+  </div>
+  <div class="grid2"><div class="card" id="g2-welch"></div><div class="card" id="g2-mw"></div></div>
+  <div class="pend">⚠ Texto de 2–4 frases sobre o G2: pendente, #83.</div>
+</section>
+
+<section id="lab">
+  <div class="kicker">04 · laboratório ao vivo · Q1 + Q2 + Q3</div>
+  <h2>Monte o seu cenário e veja os testes competirem</h2>
+  <p class="sub">Cada réplica sorteia dois grupos do modelo lognormal, roda os dois testes e joga o p-valor no histograma correspondente. Com <b>razão de medianas = 1</b> (H0 verdadeira), a barra vermelha (p&lt;0,05) mede o <b>erro tipo I</b>, que deveria ficar em 5%, e um teste válido produz p-valores uniformes. Com razão &gt; 1, a mesma barra mede o <b>poder</b>. Tudo é calculado no seu navegador.</p>
+  <div class="lab">
+    <div class="card ctrl">
+      <div class="presets row">
+        <button class="btn" data-p="h0">H0 base</button><button class="btn" data-p="real">efeito real (×5)</button>
+        <button class="btn" data-p="out">outliers</button><button class="btn" data-p="small">n = 10</button><button class="btn" data-p="norm">quase normal</button>
+      </div>
+      <label>Razão de medianas (com/sem) <b id="v-ef"></b></label><input type="range" id="i-ef" min="0" max="2.08" step="0.01" value="0">
+      <label>n por grupo <b id="v-n"></b></label><input type="range" id="i-n" min="5" max="100" step="1" value="30">
+      <label>σ do log (assimetria) <b id="v-s"></b></label><input type="range" id="i-s" min="0.2" max="3.5" step="0.05" value="2.24">
+      <label>Outliers (prob. de ×20) <b id="v-o"></b></label><input type="range" id="i-o" min="0" max="0.3" step="0.01" value="0">
+      <label>Réplicas <b id="v-r"></b></label><input type="range" id="i-r" min="500" max="10000" step="500" value="4000">
+      <div style="margin-top:16px" class="live" id="lab-live"><i></i><span id="lab-prog">0</span></div>
+      <div style="margin-top:14px"><div class="kicker" style="margin-bottom:4px">última amostra sorteada</div><div id="lab-sample"></div></div>
+    </div>
+    <div class="card">
+      <div class="score">
+        <div class="s" style="border-color:var(--welch)"><small>t de Welch · p&lt;0,05</small><b id="sc-w">–</b><small id="ci-w"></small></div>
+        <div class="s" style="border-color:var(--mw)"><small>Mann-Whitney · p&lt;0,05</small><b id="sc-m">–</b><small id="ci-m"></small></div>
+      </div>
+      <div class="grid2"><div id="ph-welch"></div><div id="ph-mw"></div></div>
+      <div class="verdict" id="lab-verdict"></div>
+    </div>
+  </div>
+</section>
+
+<section id="tipo1">
+  <div class="kicker">05 · G3 · Q1 + Q3 · erro tipo I</div>
+  <h2>Sob H0, quem erra quanto?</h2>
+  <p class="sub"><span id="t1-reps"></span> réplicas por barra com H0 verdadeira, seed <span class="mono" id="t1-seed"></span>. Os bigodes são o IC 95% de Wilson. Um teste bem calibrado fica na linha de 5%. Ficar abaixo dela parece seguro, mas é sinal de um teste conservador, que vai deixar efeitos passarem.</p>
+  <div class="card" id="g3"></div>
+  <div class="leg"><span><i style="background:var(--welch)"></i>t de Welch</span><span><i style="background:var(--mw)"></i>Mann-Whitney</span></div>
+  <p class="note" id="t1-note"></p>
+  <div class="pend">⚠ Texto de 2–4 frases sobre o G3: pendente, #79 / #83.</div>
+</section>
+
+<section id="poder">
+  <div class="kicker">06 · G4 · Q2 + Q3 · poder</div>
+  <h2>Quanto efeito é preciso para cada teste enxergar?</h2>
+  <p class="sub">Proporção de rejeições à medida que a razão de medianas cresce a partir de 1. A faixa em volta das curvas é o IC 95%. A linha pontilhada marca 80% de poder, e a vertical marca o efeito observado nos dados reais. Troque o cenário para ver os pressupostos sendo violados.</p>
+  <div class="row" id="g4-tabs" style="margin-bottom:12px"></div>
+  <div class="card" id="g4"></div>
+  <p class="note" id="g4-note"></p>
+  <div class="pend">⚠ Texto de 2–4 frases sobre o G4: pendente, #80 / #83.</div>
+</section>
+
+<section id="amostra">
+  <div class="kicker">07 · tamanho de amostra</div>
+  <h2>Quantos PRs seriam necessários?</h2>
+  <p class="sub">Poder no cenário base para cada combinação de n por grupo e razão de medianas. As células com contorno atingem 80%. Compare os dois mapas: a região “clara” do Mann-Whitney é muito maior.</p>
+  <div class="grid2"><div class="card" id="hm-welch"></div><div class="card" id="hm-mw"></div></div>
+  <div class="pend">⚠ Discussão de tamanho de amostra (poder com o n real, n necessário para 80%): pendente, #83.</div>
+</section>
+
+<section id="reais">
+  <div class="kicker">08 · dados reais · seção 6</div>
+  <h2>O veredito nos 60 PRs</h2>
+  <p class="sub">Os dois testes aplicados aos dados coletados. As barras abaixo mostram o p-valor de cada teste em escala log, contra o limiar de 0,05.</p>
+  <div class="vs" id="vs"></div>
+  <div class="card" style="margin-top:16px;overflow-x:auto"><table id="tab"></table></div>
+  <p class="note" id="real-note"></p>
+  <p class="note"><b>Limitação:</b> o estudo é observacional. O bot não foi atribuído aos PRs de forma aleatória, e os PRs que ele revisa podem ser maiores ou de outros autores. A diferença encontrada é uma associação, não um efeito causal do bot.</p>
+</section>
+
+<section id="conclusao">
+  <div class="kicker">09 · conclusão</div>
+  <h2>Esperado × encontrado</h2>
+  <div class="pend">⚠ Seção 7 (esperado × encontrado, recomendação e quando ela muda): pendente, #84.</div>
+</section>
+
+</main>
+<footer><div class="wrap">Gerado por <span class="mono">python -m painel</span> · seed <span class="mono" id="f-seed"></span> · dados: <span class="mono">lab04/data/real.csv</span> · grupo 06, turma 02.</div></footer>
+<div class="tip" id="tip"></div>
+
+<script>
+const D = /*__DATA__*/null;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = {welch:css('--welch'), mw:css('--mw'), rej:css('--rej'), ok:css('--ok'), real:css('--real'), sim:css('--sim'), line:css('--line'), muted:css('--muted')};
+const NOME = {welch:'t de Welch', mann_whitney:'Mann-Whitney', mw:'Mann-Whitney'};
+const loc = d3.formatLocale({decimal:',', thousands:'.', grouping:[3], currency:['R$','']});
+const pct = loc.format('.1%'), pct0 = loc.format('.0%'), f2 = loc.format('.2f'), f3 = loc.format('.3f'), int = loc.format(',d');
+const fp = p => p < 0.001 ? '< 0,001' : f3(p);
+const tip = d3.select('#tip');
+const showTip = (e, h) => tip.html(h).style('opacity', 1).style('left', (e.clientX + 12) + 'px').style('top', (e.clientY + 12) + 'px');
+const hideTip = () => tip.style('opacity', 0);
+
+/* ---------- estatística em JS ---------- */
+function lgamma(x){const g=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,.1208650973866179e-2,-.5395239384953e-5];let y=x,t=x+5.5;t-=(x+.5)*Math.log(t);let s=1.000000000190015;for(const c of g)s+=c/++y;return -t+Math.log(2.5066282746310005*s/x)}
+function betacf(a,b,x){let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<1e-30)d=1e-30;d=1/d;let h=d;for(let m=1;m<=200;m++){let m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<3e-12)break}return h}
+function ibeta(x,a,b){if(x<=0)return 0;if(x>=1)return 1;const bt=Math.exp(lgamma(a+b)-lgamma(a)-lgamma(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b}
+const pT2 = (t,df) => ibeta(df/(df+t*t), df/2, .5);
+function erf(x){const s=Math.sign(x);x=Math.abs(x);const t=1/(1+.3275911*x);return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x))}
+const Phi = z => .5*(1+erf(z/Math.SQRT2));
+const tpdf = (x,df) => Math.exp(lgamma((df+1)/2)-lgamma(df/2))/Math.sqrt(df*Math.PI)*Math.pow(1+x*x/df,-(df+1)/2);
+const npdf = x => Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);
+function welch(b,a){ // b = com bot, a = sem bot
+  const n1=b.length,n2=a.length,m1=d3.mean(b),m2=d3.mean(a),v1=d3.variance(b),v2=d3.variance(a);
+  const s1=v1/n1,s2=v2/n2,se=Math.sqrt(s1+s2),t=(m1-m2)/se,df=(s1+s2)**2/(s1*s1/(n1-1)+s2*s2/(n2-1));
+  return {t,df,p:pT2(t,df)};
+}
+function mannw(b,a){
+  const n1=b.length,n2=a.length,N=n1+n2,all=new Array(N);
+  for(let i=0;i<n1;i++)all[i]=[b[i],1];for(let i=0;i<n2;i++)all[n1+i]=[a[i],0];
+  all.sort((x,y)=>x[0]-y[0]);let R1=0,tie=0;
+  for(let i=0;i<N;){let j=i;while(j+1<N&&all[j+1][0]===all[i][0])j++;const r=(i+j+2)/2,k=j-i+1;if(k>1)tie+=k*k*k-k;for(let q=i;q<=j;q++)if(all[q][1])R1+=r;i=j+1}
+  const U=R1-n1*(n1+1)/2,mu=n1*n2/2,sd=Math.sqrt(n1*n2/12*((N+1)-tie/(N*(N-1))));
+  const z=(U-mu)/sd,zc=Math.max(0,Math.abs(U-mu)-.5)/sd;
+  return {U,z,p:Math.min(1,2*(1-Phi(zc)))};
+}
+function rng(seed){let s=seed>>>0;const u=()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};let spare=null;u.norm=()=>{if(spare!==null){const v=spare;spare=null;return v}let x,y,r;do{x=2*u()-1;y=2*u()-1;r=x*x+y*y}while(!r||r>=1);const f=Math.sqrt(-2*Math.log(r)/r);spare=y*f;return x*f};return u}
+const lognorm = (R,med,s,n) => Array.from({length:n},()=>Math.exp(Math.log(med)+s*R.norm()));
+
+/* ---------- dados ---------- */
+const P = D.pontos, G = ['com_bot','sem_bot'], GN = {com_bot:'com bot', sem_bot:'sem bot'};
+const hx = g => P.filter(d=>d.grupo===g).map(d=>d.h);
+const R = D.reais;
+d3.select('#h-reps').text(int(D.reps));
+['#t1-seed','#f-seed'].forEach(s=>d3.select(s).text(D.seed));
+d3.select('#t1-reps').text(int(D.reps));
+const simAt = (cen,ef,t) => D.sim.find(r=>r.cenario===cen&&Math.abs(r.efeito-ef)<1e-9&&r.teste===t);
+
+/* ---------- KPIs ---------- */
+{
+  const b0w=simAt('base',1,'welch').taxa, b0m=simAt('base',1,'mann_whitney').taxa;
+  const k=[
+    [f2(R.mediana.com_bot)+' h','mediana com bot, contra '+f2(R.mediana.sem_bot)+' h sem bot ('+f2(R.razao).replace(',00','')+'×)'],
+    ['p = '+fp(R.mw.p),'Mann-Whitney nos dados reais: rejeita H0 com folga'],
+    ['p = '+f3(R.welch.p),'t de Welch nos dados reais: rejeita H0 por pouco'],
+    [pct(b0w),'erro tipo I do Welch sob H0 (o nominal é 5%), o que mostra que ele é conservador'],
+  ];
+  d3.select('#kpis').selectAll('div').data(k).join('div').attr('class','kpi').html(d=>`<b>${d[0]}</b><span>${d[1]}</span>`);
+}
+
+/* ---------- helpers de gráfico ---------- */
+function frame(sel,W,H,m){const svg=d3.select(sel).append('svg').attr('viewBox',`0 0 ${W} ${H}`);return {svg,g:svg.append('g').attr('transform',`translate(${m.l},${m.t})`),w:W-m.l-m.r,h:H-m.t-m.b}}
+const logTicks = [0.01,0.1,1,10,100];
+const fmtH = h => h<1? int(Math.round(h*60))+' min' : f2(h)+' h';
+
+/* ---------- 01 strip/beeswarm ---------- */
+{
+  const {g,w,h}=frame('#strip',1100,300,{l:80,r:20,t:20,b:40});
+  const x=d3.scaleLog().domain([0.005,400]).range([0,w]);
+  const y=d3.scalePoint().domain(G).range([60,h-50]);
+  g.append('g').attr('class','gridl').call(d3.axisBottom(x).tickValues(logTicks.concat([400])).tickSize(h).tickFormat(''));
+  g.append('g').attr('class','axis').attr('transform',`translate(0,${h})`).call(d3.axisBottom(x).tickValues([0.01,0.1,1,10,100]).tickFormat(d=>d<1?int(d*60)+' min':int(d)+' h'));
+  const nodes=P.map(d=>({...d,x:x(Math.max(d.h,0.005)),y:y(d.grupo),tx:x(Math.max(d.h,0.005)),ty:y(d.grupo)}));
+  const fs=d3.forceSimulation(nodes).force('x',d3.forceX(d=>d.tx).strength(1)).force('y',d3.forceY(d=>d.ty).strength(.08)).force('c',d3.forceCollide(7.5)).stop();
+  for(let i=0;i<250;i++)fs.tick();
+  G.forEach(gr=>{
+    g.append('text').attr('x',-12).attr('y',y(gr)+4).attr('text-anchor','end').style('fill',C.real).style('font-size','13px').text(GN[gr]);
+    const md=R.mediana[gr],mn=R.media[gr];
+    g.append('line').attr('x1',x(md)).attr('x2',x(md)).attr('y1',y(gr)-42).attr('y2',y(gr)+42).attr('stroke',C.ok).attr('stroke-width',2);
+    g.append('text').attr('x',x(md)).attr('y',y(gr)-48).attr('text-anchor','middle').style('fill',C.ok).text('mediana '+fmtH(md));
+    g.append('path').attr('d',d3.symbol(d3.symbolTriangle,60)()).attr('transform',`translate(${x(mn)},${y(gr)+50}) rotate(180)`).attr('fill',C.muted);
+    g.append('text').attr('x',x(mn)).attr('y',y(gr)+68).attr('text-anchor','middle').text('média '+fmtH(mn));
+  });
+  g.selectAll('circle.pr').data(nodes).join('circle').attr('class','pr').attr('cx',d=>d.x).attr('cy',d=>d.y).attr('r',6.2)
+    .attr('fill',d=>d.grupo==='com_bot'?C.mw:C.welch).attr('fill-opacity',.85).attr('stroke','#0a0d14').style('cursor','pointer')
+    .on('mousemove',(e,d)=>showTip(e,`#${d.numero} · ${fmtH(d.h)}<br><span style="color:${C.muted}">@${d.autor}</span>`))
+    .on('mouseleave',hideTip).on('click',(e,d)=>window.open(d.url,'_blank'));
+}
+
+/* ---------- 02 G1 densidades ---------- */
+const g1 = {};
+function kde(vals,xs,bw){return xs.map(x=>[x,d3.mean(vals,v=>npdf((x-v)/bw))/bw])}
+G.forEach(gr=>{
+  const {g,w,h}=frame('#g1-'+gr,540,300,{l:40,r:12,t:28,b:66});
+  const a=D.ajuste[gr], lx=hx(gr).map(v=>Math.log10(Math.max(v,1e-3)));
+  const x=d3.scaleLinear().domain([-3,3]).range([0,w]);
+  const xs=d3.range(-3,3.01,.04), mu=Math.log10(a.mediana), sd=a.sigma/Math.LN10;
+  const fit=xs.map(v=>[v,npdf((v-mu)/sd)/sd]), k=kde(lx,xs,.28);
+  const y=d3.scaleLinear().domain([0,d3.max(fit.concat(k),d=>d[1])*1.15]).range([h-60,0]);
+  g.append('text').attr('x',0).attr('y',-10).style('fill',C.real).style('font-size','13px').text(`${GN[gr]} · mediana ${fmtH(a.mediana)} · σ(log) ${f2(a.sigma)}`);
+  g.append('path').datum(k).attr('d',d3.area().x(d=>x(d[0])).y0(y(0)).y1(d=>y(d[1])).curve(d3.curveBasis)).attr('fill',C.real).attr('fill-opacity',.14).attr('stroke',C.real).attr('stroke-opacity',.4);
+  g.append('path').datum(fit).attr('d',d3.line().x(d=>x(d[0])).y(d=>y(d[1])).curve(d3.curveBasis)).attr('fill','none').attr('stroke',C.ok).attr('stroke-width',2.2);
+  g.append('g').attr('class','axis').attr('transform',`translate(0,${h})`).call(d3.axisBottom(x).tickValues([-2,-1,0,1,2]).tickFormat(d=>{const v=10**d;return v<1?int(v*60)+'m':int(v)+'h'}));
+  const yr=h-40, ys=h-18;
+  g.append('text').attr('x',-4).attr('y',yr+4).attr('text-anchor','end').text('real');
+  g.append('text').attr('x',-4).attr('y',ys+4).attr('text-anchor','end').text('sim');
+  g.selectAll('circle.r').data(lx).join('circle').attr('cx',x).attr('cy',yr).attr('r',4).attr('fill',C.real).attr('fill-opacity',.6);
+  g1[gr]={g,x,ys,mu:a.mediana,s:a.sigma};
+});
+let g1seed=7;
+function resample(){
+  const Rg=rng(g1seed++);
+  G.forEach(gr=>{const o=g1[gr];const v=lognorm(Rg,o.mu,o.s,30).map(z=>Math.log10(z));
+    o.g.selectAll('circle.s').data(v).join(
+      en=>en.append('circle').attr('class','s').attr('cy',o.ys-30).attr('r',4).attr('fill',C.sim).attr('opacity',0).attr('cx',d=>o.x(Math.max(-3,Math.min(3,d)))),
+      up=>up).transition().duration(600).delay((d,i)=>i*12).attr('cx',d=>o.x(Math.max(-3,Math.min(3,d)))).attr('cy',o.ys).attr('opacity',.9);
+  });
+}
+d3.select('#resample').on('click',resample); resample();
+
+/* ---------- 03 G2 permutação ---------- */
+const perm = (()=>{
+  const all=P.map(d=>d.h), n1=hx('com_bot').length;
+  const obs={welch:R.welch.t, mw:mannw(hx('com_bot'),hx('sem_bot')).z};
+  const bins=d3.range(-5,5.0001,.25), counts={welch:new Array(bins.length-1).fill(0),mw:new Array(bins.length-1).fill(0)};
+  let N=0, ext={welch:0,mw:0}, running=true, Rp=rng(42);
+  const panels={};
+  [['welch','t de Welch',x=>tpdf(x,R.welch.df),d3.quantile?null:null],['mw','Mann-Whitney (z)',npdf]].forEach(([k,nm,pdf])=>{
+    const {g,w,h}=frame('#g2-'+k,540,300,{l:36,r:12,t:30,b:34});
+    const x=d3.scaleLinear().domain([-5,5]).range([0,w]), y=d3.scaleLinear().domain([0,.48]).range([h,0]);
+    const crit = k==='welch' ? (()=>{let lo=0,hi=10;for(let i=0;i<60;i++){const m=(lo+hi)/2;pT2(m,R.welch.df)>.05?lo=m:hi=m}return lo})() : 1.959964;
+    const xs=d3.range(-5,5.001,.02);
+    [-1,1].forEach(s=>g.append('path').datum(xs.filter(v=>v*s>=crit)).attr('d',d3.area().x(x).y0(h).y1(v=>y(pdf(v)))).attr('fill',C.rej).attr('fill-opacity',.28));
+    const bars=g.append('g');
+    g.append('path').datum(xs).attr('d',d3.line().x(x).y(v=>y(pdf(v)))).attr('fill','none').attr('stroke',C[k==='welch'?'welch':'mw']).attr('stroke-width',2.2);
+    const o=obs[k];
+    g.append('line').attr('x1',x(o)).attr('x2',x(o)).attr('y1',0).attr('y2',h).attr('stroke',C.real).attr('stroke-dasharray','5 4').attr('stroke-width',1.6);
+    g.append('text').attr('x',x(o)+(o>3.5?-6:6)).attr('y',14).attr('text-anchor',o>3.5?'end':'start').style('fill',C.real).text('observado '+f2(o));
+    g.append('g').attr('class','axis').attr('transform',`translate(0,${h})`).call(d3.axisBottom(x).ticks(9));
+    const lab=g.append('text').attr('x',0).attr('y',-12).style('fill',C.real).style('font-size','13px');
+    panels[k]={bars,x,y,h,lab,nm,crit,o};
+  });
+  function draw(){
+    for(const k in panels){const p=panels[k],c=counts[k],bw=.25;
+      p.bars.selectAll('rect').data(c).join('rect').attr('x',(d,i)=>p.x(bins[i])+.5).attr('width',p.x(bins[1])-p.x(bins[0])-1)
+        .attr('y',d=>p.y(N?d/(N*bw):0)).attr('height',d=>p.h-p.y(N?d/(N*bw):0))
+        .attr('fill',(d,i)=>{const mid=bins[i]+bw/2;return Math.abs(mid)>=Math.abs(p.o)?C.real:C.sim}).attr('fill-opacity',.55);
+      const pe = N? (ext[k]+1)/(N+1) : NaN;
+      const pt = k==='welch'?R.welch.p:R.mw.p;
+      p.lab.text(`${p.nm} · p empírico ${N?fp(pe):'–'} · p teórico ${fp(pt)}`);
+    }
+    d3.select('#perm-n').text(int(N));
+  }
+  function step(){
+    if(!running)return;
+    for(let it=0;it<60;it++){
+      const s=all.slice();for(let i=s.length-1;i>0;i--){const j=Math.floor(Rp()*(i+1));[s[i],s[j]]=[s[j],s[i]]}
+      const b=s.slice(0,n1),a=s.slice(n1);
+      const vals={welch:welch(b,a).t,mw:mannw(b,a).z};
+      for(const k in vals){const v=vals[k];if(Math.abs(v)>=Math.abs(obs[k])-1e-12)ext[k]++;const i=Math.floor((v+5)/.25);if(i>=0&&i<counts[k].length)counts[k][i]++}
+      N++;
+    }
+    draw();
+    if(N>=20000){running=false;setBtn()}else requestAnimationFrame(step);
+  }
+  function setBtn(){d3.select('#perm-play').classed('on',running).text(running?'❚❚ pausar':'▶ continuar');d3.select('#perm-live').classed('off',!running)}
+  d3.select('#perm-play').on('click',()=>{running=!running;setBtn();if(running)step()});
+  d3.select('#perm-reset').on('click',()=>{N=0;ext={welch:0,mw:0};for(const k in counts)counts[k].fill(0);Rp=rng(42);if(!running){running=true;setBtn();step()}});
+  draw();
+  let started=false;
+  new IntersectionObserver(es=>{if(es[0].isIntersecting&&!started){started=true;step()}},{threshold:.3}).observe(document.querySelector('#nula'));
+  running=true;
+  return {};
+})();
+
+/* ---------- 04 laboratório ---------- */
+const lab = (()=>{
+  const el=id=>document.getElementById(id);
+  const efOf=v=>Math.exp(v);        // slider em log: 0 → 1×, 2,08 → 8×
+  const st={ef:1,n:30,s:D.base.sigma,o:0,reps:4000,done:0,rej:{welch:0,mw:0},hist:{welch:new Array(20).fill(0),mw:new Array(20).fill(0)},R:null,gen:0};
+  const ph={};
+  ['welch','mw'].forEach(k=>{
+    const {g,w,h}=frame('#ph-'+k,420,230,{l:34,r:8,t:24,b:30});
+    const x=d3.scaleLinear().domain([0,1]).range([0,w]), y=d3.scaleLinear().range([h,0]);
+    g.append('text').attr('x',0).attr('y',-8).style('fill',k==='welch'?C.welch:C.mw).style('font-size','12.5px').text('p-valores · '+NOME[k]);
+    const bars=g.append('g'), uni=g.append('line').attr('stroke',C.muted).attr('stroke-dasharray','3 3');
+    g.append('g').attr('class','axis').attr('transform',`translate(0,${h})`).call(d3.axisBottom(x).ticks(5).tickFormat(loc.format('.1f')));
+    const ya=g.append('g').attr('class','axis');
+    ph[k]={bars,x,y,h,w,uni,ya,k};
+  });
+  const sm=frame('#lab-sample',280,90,{l:30,r:6,t:6,b:18});
+  const sx=d3.scaleLog().domain([0.003,3000]).range([0,sm.w]).clamp(true);
+  sm.g.append('g').attr('class','axis').attr('transform',`translate(0,${sm.h})`).call(d3.axisBottom(sx).tickValues([0.01,1,100]).tickFormat(d=>d<1?'36s':d===1?'1h':'100h'));
+  sm.g.append('text').attr('x',-4).attr('y',20).attr('text-anchor','end').text('com');
+  sm.g.append('text').attr('x',-4).attr('y',50).attr('text-anchor','end').text('sem');
+  let last=null;
+  function sync(){
+    st.ef=efOf(+el('i-ef').value);st.n=+el('i-n').value;st.s=+el('i-s').value;st.o=+el('i-o').value;st.reps=+el('i-r').value;
+    el('v-ef').textContent=f2(st.ef)+'×';el('v-n').textContent=st.n;el('v-s').textContent=f2(st.s);el('v-o').textContent=pct0(st.o);el('v-r').textContent=int(st.reps);
+    st.done=0;st.rej={welch:0,mw:0};for(const k in st.hist)st.hist[k].fill(0);st.R=rng(1000+(++st.gen));
+    d3.selectAll('.presets .btn').classed('on',false);
+    run(st.gen);
+  }
+  function one(){
+    const R_=st.R,med=D.base.mediana;
+    const a=lognorm(R_,med,st.s,st.n), b=lognorm(R_,med*st.ef,st.s,st.n);
+    if(st.o>0){for(const arr of [a,b])for(let i=0;i<arr.length;i++)if(R_()<st.o)arr[i]*=20}
+    const pw=welch(b,a).p, pm=mannw(b,a).p;
+    st.hist.welch[Math.min(19,Math.floor(pw*20))]++;st.hist.mw[Math.min(19,Math.floor(pm*20))]++;
+    if(pw<.05)st.rej.welch++;if(pm<.05)st.rej.mw++;st.done++;last={a,b};
+  }
+  function wilson(k,n){const z=1.96,p=k/n,den=1+z*z/n,c=(p+z*z/(2*n))/den,m=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/den;return [c-m,c+m]}
+  function draw(){
+    const ymax=Math.max(.2,d3.max([...st.hist.welch,...st.hist.mw])/Math.max(1,st.done)*1.1);
+    for(const k in ph){const p=ph[k],c=st.hist[k];p.y.domain([0,ymax]);
+      p.bars.selectAll('rect').data(c).join('rect').attr('x',(d,i)=>p.x(i/20)+.5).attr('width',p.w/20-1)
+        .attr('y',d=>p.y(st.done?d/st.done:0)).attr('height',d=>p.h-p.y(st.done?d/st.done:0))
+        .attr('fill',(d,i)=>i===0?C.rej:(k==='welch'?C.welch:C.mw)).attr('fill-opacity',(d,i)=>i===0?.95:.45);
+      p.uni.attr('x1',0).attr('x2',p.w).attr('y1',p.y(.05)).attr('y2',p.y(.05));
+      p.ya.call(d3.axisLeft(p.y).ticks(4).tickFormat(pct0));
+      const r=st.done?st.rej[k]/st.done:NaN, ci=st.done?wilson(st.rej[k],st.done):[NaN,NaN];
+      el(k==='welch'?'sc-w':'sc-m').textContent=st.done?pct(r):'–';
+      el(k==='welch'?'ci-w':'ci-m').textContent=st.done?`IC95% ${pct(ci[0])} – ${pct(ci[1])}`:'';
+    }
+    el('lab-prog').textContent=`${int(st.done)} / ${int(st.reps)} réplicas`;
+    d3.select('#lab-live').classed('off',st.done>=st.reps);
+    if(last){
+      const pts=[...last.b.map(v=>[v,22]),...last.a.map(v=>[v,52])];
+      sm.g.selectAll('circle').data(pts).join('circle').attr('r',2.6).attr('cx',d=>sx(d[0])).attr('cy',d=>d[1]+(Math.random()-.5)*10)
+        .attr('fill',d=>d[1]<40?C.mw:C.welch).attr('fill-opacity',.8);
+    }
+    const rw=st.rej.welch/st.done, rm=st.rej.mw/st.done;
+    let v='';
+    if(st.done){
+      if(Math.abs(st.ef-1)<.005) v=`<b>H0 é verdadeira</b>, então toda rejeição é um falso positivo. O Welch rejeita ${pct(rw)} e o Mann-Whitney ${pct(rm)}, contra 5% nominais. ${rw<.035?'O Welch está <b>conservador</b>: veja como os p-valores dele se acumulam perto de 1 em vez de ficarem uniformes.':rw>.065?'O Welch está <b>liberal</b>: rejeita mais que o prometido.':'Os dois estão bem calibrados aqui.'}`;
+      else v=`<b>H1 é verdadeira</b> (razão ${f2(st.ef)}×), então rejeitar é acertar. Poder do Welch: ${pct(rw)}; do Mann-Whitney: ${pct(rm)}. ${rm>rw*1.3?'O <b>Mann-Whitney</b> enxerga o efeito com mais frequência.':rw>rm*1.3?'O <b>Welch</b> leva vantagem neste cenário.':'Os dois estão praticamente empatados.'}`;
+    }
+    el('lab-verdict').innerHTML=v;
+  }
+  function run(gen){
+    const t0=performance.now();
+    while(st.done<st.reps&&performance.now()-t0<14)one();
+    draw();
+    if(st.done<st.reps&&gen===st.gen)requestAnimationFrame(()=>run(gen));
+  }
+  ['i-ef','i-n','i-s','i-o','i-r'].forEach(id=>el(id).addEventListener('input',sync));
+  const presets={h0:{ef:0,n:30,s:D.base.sigma,o:0},real:{ef:Math.log(R.razao),n:30,s:D.base.sigma,o:0},out:{ef:Math.log(2),n:30,s:D.base.sigma,o:.1},small:{ef:Math.log(2),n:10,s:D.base.sigma,o:0},norm:{ef:Math.log(1.3),n:30,s:.25,o:0}};
+  document.querySelectorAll('.presets .btn').forEach(b=>b.addEventListener('click',()=>{const p=presets[b.dataset.p];el('i-ef').value=p.ef;el('i-n').value=p.n;el('i-s').value=p.s;el('i-o').value=p.o;sync();b.classList.add('on')}));
+  el('i-s').value=D.base.sigma;
+  let started=false;
+  new IntersectionObserver(es=>{if(es[0].isIntersecting&&!started){started=true;sync();document.querySelector('[data-p=h0]').classList.add('on')}},{threshold:.2}).observe(document.querySelector('#lab'));
+  return st;
+})();
+
+/* ---------- 05 G3 ---------- */
+{
+  const cens=Object.keys(D.cenarios), tests=['welch','mann_whitney'];
+  const {g,w,h}=frame('#g3',1100,360,{l:50,r:20,t:24,b:44});
+  const x0=d3.scaleBand().domain(cens).range([0,w]).padding(.25), x1=d3.scaleBand().domain(tests).range([0,x0.bandwidth()]).padding(.12);
+  const y=d3.scaleLinear().domain([0,.075]).range([h,0]);
+  g.append('g').attr('class','gridl').call(d3.axisLeft(y).ticks(5).tickSize(-w).tickFormat(''));
+  g.append('g').attr('class','axis').call(d3.axisLeft(y).ticks(5).tickFormat(pct0));
+  g.append('g').attr('class','axis').attr('transform',`translate(0,${h})`).call(d3.axisBottom(x0).tickFormat(c=>D.cenarios[c].rotulo)).selectAll('text').style('fill',C.real).style('font-size','12.5px');
+  const rows=D.sim.filter(r=>r.efeito===1);
+  const gg=g.selectAll('g.c').data(rows).join('g').attr('transform',d=>`translate(${x0(d.cenario)+x1(d.teste)},0)`);
+  gg.append('rect').attr('width',x1.bandwidth()).attr('rx',4).attr('y',h).attr('height',0).attr('fill',d=>d.teste==='welch'?C.welch:C.mw)
+    .on('mousemove',(e,d)=>showTip(e,`${NOME[d.teste]} · ${D.cenarios[d.cenario].rotulo}<br>${pct(d.taxa)} (IC ${pct(d.ic_inf)}–${pct(d.ic_sup)})`)).on('mouseleave',hideTip)
+    .transition().duration(900).delay((d,i)=>i*60).attr('y',d=>y(d.taxa)).attr('height',d=>h-y(d.taxa));
+  gg.append('line').attr('x1',x1.bandwidth()/2).attr('x2',x1.bandwidth()/2).attr('y1',d=>y(d.ic_inf)).attr('y2',d=>y(d.ic_sup)).attr('stroke',C.real).attr('stroke-width',1.4);
+  gg.append('text').attr('x',x1.bandwidth()/2).attr('y',d=>y(d.ic_sup)-6).attr('text-anchor','middle').style('fill',C.real).text(d=>pct(d.taxa));
+  g.append('line').attr('x1',0).attr('x2',w).attr('y1',y(.05)).attr('y2',y(.05)).attr('stroke',C.rej).attr('stroke-dasharray','6 4').attr('stroke-width',1.6);
+  g.append('text').attr('x',w).attr('y',y(.05)-6).attr('text-anchor','end').style('fill',C.rej).text('α nominal = 5%');
+  const b=c=>simAt(c,1,'welch').taxa, m=c=>simAt(c,1,'mann_whitney').taxa;
+  d3.select('#t1-note').html(`O Mann-Whitney fica entre ${pct(d3.min(cens,m))} e ${pct(d3.max(cens,m))} em todos os cenários: como usa só a ordem dos dados, não se importa com a assimetria nem com o tamanho dos outliers. O Welch fica sempre <b>abaixo</b> de 5% (entre ${pct(d3.min(cens,b))} e ${pct(d3.max(cens,b))}). Em dados lognormais, a variância amostral vem inflada pelos valores extremos e o t raramente fica grande, então o teste quase nunca rejeita, nem quando deveria.`);
+}
+
+/* ---------- 06 G4 ---------- */
+{
+  const cens=Object.keys(D.cenarios), tests=['welch','mann_whitney'];
+  const {g,w,h}=frame('#g4',1100,400,{l:50,r:30,t:20,b:46});
+  const efs=[...new Set(D.sim.map(r=>r.efeito))];
+  const x=d3.scaleLog().domain([1,d3.max(efs)]).range([0,w]), y=d3.scaleLinear().domain([0,1]).range([h,0]);
+  g.append('g').attr('class','gridl').call(d3.axisLeft(y).ticks(5).tickSize(-w).tickFormat(''));
+  g.append('g').attr('class','axis').call(d3.axisLeft(y).ticks(5).tickFormat(pct0));
+  g.append('g').attr('class','axis').attr('transform',`translate(0,${h})`).call(d3.axisBottom(x).tickValues(efs).tickFormat(d=>loc.format('.2~f')(d)+'×'));
+  g.append('text').attr('x',w/2).attr('y',h+40).attr('text-anchor','middle').text('razão de medianas com/sem bot (escala log)');
+  g.append('line').attr('x1',0).attr('x2',w).attr('y1',y(.8)).attr('y2',y(.8)).attr('stroke',C.muted).attr('stroke-dasharray','2 4');
+  g.append('text').attr('x',4).attr('y',y(.8)-6).text('80% de poder');
+  g.append('line').attr('x1',x(R.razao)).attr('x2',x(R.razao)).attr('y1',0).attr('y2',h).attr('stroke',C.real).attr('stroke-dasharray','6 4');
+  g.append('text').attr('x',x(R.razao)+6).attr('y',12).style('fill',C.real).text(`efeito observado ≈ ${f2(R.razao)}×`);
+  const layers={};
+  tests.forEach(t=>{const col=t==='welch'?C.welch:C.mw;
+    layers[t]={band:g.append('path').attr('fill',col).attr('fill-opacity',.16),line:g.append('path').attr('fill','none').attr('stroke',col).attr('stroke-width',2.6),dots:g.append('g'),lab:g.append('text').style('fill',col).style('font-size','12.5px')}});
+  function show(c){
+    d3.selectAll('#g4-tabs .btn').classed('on',function(){return this.dataset.c===c});
+    tests.forEach(t=>{const s=D.sim.filter(r=>r.cenario===c&&r.teste===t).sort((a,b)=>a.efeito-b.efeito),L=layers[t];
+      L.band.datum(s).transition().duration(600).attr('d',d3.area().x(d=>x(d.efeito)).y0(d=>y(d.ic_inf)).y1(d=>y(d.ic_sup)));
+      L.line.datum(s).transition().duration(600).attr('d',d3.line().x(d=>x(d.efeito)).y(d=>y(d.taxa)));
+      L.dots.selectAll('circle').data(s).join('circle').attr('r',4.5).attr('fill',t==='welch'?C.welch:C.mw)
+        .on('mousemove',(e,d)=>showTip(e,`${NOME[t]} · razão ${f2(d.efeito)}×<br>${pct(d.taxa)} (IC ${pct(d.ic_inf)}–${pct(d.ic_sup)})`)).on('mouseleave',hideTip)
+        .transition().duration(600).attr('cx',d=>x(d.efeito)).attr('cy',d=>y(d.taxa));
+      const e=s[s.length-1];L.lab.transition().duration(600).attr('x',x(e.efeito)-6).attr('y',y(e.taxa)+(t==='welch'?18:-10)).attr('text-anchor','end').text(NOME[t]);
+    });
+    const at=t=>simAt(c,2,t).taxa, at4=t=>simAt(c,4,t).taxa;
+    d3.select('#g4-note').html(`<b>${D.cenarios[c].rotulo}:</b> com medianas 2× maiores, o Mann-Whitney detecta o efeito em ${pct(at('mann_whitney'))} das réplicas e o Welch em ${pct(at('welch'))}. Com 4×, os valores passam a ${pct(at4('mann_whitney'))} e ${pct(at4('welch'))}.`);
+  }
+  d3.select('#g4-tabs').selectAll('button').data(cens).join('button').attr('class','btn').attr('data-c',d=>d).text(d=>D.cenarios[d].rotulo).on('click',(e,d)=>show(d));
+  show('base');
+}
+
+/* ---------- 07 heatmaps ---------- */
+{
+  const ns=[...new Set(D.grade.map(r=>r.n))], efs=[...new Set(D.grade.map(r=>r.efeito))];
+  const col=d3.scaleSequential(d3.interpolateMagma).domain([0,1.05]);
+  ['welch','mann_whitney'].forEach(t=>{
+    const id=t==='welch'?'#hm-welch':'#hm-mw';
+    const {g,w,h}=frame(id,540,330,{l:60,r:10,t:30,b:44});
+    const x=d3.scaleBand().domain(efs).range([0,w]).padding(.06), y=d3.scaleBand().domain(ns).range([h,0]).padding(.06);
+    g.append('text').attr('x',0).attr('y',-12).style('fill',t==='welch'?C.welch:C.mw).style('font-size','13px').text(NOME[t]+' · poder (cenário base)');
+    g.append('g').attr('class','axis').attr('transform',`translate(0,${h})`).call(d3.axisBottom(x).tickFormat(d=>loc.format('.2~f')(d)+'×'));
+    g.append('g').attr('class','axis').call(d3.axisLeft(y).tickFormat(d=>'n='+d));
+    const rows=D.grade.filter(r=>r.teste===t);
+    const cell=g.selectAll('g.cell').data(rows).join('g').attr('transform',d=>`translate(${x(d.efeito)},${y(d.n)})`);
+    cell.append('rect').attr('width',x.bandwidth()).attr('height',y.bandwidth()).attr('rx',5).attr('fill',d=>col(d.taxa))
+      .attr('stroke',d=>d.taxa>=.8?'#fff':'none').attr('stroke-width',2)
+      .on('mousemove',(e,d)=>showTip(e,`n=${d.n}, razão ${f2(d.efeito)}×<br>poder ${pct(d.taxa)}`)).on('mouseleave',hideTip);
+    cell.append('text').attr('x',x.bandwidth()/2).attr('y',y.bandwidth()/2+4).attr('text-anchor','middle').style('pointer-events','none')
+      .style('fill',d=>d.taxa>.6?'#111':'#eee').style('font-size','11.5px').text(d=>pct0(d.taxa));
+  });
+}
+
+/* ---------- 08 veredito ---------- */
+{
+  const card=(k,nm,col,p,stat,eff)=>`<div class="vcard" style="border-top-color:${col}"><h3 style="color:${col}">${nm}</h3>
+    <div class="big">p = ${fp(p)}</div><span class="tag ${p<.05?'rej':'nrej'}">${p<.05?'rejeita H0':'não rejeita H0'}</span>
+    <div class="meter"><i style="width:${Math.min(100,(Math.log10(p)/-4)*100)}%;background:${col}"></i></div>
+    <div style="display:flex;justify-content:space-between;font:11px var(--mono);color:var(--muted);margin-top:4px"><span>p=1</span><span>0,05 ← limiar em ${pct0(Math.log10(.05)/-4)}</span><span>p=0,0001</span></div>
+    <dl><dt>estatística</dt><dd>${stat}</dd><dt>efeito</dt><dd>${eff}</dd></dl></div>`;
+  d3.select('#vs').html(
+    card('w','t de Welch',C.welch,R.welch.p,`t = ${f3(R.welch.t)} · gl = ${loc.format('.1f')(R.welch.df)}`,`Cohen d = ${f2(R.welch.d)}`)+
+    card('m','Mann-Whitney',C.mw,R.mw.p,`U = ${int(R.mw.U)}`,`Cliff δ = ${f2(R.mw.delta)} · razão de medianas = ${f2(R.razao)}`));
+  d3.select('#tab').html('<thead><tr><th>Teste</th><th>Estatística</th><th>p-valor</th><th>Tamanho de efeito</th><th>Conclusão (α = 5%)</th></tr></thead><tbody>'+
+    R.tabela.map(r=>`<tr><td>${r.teste}</td><td class="mono">${r.estatistica.replace('.',',')}</td><td class="mono">${fp(r.p)}</td><td class="mono">${r.efeito}</td><td><span class="tag ${r.p<.05?'rej':'nrej'}">${r.conclusao}</span></td></tr>`).join('')+'</tbody>');
+  d3.select('#real-note').html(`Os dois testes rejeitam H0: PRs revisados pelo CodeRabbit levam mais tempo até o merge, com mediana ${f2(R.razao)}× maior. A evidência do Mann-Whitney (p ≈ ${f3(R.mw.p)}) é cerca de ${int(Math.round(R.welch.p/R.mw.p))}× mais forte que a do Welch (p ≈ ${f3(R.welch.p)}), o que é coerente com a simulação: com σ(log) ≈ ${f2(D.base.sigma)}, o Welch perde muito poder. Cliff δ = ${f2(R.mw.delta)} fica no limite de um efeito grande (|δ| ≥ 0,474, Romano et al.). Já o Cohen d (${f2(R.welch.d)}) não é confiável aqui, porque média e desvio são puxados por poucos PRs muito longos.`);
+}
+</script>
+</body>
+</html>

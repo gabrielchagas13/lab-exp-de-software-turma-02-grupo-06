@@ -211,3 +211,9 @@ um checklist de antes de apresentar.
 ```bash
 python -m pytest tests -q
 ```
+
+## Painel interativo (#81, #82)
+```bash
+python -m painel               # gera painel/index.html (10.000 réplicas, seed 42, ~3 s)
+```
+Página com laboratório de simulação ao vivo (JS no navegador), distribuição nula por permutação dos dados reais, G3/G4 com os cenários de Q3 (`sigma_alto`, `outliers`, `n_pequeno`), mapa de poder n × efeito e o veredito nos dados reais. Os cálculos estão em `sim/`; as saídas, em `data/simulacao.csv` e `data/poder_por_n.csv`.

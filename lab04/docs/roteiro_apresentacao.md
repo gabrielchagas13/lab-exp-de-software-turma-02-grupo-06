@@ -19,8 +19,8 @@ a uma seção da página, e a barra de navegação do topo serve de índice.
 | 4 | De onde vem o p-valor | — | 2 min | 2 (G2) |
 | 5 | Q1: erro tipo I | — | 3 min | 3 (G3) |
 | 6 | ⏳ Q2: poder | — | 2 min | 4 (G4) |
-| 7 | ⏳ Q3: violações de pressupostos | — | 1 min | 5 |
-| 8 | ⏳ Os testes nos dados reais | — | 1 min | 6 |
+| 7 | Q3: violações de pressupostos | — | 1 min | 5 |
+| 8 | Os testes nos dados reais | — | 1 min | 6 |
 | 9 | Conclusão e recomendação | — | 1 min | 7 |
 
 Preencher a coluna "Quem" na reunião de alinhamento. Sugestão: quem fez a issue
@@ -140,16 +140,40 @@ Estrutura da fala, a completar quando a issue fechar:
 Fechar com: "é a contrapartida direta da Q1 — o Welch economiza em falsos
 positivos e paga em efeitos reais não detectados."
 
-## 7. ⏳ Q3: violações de pressupostos (1 min) — issue #81
+## 7. Q3: violações de pressupostos (1 min) — issue #81
 
-A completar. O código já suporta os três casos: σ desigual entre grupos,
-contaminação por outliers e n pequeno/desbalanceado.
+Mostrar o laboratório ao vivo do painel interativo (`painel/index.html`, botões
+**outliers** e **n = 10**) ou a tabela abaixo (10.000 réplicas, seed 42).
 
-## 8. ⏳ Os testes nos dados reais (1 min) — issue #82
+| Cenário | Tipo I Welch | Tipo I MW | Poder Welch (razão 2×) | Poder MW (razão 2×) |
+|---|---|---|---|---|
+| Base (σ log ≈ 2,24, n=30) | 1,7% | 4,7% | 4,8% | 20,4% |
+| Assimetria forte (σ ×1,5) | 0,7% | 4,7% | 1,2% | 11,2% |
+| Outliers (10% ×20) | 1,2% | 4,7% | 3,2% | 19,0% |
+| Amostra pequena (n=10) | 0,9% | 4,3% | 1,3% | 8,4% |
 
-A completar com a tabela dos dois testes aplicados aos 60 PRs coletados.
-Lembrar de repetir a limitação: **o bot não foi sorteado**, então nada disso é
-causal.
+> "Quanto mais a gente viola o que o t assume, mais o Welch fica conservador e
+> perde poder: com assimetria forte ele rejeita 0,7% sob H0 e só 1,2% com a
+> mediana dobrada. O Mann-Whitney fica em ~5% sob H0 em todos os cenários,
+> porque só usa a ordem dos dados: assimetria e tamanho de outlier não mudam
+> os postos."
+
+## 8. Os testes nos dados reais (1 min) — issue #82
+
+| Teste | Estatística | p-valor | Tamanho de efeito | Conclusão (α=5%) |
+|---|---|---|---|---|
+| t de Welch | t = 2,18 (gl = 30,8) | 0,037 | Cohen d = 0,56 | Rejeita H0 |
+| Mann-Whitney | U = 661 | 0,002 | Cliff δ = 0,47; razão de medianas = 5,14 | Rejeita H0 |
+
+> "Nos 60 PRs os dois testes rejeitam H0: PRs revisados pelo CodeRabbit levam
+> mais tempo até o merge, com mediana cerca de 5× maior. Mas a evidência do
+> Mann-Whitney é ~20× mais forte (p = 0,002 contra 0,037). É exatamente o que a
+> simulação previa: com essa assimetria o Welch quase não tem poder, e aqui ele
+> passou raspando. O Cliff δ de 0,47 está no limite de um efeito grande; o
+> Cohen d não é confiável porque a média é puxada por um PR de 203 h."
+
+Repetir a limitação: **o bot não foi sorteado**, então nada disso é causal.
+PRs que o bot revisa podem ser maiores ou de outros autores.
 
 ## 9. Conclusão e recomendação (1 min)
 
