@@ -206,3 +206,91 @@ def g2_nula(nulas, resultados, alfa):
     fig.update_layout(**LAYOUT_BASE, height=430,
                       legend=dict(orientation="h", y=-0.22, x=0.5, xanchor="center"))
     return fig
+
+
+# ---- G3 --------------------------------------------------------------------
+
+# Bins do histograma de p-valores: 20 faixas de 0,05 fazem a faixa p < 0,05,
+# que é a que decide a rejeição, coincidir exatamente com a primeira barra.
+BINS_P = 20
+
+
+def g3_erro_tipo1(resultados, alfa):
+    """G3: erro tipo I dos dois testes em réplicas com H0 verdadeira.
+
+    Painel da esquerda: distribuição dos p-valores sob H0. Um teste calibrado
+    produz p-valores uniformes, isto é, barras na linha tracejada; barras baixas
+    na ponta esquerda significam que o teste quase nunca chega a p pequeno.
+
+    Painel da direita: taxa de rejeição observada contra o α nominal. A
+    diagonal é a calibração perfeita; abaixo dela o teste é conservador e acima
+    é anticonservador. O ponto destacado é o α do estudo, com o intervalo de
+    confiança de 95% da estimativa.
+    """
+    chaves = ("welch", "mannwhitney")
+    qualquer = resultados[chaves[0]]
+    fig = make_subplots(
+        rows=1, cols=2, horizontal_spacing=0.11,
+        subplot_titles=(f"p-valores sob H0 ({qualquer.taxa.repeticoes:,} réplicas)"
+                        .replace(",", "."),
+                        "Taxa de rejeição × α nominal"))
+
+    esperado = qualquer.taxa.repeticoes / BINS_P
+    for chave in chaves:
+        r, cor = resultados[chave], CORES_TESTE[chave]
+        fig.add_trace(go.Histogram(
+            x=r.p_valores, xbins=dict(start=0.0, end=1.0, size=1.0 / BINS_P),
+            name=NOMES_TESTE[chave], legendgroup=chave,
+            marker=dict(color=_rgba(cor, 0.55), line=dict(color=cor, width=1)),
+            hovertemplate=f"{NOMES_TESTE[chave]}<br>p em %{{x}}<br>"
+                          "%{y} réplicas<extra></extra>"), row=1, col=1)
+
+    fig.add_hline(y=esperado, line=dict(color=COR_MODELO, width=2, dash="dash"),
+                  annotation_text="uniforme (teste calibrado)",
+                  annotation_position="top right", row=1, col=1)
+    # Marca a faixa que decide a rejeição: tudo à esquerda dela é um falso
+    # positivo, já que aqui H0 é verdadeira por construção.
+    fig.add_vrect(x0=0.0, x1=alfa, fillcolor=_rgba(COR_MODELO, 0.12), line_width=0,
+                  annotation_text=f"p &lt; {num(alfa)}: falso positivo",
+                  annotation_position="top right", annotation_xshift=4,
+                  annotation=dict(xanchor="left", font=dict(size=11)),
+                  row=1, col=1)
+
+    limite = float(qualquer.alfas.max())
+    fig.add_trace(go.Scatter(
+        x=[0, limite], y=[0, limite], mode="lines", name="Calibração perfeita",
+        legendgroup="diagonal", line=dict(color=COR_MODELO, width=2, dash="dash"),
+        hoverinfo="skip"), row=1, col=2)
+
+    for chave in chaves:
+        r, cor = resultados[chave], CORES_TESTE[chave]
+        fig.add_trace(go.Scatter(
+            x=r.alfas, y=r.calibracao, mode="lines+markers", name=NOMES_TESTE[chave],
+            legendgroup=chave, showlegend=False, line=dict(color=cor, width=2.5),
+            marker=dict(size=6),
+            hovertemplate=f"{NOMES_TESTE[chave]}<br>α = %{{x}}<br>"
+                          "rejeita em %{y:.2%}<extra></extra>"), row=1, col=2)
+        fig.add_trace(go.Scatter(
+            x=[r.alfa], y=[r.taxa.taxa], mode="markers", name=NOMES_TESTE[chave],
+            legendgroup=chave, showlegend=False,
+            marker=dict(size=13, color=cor, symbol="circle",
+                        line=dict(color="white", width=2)),
+            error_y=dict(type="data", symmetric=False,
+                         array=[r.taxa.ic_alto - r.taxa.taxa],
+                         arrayminus=[r.taxa.taxa - r.taxa.ic_baixo],
+                         color=cor, thickness=1.5, width=6),
+            hovertemplate=(f"{NOMES_TESTE[chave]} em α = {num(r.alfa)}<br>"
+                           f"erro tipo I = {num(r.taxa.taxa * 100)}%<br>"
+                           f"IC 95%: {num(r.taxa.ic_baixo * 100)}% a "
+                           f"{num(r.taxa.ic_alto * 100)}%<extra></extra>")),
+            row=1, col=2)
+
+    fig.update_xaxes(title_text="p-valor", range=[0, 1], row=1, col=1)
+    fig.update_yaxes(title_text="réplicas", row=1, col=1)
+    fig.update_xaxes(title_text="α nominal", range=[0, limite * 1.03], row=1, col=2)
+    fig.update_yaxes(title_text="taxa de rejeição observada",
+                     range=[0, limite * 1.03], row=1, col=2)
+    fig.update_layout(**{**LAYOUT_BASE, "margin": dict(l=60, r=20, t=70, b=70)},
+                      barmode="overlay", height=450,
+                      legend=dict(orientation="h", y=-0.24, x=0.5, xanchor="center"))
+    return fig

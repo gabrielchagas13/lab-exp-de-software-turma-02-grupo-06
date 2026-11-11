@@ -73,6 +73,55 @@ PREVISAO = (
 )
 
 
+# A mesma previsão acima, quebrada em afirmações verificáveis uma a uma
+# (issue #84). `PREVISAO` é o texto que vai na seção 1 do dashboard; esta lista
+# é o que a conclusão confronta com os resultados, e cada item diz de qual
+# experimento depende. Separar assim evita o truque de reler a previsão em prosa
+# à luz do resultado e declarar que "era isso mesmo que a gente queria dizer".
+PREVISOES = [
+    {
+        "id": "poder",
+        "previsto": "O Mann-Whitney terá mais poder que o t de Welch: com sigma "
+                    "(log) de ~2,2 a média amostral é dominada por poucos valores "
+                    "extremos, o que infla o erro-padrão do t, enquanto o "
+                    "Mann-Whitney usa só a ordem.",
+        "decide": "Q2 (curvas de poder)",
+        "issue": 80,
+    },
+    {
+        "id": "erro_welch",
+        "previsto": "O erro tipo I do t de Welch ficará longe dos 5% nominais com "
+                    "n = 30: a assimetria é forte demais para o teorema central do "
+                    "limite resolver nesse tamanho de amostra.",
+        "decide": "Q1 (erro tipo I)",
+        "issue": 79,
+    },
+    {
+        "id": "erro_mannwhitney",
+        "previsto": "O erro tipo I do Mann-Whitney ficará perto dos 5% nominais, "
+                    "porque ele não depende de normalidade.",
+        "decide": "Q1 (erro tipo I)",
+        "issue": 79,
+    },
+]
+
+# Recomendação prática, escrita depois dos resultados: é a resposta que o grupo
+# daria a quem fosse rodar esta análise de novo. Fica aqui junto do cenário para
+# que a conclusão do dashboard e o roteiro da apresentação digam a mesma coisa.
+RECOMENDACAO = (
+    "Para comparar tempo até o merge — ou qualquer medida de duração em "
+    "engenharia de software, que é quase sempre assimétrica à direita — use o "
+    "**Mann-Whitney** como teste principal, e relate o **delta de Cliff** junto "
+    "com o p-valor. O t de Welch não é "
+    "*errado*, mas neste cenário ele é conservador a ponto de não conseguir "
+    "produzir p-valores pequenos, o que faz um efeito real passar despercebido. "
+    "Se a média for mesmo a quantidade de interesse, o caminho é **transformar "
+    "em log antes** (em escala log os dados são aproximadamente normais, e aí o "
+    "t volta a ser adequado) e lembrar que o resultado passa a ser sobre a "
+    "mediana, não sobre a média em horas."
+)
+
+
 def _parametros_log(amostra):
     """Média e desvio em escala log: são os parâmetros mu e sigma da lognormal."""
     log = np.log(amostra)
@@ -139,6 +188,8 @@ def montar(caminho_real):
         "hipoteses": HIPOTESES,
         "bicaudal": BICAUDAL,
         "previsao": PREVISAO,
+        "previsoes": PREVISOES,
+        "recomendacao": RECOMENDACAO,
         "alfa": ALFA,
         "n_por_grupo": int(min(n_c, n_t)),
         "mu_controle": mu_c,

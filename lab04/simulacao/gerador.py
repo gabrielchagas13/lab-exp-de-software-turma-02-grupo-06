@@ -21,17 +21,25 @@ import pandas as pd
 from simulacao.cenario import GRUPO_CONTROLE, GRUPO_TRATAMENTO
 
 
-def gerar_grupo(rng, n, mu_log, sigma_log):
-    """Uma amostra lognormal de tamanho `n`, em horas (sempre > 0)."""
+def gerar_grupo(rng, n, mu_log, sigma_log, repeticoes=None):
+    """Uma amostra lognormal de tamanho `n`, em horas (sempre > 0).
+
+    Com `repeticoes`, devolve `repeticoes` amostras de uma vez, no formato
+    (repeticoes, n). É o que permite às 10.000 réplicas da Q1 e da Q2 rodarem
+    de forma vetorizada, sem mudar a distribuição gerada.
+    """
     if n <= 0:
         raise ValueError("n deve ser positivo")
     if sigma_log <= 0:
         raise ValueError("sigma_log deve ser positivo")
-    return rng.lognormal(mean=mu_log, sigma=sigma_log, size=n)
+    if repeticoes is not None and repeticoes <= 0:
+        raise ValueError("repeticoes deve ser positivo")
+    tamanho = n if repeticoes is None else (repeticoes, n)
+    return rng.lognormal(mean=mu_log, sigma=sigma_log, size=tamanho)
 
 
 def gerar_par(rng, n, mu_controle, sigma_log, efeito_log,
-              sigma_tratamento=None, n_tratamento=None):
+              sigma_tratamento=None, n_tratamento=None, repeticoes=None):
     """Par de amostras (controle, tratamento) para um cenário.
 
     - `efeito_log = 0` deixa os dois grupos com a mesma distribuição: é a
@@ -41,11 +49,13 @@ def gerar_par(rng, n, mu_controle, sigma_log, efeito_log,
     - `sigma_tratamento` e `n_tratamento` permitem quebrar a homogeneidade de
       variância e o balanceamento, que é o material da violação de pressupostos
       (Q3). Por padrão os dois grupos compartilham sigma e n.
+    - `repeticoes` devolve as duas amostras no formato (repeticoes, n), uma
+      réplica por linha, para os experimentos repetidos das Q1 e Q2.
     """
     sigma_t = sigma_log if sigma_tratamento is None else sigma_tratamento
     n_t = n if n_tratamento is None else n_tratamento
-    controle = gerar_grupo(rng, n, mu_controle, sigma_log)
-    tratamento = gerar_grupo(rng, n_t, mu_controle + efeito_log, sigma_t)
+    controle = gerar_grupo(rng, n, mu_controle, sigma_log, repeticoes)
+    tratamento = gerar_grupo(rng, n_t, mu_controle + efeito_log, sigma_t, repeticoes)
     return controle, tratamento
 
 

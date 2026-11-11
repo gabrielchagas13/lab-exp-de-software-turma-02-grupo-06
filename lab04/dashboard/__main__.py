@@ -14,9 +14,11 @@ import sys
 
 from dashboard import pagina
 from dashboard.distribuicoes import nulas
-from dashboard.graficos import g1_histogramas, g2_nula
+from dashboard.graficos import g1_histogramas, g2_nula, g3_erro_tipo1
 from simulacao import cenario as cen
 from simulacao.__main__ import executar
+from simulacao.conclusao import avaliar, resumo
+from simulacao.experimentos import REPETICOES, erro_tipo1
 
 
 def gerar(config_path, saida=None):
@@ -29,6 +31,13 @@ def gerar(config_path, saida=None):
     reais = cen.carregar_reais(os.path.join(raiz, cfg["coleta"]["saida"]))
     simulados = {cen.GRUPO_CONTROLE: controle, cen.GRUPO_TRATAMENTO: tratamento}
     curvas = nulas(tratamento, controle, c["alfa"])
+    # Q1 (#79): mesma semente do resto da página, para o HTML ser reproduzível.
+    erros = erro_tipo1(c, repeticoes=opcoes.get("repeticoes", REPETICOES),
+                       semente=cfg["seed"])
+
+    # Conclusão (#84): o que ainda não foi rodado entra como pendente, em vez
+    # de a página concluir a partir de dados que não tem.
+    avaliacoes = avaliar(c, erros_tipo1=erros)
 
     links = [("Repositório", opcoes.get("repo_url")),
              ("GitHub Projects", opcoes.get("projects_url")),
@@ -36,7 +45,10 @@ def gerar(config_path, saida=None):
     html = pagina.montar(c, resultados, curvas,
                          g1_histogramas(reais, simulados, c),
                          g2_nula(curvas, resultados, c["alfa"]),
-                         links, cfg["seed"])
+                         links, cfg["seed"],
+                         erros_tipo1=erros,
+                         fig_g3=g3_erro_tipo1(erros, c["alfa"]),
+                         avaliacoes=avaliacoes, contagem=resumo(avaliacoes))
 
     destino = saida or os.path.join(raiz, opcoes.get("saida", "dashboard/index.html"))
     os.makedirs(os.path.dirname(os.path.abspath(destino)), exist_ok=True)

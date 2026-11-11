@@ -120,6 +120,92 @@ preenchê-las (#79 a #84).
 | `dashboard/graficos.py` | G1, G2 e a paleta fixa por teste |
 | `dashboard/pagina.py` | HTML e as sete seções |
 
+## Q1: erro tipo I (#79)
+
+Experimento repetido com **H0 verdadeira por construção**: 10.000 réplicas em que
+os dois grupos saem da *mesma* lognormal, de modo que toda rejeição é um falso
+positivo. A proporção de rejeições estima o erro tipo I real de cada teste.
+
+```bash
+python -m simulacao.experimentos --config config.json
+```
+
+Ou direto no dashboard, que inclui a Q1 e o G3 na seção 3:
+
+```bash
+python -m dashboard --config config.json
+```
+
+| Teste | Falsos positivos | Erro tipo I | IC 95% | Obs ÷ nominal | Menor p em 10.000 | Veredito |
+|---|---|---|---|---|---|---|
+| t de Welch | 168 / 10.000 | **1,68%** | 1,45% – 1,95% | 0,34× | 0,0045 | conservador |
+| Mann-Whitney U | 474 / 10.000 | **4,74%** | 4,34% – 5,17% | 0,95× | 1,8×10⁻⁴ | calibrado |
+
+**O t de Welch é fortemente conservador neste cenário**: rejeita 1,68% das vezes
+quando deveria rejeitar 5%, cerca de 3× menos. Sob H0 seus p-valores não são
+uniformes — amontoam-se entre 0,2 e 0,4 — e em 10.000 réplicas o menor que ele
+produziu foi 0,0045, ou seja, com dados desta assimetria um resultado a 1% de
+significância é inalcançável para ele. O **Mann-Whitney fica calibrado**: 4,74%,
+com o α nominal dentro do intervalo de confiança, e a curva de calibração segue a
+diagonal em toda a faixa de α testada.
+
+Um teste conservador não gera falsos positivos a mais, mas paga em poder: quem
+rejeita de menos sob H0 também rejeita de menos quando o efeito existe. É a
+mesma razão pela qual o Welch não acusou a diferença do exemplo da seção 2.
+
+**G3** tem dois painéis: a distribuição dos p-valores sob H0 (um teste calibrado
+produz p-valores uniformes) e a taxa de rejeição observada contra o α nominal
+(a diagonal é a calibração perfeita).
+
+Onde ficam as peças:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `simulacao/experimentos.py` | réplicas vetorizadas, intervalo de Wilson e o veredito de calibração |
+| `simulacao/gerador.py` | o parâmetro `repeticoes` devolve as amostras no formato (réplicas, n) |
+| `dashboard/graficos.py` | `g3_erro_tipo1` |
+
+> Para a Q2 (#80): `p_valores_replicas` já aceita qualquer `efeito_log`, e
+> `erro_tipo1` aceita `sigma_tratamento`/`n_tratamento` para a Q3 (#81). As
+> 10.000 réplicas rodam em menos de 0,1 s porque os dois testes são aplicados de
+> forma vetorizada (`axis=1`), então não há motivo para guardar resultados em
+> disco.
+
+## Conclusão e roteiro da apresentação (#84)
+
+A seção 7 do dashboard confronta, item a item, as **previsões registradas antes
+de qualquer simulação** (`simulacao/cenario.PREVISOES`) com o que os
+experimentos encontraram. Registrar a previsão em código versionado é o que
+impede reinterpretá-la depois à luz do resultado.
+
+| Previsto | Decidido por | Encontrado | Veredito |
+|---|---|---|---|
+| O Mann-Whitney terá mais poder que o t de Welch | Q2 (#80) | — | pendente |
+| O erro tipo I do Welch ficará longe dos 5% | Q1 (#79) | 1,68% (IC 1,45%–1,95%) | **parcial** |
+| O erro tipo I do Mann-Whitney ficará perto dos 5% | Q1 (#79) | 4,74% (IC 4,34%–5,17%) | **confirmada** |
+
+A previsão sobre o Welch sai como *parcial*, e não como confirmada: ela acertou
+que o erro tipo I ficaria longe dos 5%, mas não dizia a direção, e o desvio foi
+para o lado **conservador** — o oposto do risco que normalmente se teme num
+teste mal calibrado.
+
+**Recomendação:** para comparar duração em engenharia de software (tempo até o
+merge, tempo de build, tempo de resolução), use o **Mann-Whitney** como teste
+principal e relate o **delta de Cliff** junto com o p-valor. Se a média for
+mesmo a quantidade de interesse, transforme em log antes — aí o t volta a ser
+adequado, mas o resultado passa a ser sobre a mediana.
+
+O roteiro da apresentação está em
+[docs/roteiro_apresentacao.md](docs/roteiro_apresentacao.md): divisão em blocos
+com tempo, os números a dizer em cada um, as perguntas prováveis com resposta e
+um checklist de antes de apresentar.
+
+> Enquanto as issues #80, #81 e #82 estiverem abertas, as previsões que dependem
+> delas aparecem como *pendente* na tabela, com link para a issue — a página não
+> conclui a partir de dados que não tem. Quando a Q2 fechar, basta passar
+> `poder={"welch": taxa, "mannwhitney": taxa}` para `simulacao.conclusao.avaliar`
+> e a linha se preenche sozinha.
+
 ## Testes
 
 ```bash

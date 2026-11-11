@@ -12,6 +12,7 @@ import html
 import re
 
 from dashboard.graficos import CORES_TESTE, NOMES_GRUPO, NOMES_TESTE, num, p_texto
+from simulacao.cenario import PREVISOES
 
 
 def esc(texto):
@@ -120,12 +121,140 @@ estatística pelo menos tão extrema quanto a observada se H0 fosse verdadeira.<
 """)
 
 
-def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente):
+# As descrições curtas de cada veredito ficam aqui, e não em experimentos.py,
+# porque são texto de apresentação: o módulo de simulação devolve só o rótulo.
+VEREDITOS = {
+    "calibrado": "rejeita na taxa prometida",
+    "conservador": "rejeita menos que o prometido — perde poder",
+    "anticonservador": "rejeita mais que o prometido — falsos positivos a mais",
+}
+
+
+def secao_erro_tipo1(erros, alfa, fig_g3):
+    """Seção 3: Q1, erro tipo I medido em réplicas com H0 verdadeira."""
+    qualquer = next(iter(erros.values()))
+    repeticoes = f"{qualquer.taxa.repeticoes:,}".replace(",", ".")
+
+    linhas = []
+    for chave, r in erros.items():
+        linhas.append((
+            f'<span class="chip"><i style="background:{CORES_TESTE[chave]}"></i>'
+            f"{esc(NOMES_TESTE[chave])}</span>",
+            f"{r.taxa.rejeicoes} / {repeticoes}",
+            f"<strong>{num(r.taxa.taxa * 100)}%</strong>",
+            f"{num(r.taxa.ic_baixo * 100)}% a {num(r.taxa.ic_alto * 100)}%",
+            f"{num(r.razao)}×",
+            p_texto(r.p_minimo),
+            f'<strong>{esc(r.veredito)}</strong>: {esc(VEREDITOS[r.veredito])}',
+        ))
+    tab = tabela(["Teste", "Falsos positivos", "Erro tipo I observado",
+                  "IC 95% da estimativa", "Observado ÷ nominal",
+                  f"Menor p em {repeticoes} réplicas", "Veredito"], linhas)
+
+    welch, mw = erros["welch"], erros["mannwhitney"]
+    return secao(3, "erro-tipo-1", "Q1: erro tipo I", f"""
+<p>Geramos <strong>{repeticoes} réplicas</strong> do experimento com os dois grupos
+saindo da <em>mesma</em> lognormal, isto é, com efeito zero: aqui H0 é verdadeira
+por construção e <strong>toda rejeição é um falso positivo</strong>. A proporção de
+rejeições estima o erro tipo I real de cada teste, que deveria bater com o α nominal
+de {num(alfa * 100, 0)}%. Os dois testes veem exatamente as mesmas amostras, então a
+diferença entre eles não pode ser atribuída à sorte do sorteio.</p>
+{tab}
+<h3>G3: p-valores sob H0 e calibração</h3>
+<p class="legenda-grafico">À esquerda, a distribuição dos p-valores quando H0 é
+verdadeira: um teste calibrado produz p-valores uniformes, ou seja, barras na altura
+da linha tracejada em toda a faixa. À direita, a taxa de rejeição observada contra o
+α nominal — a diagonal é a calibração perfeita, abaixo dela o teste é conservador e
+acima é anticonservador. O ponto destacado é α = {num(alfa)}, com intervalo de
+confiança de 95%.</p>
+{fig_g3}
+<div class="achado">
+<p><strong>O t de Welch é fortemente conservador neste cenário.</strong> Ele rejeita
+em {num(welch.taxa.taxa * 100)}% das réplicas quando deveria rejeitar em
+{num(alfa * 100, 0)}% — cerca de {num(1 / welch.razao, 1)} vezes menos. O histograma
+mostra por quê: em vez de uniformes, os p-valores do Welch se amontoam entre 0,2 e
+0,4 e quase nunca chegam perto de zero. Em {repeticoes} tentativas o menor p-valor
+que ele produziu foi {p_texto(welch.p_minimo)}; com dados desta assimetria, um
+resultado a 1% de significância é simplesmente inalcançável para ele.</p>
+<p><strong>O Mann-Whitney fica calibrado.</strong> Rejeita em
+{num(mw.taxa.taxa * 100)}% das réplicas, com o α nominal dentro do intervalo de
+confiança, e sua curva acompanha a diagonal em toda a faixa de α. Ele não supõe
+normalidade, então a assimetria da lognormal não o afeta.</p>
+<p>Um teste conservador não produz falsos positivos a mais — nesse sentido o Welch
+é "seguro". O preço aparece na Q2: quem rejeita de menos sob H0 também rejeita de
+menos quando existe efeito de verdade, e é por isso que o Welch não acusou a
+diferença do exemplo da seção 2 enquanto o Mann-Whitney acusou.</p>
+</div>
+""")
+
+
+# Cor de fundo de cada veredito da conclusão. Verde/amarelo/vermelho seriam
+# ilegíveis para parte dos daltônicos, então a distinção é feita pelo próprio
+# rótulo escrito e o fundo é só um reforço.
+CLASSES_VEREDITO = {"confirmada": "ok", "parcial": "meio", "refutada": "nao",
+                    "pendente": "aberto"}
+
+
+def secao_conclusao(c, avaliacoes, contagem, repo):
+    """Seção 7: previsto × encontrado, recomendação e limites (issue #84)."""
+    linhas = []
+    for a, previsao in zip(avaliacoes, PREVISOES):
+        encontrado = (markdown_simples(a.encontrado) if a.resolvida else
+                      f'<em>ainda não rodado — issue '
+                      f'<a href="{esc(repo)}/issues/{a.issue}">#{a.issue}</a></em>')
+        linhas.append((
+            markdown_simples(a.previsto),
+            esc(previsao["decide"]),
+            encontrado,
+            f'<span class="veredito {CLASSES_VEREDITO[a.veredito]}">'
+            f"{esc(a.veredito)}</span>",
+        ))
+    tab = tabela(["Previsto (registrado antes de simular)", "Decidido por",
+                  "Encontrado", "Veredito"], linhas)
+
+    resolvidas = sum(n for v, n in contagem.items() if v != "pendente")
+    abertura = (f"Das {len(avaliacoes)} previsões registradas antes de qualquer "
+                f"simulação repetida, {resolvidas} já têm resposta: "
+                + ", ".join(f"{n} {v}{'s' if n > 1 else ''}"
+                            for v, n in contagem.items() if n and v != "pendente")
+                + ".")
+    if contagem["pendente"]:
+        abertura += (f" A{'s' if contagem['pendente'] > 1 else ''} outra"
+                     f"{'s' if contagem['pendente'] > 1 else ''} depende"
+                     f"{'m' if contagem['pendente'] > 1 else ''} de experimentos "
+                     "ainda não rodados, marcados na tabela.")
+
+    return secao(7, "conclusao", "Conclusão", f"""
+<p>{esc(abertura)}</p>
+<h3>Previsto × encontrado</h3>
+{tab}
+<h3>Recomendação</h3>
+<div class="achado"><p>{markdown_simples(c["recomendacao"])}</p></div>
+<h3>O que este estudo não mostra</h3>
+<ul>
+<li><strong>O resultado é deste cenário, não universal.</strong> Tudo foi medido
+numa lognormal com σ(log) ≈ {num(c["sigma_comum"], 1)} e n = {c["n_por_grupo"]}
+por grupo. Com dados menos assimétricos ou amostras maiores o t de Welch se
+recupera — o próprio código mostra isso quando σ é reduzido.</li>
+<li><strong>Nada aqui é causal.</strong> O bot não foi sorteado entre os PRs;
+os dados reais serviram só para calibrar parâmetros realistas da simulação.</li>
+<li><strong>Um p-valor não mede importância.</strong> Por isso todo teste
+aparece acompanhado do seu tamanho de efeito, e a recomendação pede que os dois
+sejam relatados juntos.</li>
+</ul>
+""")
+
+
+def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente,
+           erros_tipo1=None, fig_g3=None, avaliacoes=None, contagem=None):
     repo = dict(links).get("Repositório") or ""
     corpo = "".join([
         secao_cenario(c, grafico(fig_g1, "g1-histogramas", incluir_js=True)),
         secao_nula(resultados, c["alfa"], nulas,
                    grafico(fig_g2, "g2-nula", incluir_js=False)),
+        secao_erro_tipo1(erros_tipo1, c["alfa"],
+                         grafico(fig_g3, "g3-erro-tipo-1", incluir_js=False))
+        if erros_tipo1 else
         secao(3, "erro-tipo-1", "Q1: erro tipo I", pendente(
             repo, 79, "G3, proporção de rejeições com H0 verdadeira em 10.000 réplicas")),
         secao(4, "poder", "Q2: poder", pendente(
@@ -134,6 +263,7 @@ def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente):
             repo, 81, "Q1 e Q2 repetidas com σ alto, outliers e n pequeno")),
         secao(6, "dados-reais", "Os testes nos dados reais", pendente(
             repo, 82, "tabela dos dois testes nos 60 PRs coletados")),
+        secao_conclusao(c, avaliacoes, contagem, repo) if avaliacoes else
         secao(7, "conclusao", "Conclusão", pendente(
             repo, 84, "esperado × encontrado e recomendação")),
     ])
@@ -198,6 +328,19 @@ th { background:var(--fundo2); }
 .lado-a-lado { display:flex; flex-wrap:wrap; gap:0 24px; align-items:flex-start; }
 .previsao { background:var(--fundo2); border-left:4px solid var(--suave);
             padding:10px 14px; margin:16px 0; }
+.veredito { display:inline-block; padding:1px 8px; border-radius:10px;
+            font-size:.85rem; font-weight:600; white-space:nowrap;
+            border:1px solid var(--borda); }
+.veredito.ok { background:#dafbe1; }
+.veredito.meio { background:#fff1cc; }
+.veredito.nao { background:#ffe3e3; }
+.veredito.aberto { background:var(--fundo2); color:var(--suave);
+                   font-weight:400; font-style:italic; }
+section ul { margin:8px 0 12px; padding-left:22px; }
+section li { margin:6px 0; }
+.achado { background:var(--fundo2); border-left:4px solid var(--link);
+          padding:2px 14px; margin:16px 0; }
+.achado p { margin:12px 0; }
 .pendente { color:var(--suave); font-style:italic; background:var(--fundo2);
             padding:10px 14px; border-radius:6px; }
 main { padding-bottom:48px; }
