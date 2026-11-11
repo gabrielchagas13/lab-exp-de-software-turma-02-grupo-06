@@ -14,7 +14,8 @@ import sys
 
 from dashboard import pagina
 from dashboard.distribuicoes import nulas
-from dashboard.graficos import g1_histogramas, g2_nula, g3_erro_tipo1
+import sim
+from dashboard.graficos import g1_histogramas, g2_nula, g3_erro_tipo1, g_violacoes
 from simulacao import cenario as cen
 from simulacao.__main__ import executar
 from simulacao.conclusao import avaliar, resumo
@@ -38,6 +39,9 @@ def gerar(config_path, saida=None):
     # Conclusão (#84): o que ainda não foi rodado entra como pendente, em vez
     # de a página concluir a partir de dados que não tem.
     avaliacoes = avaliar(c, erros_tipo1=erros)
+    # Q3 (#81) e dados reais (#82): módulo `sim`, mesma semente.
+    violacoes = sim.simular_tudo(reps=opcoes.get("repeticoes", REPETICOES),
+                                 seed=cfg["seed"])
 
     links = [("Repositório", opcoes.get("repo_url")),
              ("GitHub Projects", opcoes.get("projects_url")),
@@ -48,7 +52,11 @@ def gerar(config_path, saida=None):
                          links, cfg["seed"],
                          erros_tipo1=erros,
                          fig_g3=g3_erro_tipo1(erros, c["alfa"]),
-                         avaliacoes=avaliacoes, contagem=resumo(avaliacoes))
+                         avaliacoes=avaliacoes, contagem=resumo(avaliacoes),
+                         violacoes=violacoes,
+                         fig_violacoes=g_violacoes(violacoes, c["alfa"]),
+                         reais=sim.testes_reais(sim.carregar_reais(
+                             os.path.join(raiz, cfg["coleta"]["saida"]))).to_dict("records"))
 
     destino = saida or os.path.join(raiz, opcoes.get("saida", "dashboard/index.html"))
     os.makedirs(os.path.dirname(os.path.abspath(destino)), exist_ok=True)

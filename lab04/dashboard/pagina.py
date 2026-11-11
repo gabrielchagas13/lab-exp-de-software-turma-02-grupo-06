@@ -245,8 +245,63 @@ sejam relatados juntos.</li>
 """)
 
 
+def secao_violacoes(res, fig):
+    """Seção 5 (#81): Q1 e Q2 repetidas em cenários que violam o t."""
+    import sim
+    linhas = []
+    for c, v in sim.CENARIOS.items():
+        def t(ef, teste):
+            r = res[(res.cenario == c) & (res.efeito == ef) & (res.teste == teste)].iloc[0]
+            return f"{r.taxa:.1%}".replace(".", ",")
+        linhas.append([esc(v["rotulo"]), t(1.0, "welch"), t(1.0, "mann_whitney"),
+                       t(2.0, "welch"), t(2.0, "mann_whitney")])
+    return secao(5, "violacoes", "Q3: violações de pressupostos", f"""
+<p>Repetimos Q1 (H0 verdadeira) e Q2 (mediana do grupo com bot 2× maior) em três
+situações que violam o que o teste t assume, com 10.000 réplicas por ponto e
+semente fixa: <strong>assimetria mais forte</strong> (σ do log ×1,5),
+<strong>contaminação por outliers</strong> (10% das observações multiplicadas
+por 20) e <strong>amostra pequena</strong> (n = 10 por grupo). Os bigodes são o
+IC 95% de Wilson.</p>
+{grafico(fig, "g-violacoes", incluir_js=False)}
+{tabela(["Cenário", "Tipo I Welch", "Tipo I Mann-Whitney", "Poder Welch (2×)",
+         "Poder Mann-Whitney (2×)"], linhas)}
+<div class="achado"><p>Quanto mais forte a violação, mais o t de Welch fica
+<strong>conservador</strong> e perde poder: com assimetria forte ele rejeita
+menos de 1% sob H0 e quase nunca detecta a mediana dobrada. Em dados lognormais a
+variância amostral é inflada pelos valores extremos e o t raramente fica grande.
+O Mann-Whitney mantém o erro tipo I perto de 5% em todos os cenários, porque usa
+só a ordem dos dados: assimetria e tamanho dos outliers não mudam os postos.</p></div>
+<p class="legenda-grafico">Exploração interativa destes cenários (sliders de efeito,
+n, σ e outliers): <a href="../painel/">painel interativo</a>.</p>
+""")
+
+
+def secao_dados_reais(reais):
+    """Seção 6 (#82): os dois testes nos 60 PRs coletados."""
+    linhas = [[esc(r["teste"]), esc(r["estatistica"].replace(".", ",")),
+               p_texto(r["p"]), esc(r["efeito"].replace(".", ",")),
+               f'<span class="veredito {"ok" if r["p"] < 0.05 else "aberto"}">'
+               f'{esc(r["conclusao"])}</span>'] for r in reais]
+    pw, pm = reais[0]["p"], reais[1]["p"]
+    return secao(6, "dados-reais", "Os testes nos dados reais", f"""
+<p>Os dois testes aplicados aos 60 PRs coletados (30 por grupo), bicaudais, α = 5%.</p>
+{tabela(["Teste", "Estatística", "p-valor", "Tamanho de efeito", "Conclusão"], linhas)}
+<div class="achado"><p>Os dois testes rejeitam H0: PRs revisados pelo CodeRabbit
+levam mais tempo até o merge, com mediana cerca de 5× maior. A evidência do
+Mann-Whitney (p = {p_texto(pm)}) é ~{round(pw / pm)}× mais forte que a do Welch
+(p = {p_texto(pw)}), que passa raspando, como previa a simulação: com esta
+assimetria o Welch tem pouco poder. Cliff δ = 0,47 está no limite de um efeito
+grande (|δ| ≥ 0,474, Romano et al.); o Cohen d é pouco confiável aqui porque
+média e desvio são puxados por poucos PRs muito longos (máx. 203 h).</p></div>
+<p><strong>Limitação:</strong> estudo observacional. O bot não foi sorteado entre os
+PRs, e os que ele revisa podem ser maiores ou de outros autores; a diferença é
+uma associação, não um efeito causal do bot.</p>
+""")
+
+
 def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente,
-           erros_tipo1=None, fig_g3=None, avaliacoes=None, contagem=None):
+           erros_tipo1=None, fig_g3=None, avaliacoes=None, contagem=None,
+           violacoes=None, fig_violacoes=None, reais=None):
     repo = dict(links).get("Repositório") or ""
     corpo = "".join([
         secao_cenario(c, grafico(fig_g1, "g1-histogramas", incluir_js=True)),
@@ -259,8 +314,10 @@ def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente,
             repo, 79, "G3, proporção de rejeições com H0 verdadeira em 10.000 réplicas")),
         secao(4, "poder", "Q2: poder", pendente(
             repo, 80, "G4, curvas de poder dos dois testes")),
+        secao_violacoes(violacoes, fig_violacoes) if violacoes is not None else
         secao(5, "violacoes", "Q3: violações de pressupostos", pendente(
             repo, 81, "Q1 e Q2 repetidas com σ alto, outliers e n pequeno")),
+        secao_dados_reais(reais) if reais else
         secao(6, "dados-reais", "Os testes nos dados reais", pendente(
             repo, 82, "tabela dos dois testes nos 60 PRs coletados")),
         secao_conclusao(c, avaliacoes, contagem, repo) if avaliacoes else

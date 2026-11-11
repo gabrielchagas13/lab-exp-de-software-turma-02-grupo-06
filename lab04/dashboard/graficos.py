@@ -294,3 +294,35 @@ def g3_erro_tipo1(resultados, alfa):
                       barmode="overlay", height=450,
                       legend=dict(orientation="h", y=-0.24, x=0.5, xanchor="center"))
     return fig
+
+
+# ---- Q3 (#81) --------------------------------------------------------------
+
+def g_violacoes(res, alfa):
+    """Q3: erro tipo I (barras) e poder (curvas) nos cenários de `sim.CENARIOS`.
+
+    `res` é o DataFrame de `sim.simular_tudo()`; as chaves de teste de lá
+    (`mann_whitney`) são mapeadas para as daqui (`mannwhitney`).
+    """
+    import sim
+    chave = {"welch": "welch", "mann_whitney": "mannwhitney"}
+    rotulos = {c: v["rotulo"] for c, v in sim.CENARIOS.items()}
+    fig = make_subplots(rows=1, cols=2, column_widths=[0.42, 0.58], horizontal_spacing=0.1,
+                        subplot_titles=("Erro tipo I sob H0 (deveria ser 5%)",
+                                        "Poder com a mediana dobrada (razão 2×)"))
+    for teste_sim, teste in chave.items():
+        for col, ef in ((1, 1.0), (2, 2.0)):
+            s = res[(res.teste == teste_sim) & (res.efeito == ef)]
+            fig.add_bar(x=[rotulos[c] for c in s.cenario], y=s.taxa, name=NOMES_TESTE[teste],
+                        marker_color=CORES_TESTE[teste], legendgroup=teste, showlegend=col == 1,
+                        error_y=dict(type="data", array=s.ic_sup - s.taxa,
+                                     arrayminus=s.taxa - s.ic_inf),
+                        text=[f"{v:.1%}".replace(".", ",") for v in s.taxa],
+                        textposition="outside", row=1, col=col)
+    fig.add_hline(y=alfa, line_dash="dash", line_color="#cf222e", row=1, col=1,
+                  annotation_text="α = 5%")
+    fig.update_yaxes(tickformat=".0%")
+    fig.update_layout(barmode="group", template="plotly_white", height=480,
+                      margin=dict(t=60, l=50, r=20, b=40),
+                      legend=dict(orientation="h", y=1.14, x=0))
+    return fig
