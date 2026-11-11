@@ -19,7 +19,7 @@ from dashboard.graficos import g1_histogramas, g2_nula, g3_erro_tipo1, g_violaco
 from simulacao import cenario as cen
 from simulacao.__main__ import executar
 from simulacao.conclusao import avaliar, resumo
-from simulacao.experimentos import REPETICOES, erro_tipo1
+from simulacao.experimentos import REPETICOES, erro_tipo1, poder
 
 
 def gerar(config_path, saida=None):
@@ -38,7 +38,10 @@ def gerar(config_path, saida=None):
 
     # Conclusão (#84): o que ainda não foi rodado entra como pendente, em vez
     # de a página concluir a partir de dados que não tem.
-    avaliacoes = avaliar(c, erros_tipo1=erros)
+    taxas_poder = poder(c, repeticoes=opcoes.get("repeticoes", REPETICOES),
+                        semente=cfg["seed"])
+    avaliacoes = avaliar(c, erros_tipo1=erros,
+                         poder={k: t.taxa for k, t in taxas_poder.items()})
     # Q3 (#81) e dados reais (#82): módulo `sim`, mesma semente.
     violacoes = sim.simular_tudo(reps=opcoes.get("repeticoes", REPETICOES),
                                  seed=cfg["seed"])

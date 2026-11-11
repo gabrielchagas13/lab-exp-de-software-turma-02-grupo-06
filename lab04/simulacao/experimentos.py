@@ -185,6 +185,34 @@ def erro_tipo1(cenario, repeticoes=REPETICOES, semente=42, n=None, **violacoes):
     return resultados
 
 
+def poder(cenario, efeito_log=None, repeticoes=REPETICOES, semente=42, n=None,
+          **violacoes):
+    """Proporção de rejeições com efeito **presente**: o poder de cada teste.
+
+    É o mesmo experimento da Q1 com `efeito_log != 0`, então a comparação entre
+    as duas é direta: mesma máquina, mesmas amostras, só muda a verdade.
+
+    Por padrão usa o efeito correspondente à razão de medianas observada na
+    coleta, que é a referência que o resto do grupo usa no G4 e na seção 6.
+    Devolve `{chave: TaxaRejeicao}`.
+
+    O artefato oficial da Q2 (G4 e as curvas) é o do módulo `sim`; esta função
+    existe para a conclusão poder citar um número de poder calculado na mesma
+    máquina da Q1 — os dois caminhos concordam dentro do ruído de simulação.
+    """
+    if efeito_log is None:
+        efeito_log = float(np.log(cenario["razao_medianas_observada"]))
+    if efeito_log == 0:
+        raise ValueError("efeito_log = 0 é H0 verdadeira; use erro_tipo1()")
+    rng = np.random.default_rng(semente)
+    ps = p_valores_replicas(
+        rng, repeticoes=repeticoes, n=n or cenario["n_por_grupo"],
+        mu_controle=cenario["mu_controle"], sigma_log=cenario["sigma_comum"],
+        efeito_log=efeito_log, **violacoes)
+    return {chave: _taxa(chave, valores, cenario["alfa"])
+            for chave, valores in ps.items()}
+
+
 def main(argv=None):
     """Imprime a Q1 no terminal, sem precisar gerar o dashboard inteiro.
 

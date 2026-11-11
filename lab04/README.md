@@ -77,12 +77,16 @@ parâmetros e previsão — está em [docs/cenario.md](docs/cenario.md).
 
 ### Resultado da execução
 
-Com o efeito observado na coleta (razão de medianas de 5,14×), **os dois testes
-discordam**: o Mann-Whitney rejeita H0 (p = 0,00002, delta de Cliff +0,636,
+Em um conjunto **simulado** com o efeito observado na coleta (razão de medianas
+de 5,14×), **os dois testes discordam**: o Mann-Whitney rejeita H0 (p = 0,00002, delta de Cliff +0,636,
 grande) e o t de Welch não rejeita (p = 0,102, d de Cohen +0,436, pequeno). A
 média do grupo tratado é puxada por poucos valores extremos, o que infla o
 erro-padrão do t; o Mann-Whitney usa só a ordenação. Sob `--efeito 0` nenhum
 dos dois rejeita.
+
+> Isto é sobre dados **simulados**. Nos 60 PRs reais os dois testes concordam —
+> ambos rejeitam —, mas com margens bem diferentes: Welch p = 0,0368 contra
+> Mann-Whitney p = 0,0019. A seção 6 do dashboard (#82) publica essa tabela.
 
 ## Dashboard (#78)
 
@@ -180,7 +184,7 @@ impede reinterpretá-la depois à luz do resultado.
 
 | Previsto | Decidido por | Encontrado | Veredito |
 |---|---|---|---|
-| O Mann-Whitney terá mais poder que o t de Welch | Q2 (#80) | — | pendente |
+| O Mann-Whitney terá mais poder que o t de Welch | Q2 (#80) | 76,5% contra 20,9% no efeito observado | **confirmada** |
 | O erro tipo I do Welch ficará longe dos 5% | Q1 (#79) | 1,68% (IC 1,45%–1,95%) | **parcial** |
 | O erro tipo I do Mann-Whitney ficará perto dos 5% | Q1 (#79) | 4,74% (IC 4,34%–5,17%) | **confirmada** |
 
@@ -200,11 +204,16 @@ O roteiro da apresentação está em
 com tempo, os números a dizer em cada um, as perguntas prováveis com resposta e
 um checklist de antes de apresentar.
 
-> Enquanto as issues #80, #81 e #82 estiverem abertas, as previsões que dependem
-> delas aparecem como *pendente* na tabela, com link para a issue — a página não
-> conclui a partir de dados que não tem. Quando a Q2 fechar, basta passar
-> `poder={"welch": taxa, "mannwhitney": taxa}` para `simulacao.conclusao.avaliar`
-> e a linha se preenche sozinha.
+> Uma previsão cujo experimento ainda não foi rodado aparece como *pendente* na
+> tabela, com link para a issue — a página não conclui a partir de dados que não
+> tem. O mesmo vale para a barra de navegação do topo, que marca com ⏳ as seções
+> em construção a partir das mesmas condições que decidem o corpo da página.
+
+O poder citado acima sai de `simulacao.experimentos.poder`, no efeito
+correspondente à razão de medianas observada na coleta (5,14×) — o mesmo efeito
+que o `sim`/painel usa no G4. As duas implementações concordam dentro do ruído
+de simulação (20,9% e 76,5% aqui; 20,8% e 76,4% lá), o que serve de conferência
+cruzada entre elas.
 
 ## Testes
 

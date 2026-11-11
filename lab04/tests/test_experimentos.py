@@ -5,7 +5,7 @@ from scipy import stats
 
 from dashboard.graficos import CORES_TESTE, g3_erro_tipo1
 from simulacao.experimentos import (ALFAS, REPETICOES, TaxaRejeicao, erro_tipo1,
-                                    ic_wilson, p_valores_replicas)
+                                    ic_wilson, p_valores_replicas, poder)
 from simulacao.gerador import gerar_grupo, gerar_par
 from simulacao.testes import p_valores
 
@@ -234,3 +234,46 @@ def test_g3_marca_o_alfa_com_intervalo_de_confianca(q1):
     assert len(com_erro) == 2
     for traco in com_erro:
         assert traco.error_y.array[0] > 0 and traco.error_y.arrayminus[0] > 0
+
+
+# ---- Q2 (poder), usado pela conclusão -------------------------------------
+
+def test_poder_e_maior_que_o_erro_tipo1(q1):
+    """Com efeito presente os dois testes têm que rejeitar mais do que rejeitam
+    sob H0 — se não, há algo errado no sinal do efeito."""
+    taxas = poder({**BASE, "razao_medianas_observada": 5.14}, repeticoes=REPETICOES,
+                  semente=42)
+    for chave in taxas:
+        assert taxas[chave].taxa > q1[chave].taxa.taxa
+
+
+def test_mann_whitney_tem_mais_poder_no_efeito_observado():
+    """Achado da Q2: no efeito da coleta o Mann-Whitney detecta em ~3 de 4
+    experimentos e o t de Welch em ~1 de 5."""
+    taxas = poder({**BASE, "razao_medianas_observada": 5.14}, repeticoes=REPETICOES,
+                  semente=42)
+    assert taxas["mannwhitney"].taxa > 0.70
+    assert taxas["welch"].taxa < 0.25
+
+
+def test_poder_cresce_com_o_efeito():
+    anterior = 0.0
+    for efeito in (np.log(1.5), np.log(3.0), np.log(8.0)):
+        taxa = poder(BASE, efeito_log=efeito, repeticoes=2_000,
+                     semente=3)["mannwhitney"].taxa
+        assert taxa > anterior
+        anterior = taxa
+
+
+def test_poder_recusa_efeito_zero():
+    """Efeito zero é H0 verdadeira: isso é erro tipo I, não poder."""
+    with pytest.raises(ValueError, match="erro_tipo1"):
+        poder(BASE, efeito_log=0.0, repeticoes=100)
+
+
+def test_poder_usa_a_razao_de_medianas_por_padrao():
+    """O padrão tem que ser o mesmo efeito que o resto do grupo usa no G4."""
+    cenario = {**BASE, "razao_medianas_observada": 5.14}
+    assert (poder(cenario, repeticoes=2_000, semente=4)["welch"].taxa ==
+            poder(cenario, efeito_log=float(np.log(5.14)), repeticoes=2_000,
+                  semente=4)["welch"].taxa)

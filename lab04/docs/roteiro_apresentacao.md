@@ -4,43 +4,52 @@ Par P1: **t de Welch × Mann-Whitney**. Cenário: tempo até o merge de PRs com 
 sem review do CodeRabbit.
 
 Duração alvo: **15 minutos** de fala + 5 de perguntas. A apresentação é feita
-**navegando o dashboard**, não slides separados — cada bloco abaixo corresponde
-a uma seção da página, e a barra de navegação do topo serve de índice.
-
-> Os blocos marcados com ⏳ dependem de issues ainda não fechadas. Enquanto
-> estiverem abertas, a seção correspondente aparece como "em construção" no
-> dashboard e o número a dizer na fala ainda não existe.
+**navegando o painel interativo**, não slides separados — cada bloco abaixo
+corresponde a uma seção dele, com navegação por ← →.
 
 > **Página da apresentação:** [painel interativo](https://gabrielchagas13.github.io/lab-exp-de-software-turma-02-grupo-06/lab04/painel/)
 > (navegar com ← → como slides). O [dashboard estático](https://gabrielchagas13.github.io/lab-exp-de-software-turma-02-grupo-06/lab04/dashboard/)
 > fica como material de apoio/entrega.
 
-| # | Bloco | Quem | Tempo | Seção do painel |
-|---|---|---|---|---|
-| 1 | Abertura e pergunta | — | 1 min | topo + 01 (os 60 PRs) |
-| 2 | Dados e por que lognormal | — | 2 min | 02 (G1, botão “sortear”) |
-| 3 | Hipóteses: os dois testes não testam a mesma coisa | — | 2 min | 01 (hipóteses e previsões) |
-| 4 | De onde vem o p-valor | — | 2 min | 03 (G2, permutações ao vivo) |
-| 5 | Q1: erro tipo I | — | 3 min | 04 (laboratório, preset “H0 base”) + 05 (G3) |
-| 6 | Q2: poder | — | 2 min | 04 (preset “efeito real”) + 06 (G4) + 07 |
-| 7 | Q3: violações de pressupostos | — | 1 min | 04 (presets “outliers”, “n = 10”) + abas do G4 |
-| 8 | Os testes nos dados reais | — | 1 min | 08 (veredito) |
-| 9 | Conclusão e recomendação | — | 1 min | 09 (esperado × encontrado) |
+Regra de divisão: **quem fechou a issue apresenta o bloco correspondente**.
 
-Preencher a coluna "Quem" na reunião de alinhamento. Sugestão: quem fez a issue
-apresenta o bloco correspondente.
+| # | Bloco | Quem | Tempo | Seção do painel | Issue |
+|---|---|---|---|---|---|
+| 1 | Abertura e pergunta | Gabriel Chagas | 1 min | topo + 01 (os 60 PRs) | #76 |
+| 2 | Dados e por que lognormal | Gabriel Chagas | 2 min | 02 (G1, botão “sortear”) | #76 |
+| 3 | Hipóteses: os dois testes não testam a mesma coisa | Marcus Vinicius | 2 min | 01 (hipóteses e previsões) | #77 |
+| 4 | De onde vem o p-valor | Guilherme Lana | 2 min | 03 (G2, permutações ao vivo) | #78 |
+| 5 | Q1: erro tipo I | Marcus Vinicius | 3 min | 04 (laboratório, preset “H0 base”) + 05 (G3) | #79 |
+| 6 | Q2: poder | Guilherme Lana\* | 2 min | 04 (preset “efeito real”) + 06 (G4) + 07 | #80 |
+| 7 | Q3: violações de pressupostos | Gabriel Chagas | 1 min | 04 (presets “outliers”, “n = 10”) + abas do G4 | #81 |
+| 8 | Os testes nos dados reais | Gabriel Chagas | 1 min | 08 (veredito) | #82 |
+| 9 | Conclusão e recomendação | Marcus Vinicius | 1 min | 09 (esperado × encontrado) | #84 |
+
+Tempo por pessoa: Marcus 6 min, Gabriel 5 min, Guilherme 4 min.
+
+\* A #80 é a única sem dono registrado em commit; o bloco 6 está com o Guilherme
+só para equilibrar o tempo. Quem fechar a issue assume o bloco.
+
 
 ---
 
 ## 1. Abertura e pergunta (1 min)
 
 > "A pergunta é simples: **PRs revisados por um bot demoram mais ou menos até o
-> merge do que PRs sem review de bot?** A resposta interessante não é o sim ou
-> não — é que dois testes estatísticos perfeitamente legítimos, aplicados aos
-> **mesmos dados**, dão respostas opostas. O trabalho é entender por quê, e
-> decidir em qual confiar."
+> merge do que PRs sem review de bot?** Nos 60 PRs que coletamos, os dois testes
+> que aplicamos concordam: ambos rejeitam H0. Só que um deles passa raspando —
+> **p = 0,037 contra p = 0,0019** — e essa diferença de margem não é detalhe.
+> Mostramos ao longo da apresentação que, nesse tipo de dado, basta pouca coisa
+> para o teste de margem apertada deixar de enxergar um efeito que está lá: em
+> dados simulados **com efeito colocado por nós**, ele não enxerga. O trabalho é
+> entender por que isso acontece e decidir em qual dos dois confiar."
 
 Mostrar a pergunta no topo da seção 1.
+
+Cuidado com a formulação: **nos dados reais os dois testes concordam.** A
+discordância aparece no exemplo simulado da seção 2, onde a verdade é conhecida.
+Dizer que "os testes dão respostas opostas" sem essa distinção contradiz a
+seção 6 do dashboard.
 
 ## 2. Dados e por que lognormal (2 min)
 
@@ -127,22 +136,46 @@ faixa de α, enquanto a laranja a acompanha.
 
 > "Dá para pensar assim, mas conservador tem preço: quem rejeita de menos
 > quando não há efeito também rejeita de menos quando há. É o que vamos ver na
-> Q2 — e é exatamente o que aconteceu no exemplo da seção 2."
+> Q2 — e é exatamente o que aconteceu no exemplo da seção 2, onde ele não viu um
+> efeito que nós mesmos colocamos. Nos dados reais ele até rejeita, mas com
+> p = 0,037, raspando no limite, enquanto o Mann-Whitney vai a 0,0019."
 
 Se alguém perguntar se não é bug no código: temos um teste automatizado que
 roda o mesmo experimento com σ baixo (quase normal) e confirma que aí o Welch
 volta aos 5%. A conservadoria vem da assimetria, não da implementação.
 
-## 6. ⏳ Q2: poder (2 min) — issue #80
+## 6. Q2: poder (2 min) — issue #80
 
-Estrutura da fala, a completar quando a issue fechar:
+Mesma máquina da Q1, agora com efeito **presente e conhecido**: a mediana do
+grupo tratado é multiplicada por um fator, e contamos quantas vezes cada teste
+consegue detectá-lo. Isso é o poder.
 
-> "Com efeito conhecido crescente, medimos quantas vezes cada teste acerta em
-> detectá-lo. O poder do Mann-Whitney foi de ___% contra ___% do Welch no efeito
-> que observamos na coleta."
+| Efeito (razão de medianas) | Poder do t de Welch | Poder do Mann-Whitney |
+|---|---|---|
+| 1,0× (H0 verdadeira — é a Q1) | 1,7% | 4,7% |
+| 2,0× | 4,8% | 20,4% |
+| **5,14× (o observado na coleta)** | **20,9%** | **76,4%** |
 
-Fechar com: "é a contrapartida direta da Q1 — o Welch economiza em falsos
-positivos e paga em efeitos reais não detectados."
+> "No efeito que a gente realmente observou na coleta, o **Mann-Whitney detecta
+> em 3 de cada 4 experimentos e o Welch em 1 de cada 5**. É a contrapartida
+> direta da Q1: o Welch economiza em falsos positivos e paga em efeitos reais
+> não detectados."
+
+O número mais forte para fechar o bloco:
+
+> "Com a mediana **dobrada** — um efeito enorme para qualquer padrão de
+> engenharia de software — o Welch acerta em 4,8% das vezes. Isso é *menos* do
+> que um teste calibrado rejeitaria por puro acaso quando não há efeito nenhum.
+> Na prática, nesse cenário o t de Welch não enxerga."
+
+Mostrar o G4 e apontar que a curva do Mann-Whitney sobe muito antes da do Welch.
+
+Para conferir o número do efeito observado (IC 95%: 20,1%–21,7% e 75,6%–77,3%;
+trocar a semente move cerca de meio ponto percentual):
+
+```bash
+python -c "import numpy as np, sim; m,s=sim.parametros_base(); print(sim.taxa_rejeicao(5.14,'base',10000,np.random.default_rng(42),mediana=m,sigma=s))"
+```
 
 ## 7. Q3: violações de pressupostos (1 min) — issue #81
 
@@ -191,7 +224,8 @@ Mostrar a tabela "previsto × encontrado" da seção 7.
   conservador, que não é o que normalmente se teme. Veredito honesto:
   **parcial**, porque a previsão não dizia a direção.
 - Previmos que o Mann-Whitney ficaria perto dos 5% → **confirmada** (4,74%).
-- ⏳ A previsão de poder depende da Q2.
+- Previmos que o Mann-Whitney teria mais poder → **confirmada**, e com folga:
+  76,4% contra 20,9% no efeito observado na coleta.
 
 Fechar com a recomendação:
 
@@ -221,6 +255,12 @@ Não em geral. É melhor **neste cenário**, com esta assimetria e n = 30. Com
 dados aproximadamente normais o t de Welch é melhor, porque usa mais informação
 que a ordem. A conclusão é condicional, e a seção 7 diz isso explicitamente.
 
+**"Se nos dados reais os dois testes concordam, qual é o problema?"**
+A concordância é de decisão, não de margem: Welch p = 0,037, Mann-Whitney
+p = 0,0019. Um está raspando no limite e o outro não. A Q1 explica a diferença —
+o Welch é conservador neste tipo de dado — e a simulação mostra o caso em que
+isso custa caro: com efeito presente e conhecido, ele deixa de rejeitar.
+
 **"A diferença nos dados reais é causada pelo bot?"**
 Não sabemos. O bot não foi atribuído aleatoriamente — PRs que ele revisa podem
 ser maiores ou de autores diferentes. Os dados reais serviram para calibrar a
@@ -235,12 +275,12 @@ dados dobraria artificialmente a significância.
 ## Checklist antes de apresentar
 
 - [ ] `python -m pytest tests -q` passando.
-- [ ] `python -m dashboard --config config.json` rodado com a versão mais
-      recente do código, e `dashboard/index.html` commitado.
-- [ ] `dashboard.pages_url` e `dashboard.projects_url` preenchidos em
-      `config.json` (hoje aparecem como "(pendente)" no topo da página).
-- [ ] Dashboard publicado no GitHub Pages e aberto no navegador antes de
-      começar — não abrir o arquivo local na hora.
-- [ ] Botão **Horas / Escala log** do G1 testado na máquina da apresentação.
-- [ ] Coluna "Quem" da tabela de blocos preenchida.
-- [ ] Blocos ⏳ atualizados ou removidos conforme as issues #80, #81 e #82.
+- [ ] `python -m dashboard --config config.json` e o gerador do painel rodados
+      com a versão mais recente do código, e os HTML commitados.
+- [ ] `dashboard.projects_url` preenchido em `config.json` (ainda aparece como
+      "(pendente)" no topo da página).
+- [ ] Painel e dashboard abertos **pelo GitHub Pages** antes de começar — não
+      abrir o arquivo local na hora.
+- [ ] Navegação por ← → do painel testada na máquina da apresentação, e o botão
+      **Horas / Escala log** do G1.
+- [ ] Bloco 6 confirmado com quem fechar a #80.

@@ -325,10 +325,25 @@ def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente,
             repo, 84, "esperado × encontrado e recomendação")),
     ])
 
-    nav = "".join(f'<a href="#{a}">{n}. {esc(t)}</a>' for n, a, t in (
-        (1, "cenario", "Cenário"), (2, "nula", "Sob H0"), (3, "erro-tipo-1", "Erro tipo I"),
-        (4, "poder", "Poder"), (5, "violacoes", "Violações"), (6, "dados-reais", "Dados reais"),
-        (7, "conclusao", "Conclusão")))
+    # A navegação marca o que ainda está em construção a partir das *mesmas*
+    # condições que decidem o corpo da página, para que as duas nunca discordem:
+    # olhar só a barra do topo já diz o que está pronto.
+    prontas = {1, 2,
+               3 if erros_tipo1 else 0,
+               5 if violacoes is not None else 0,
+               6 if reais else 0,
+               7 if avaliacoes else 0}
+    nav = "".join(
+        f'<a href="#{a}" class="{"" if n in prontas else "nav-pendente"}">'
+        f'{n}. {esc(t)}{"" if n in prontas else " ⏳"}</a>'
+        for n, a, t in (
+            (1, "cenario", "Cenário"), (2, "nula", "Sob H0"),
+            (3, "erro-tipo-1", "Erro tipo I"), (4, "poder", "Poder"),
+            (5, "violacoes", "Violações"), (6, "dados-reais", "Dados reais"),
+            (7, "conclusao", "Conclusão")))
+    faltam = 7 - len(prontas - {0})
+    nav += (f'<span class="nav-nota">⏳ {faltam} seç'
+            f'{"ões" if faltam > 1 else "ão"} em construção</span>' if faltam else "")
 
     return f"""<!doctype html>
 <html lang="pt-BR">
@@ -372,7 +387,10 @@ h3 { font-size:1.05rem; margin:24px 0 8px; }
 a { color:var(--link); }
 .links { margin:8px 0; }
 .sem-link { color:var(--suave); }
-nav { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px; font-size:.92rem; }
+nav { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px; font-size:.92rem;
+      align-items:center; }
+nav .nav-pendente { color:var(--suave); }
+.nav-nota { color:var(--suave); font-size:.85rem; margin-left:auto; }
 .chip { display:inline-flex; align-items:center; gap:6px; margin-right:10px;
         white-space:nowrap; }
 .chip i { display:inline-block; width:12px; height:12px; border-radius:2px; }

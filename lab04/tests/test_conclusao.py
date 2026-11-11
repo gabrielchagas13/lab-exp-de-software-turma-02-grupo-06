@@ -1,4 +1,5 @@
 """Testes do confronto previsto × encontrado e da seção 7 (issue #84)."""
+import os
 import re
 
 import pytest
@@ -7,6 +8,8 @@ from dashboard.pagina import CLASSES_VEREDITO, secao_conclusao
 from simulacao.cenario import PREVISAO, PREVISOES, RECOMENDACAO
 from simulacao.conclusao import VEREDITOS, avaliar, resumo
 from simulacao.experimentos import erro_tipo1
+
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 BASE = {"alfa": 0.05, "n_por_grupo": 30, "mu_controle": -0.576, "sigma_comum": 2.245,
         "recomendacao": RECOMENDACAO}
@@ -137,3 +140,30 @@ def test_secao_traz_a_recomendacao_e_os_limites(q1):
 
 def test_todo_veredito_tem_classe_css():
     assert set(CLASSES_VEREDITO) == set(VEREDITOS)
+
+
+# ---- navegação ------------------------------------------------------------
+
+def test_nav_marca_so_as_secoes_que_faltam(q1):
+    """A barra do topo tem que concordar com o corpo da página: a seção 7 só
+    pode aparecer como pendente se a conclusão de fato não foi montada."""
+    from dashboard.__main__ import gerar
+    import os
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        destino = os.path.join(tmp, "index.html")
+        gerar(os.path.join(RAIZ, "config.json"), destino)
+        html = open(destino, encoding="utf-8").read()
+
+    nav = re.search(r"<nav>(.*?)</nav>", html, re.S).group(1)
+    for ancora in ("cenario", "nula", "erro-tipo-1", "violacoes",
+                   "dados-reais", "conclusao"):
+        assert f'href="#{ancora}" class=""' in nav
+    # A seção 4 (Q2) ainda não existe no dashboard: o G4 vive no painel (#80).
+    assert 'href="#poder" class="nav-pendente"' in nav
+    assert "1 seção em construção" in nav
+    # E o corpo da seção 7 não pode conter o aviso de "Em construção".
+    corpo = re.search(r'<section id="conclusao">(.*?)</section>', html, re.S).group(1)
+    assert "Em construção" not in corpo
+    assert "Previsto" in corpo
