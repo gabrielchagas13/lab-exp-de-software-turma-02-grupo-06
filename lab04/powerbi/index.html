@@ -37,6 +37,8 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
 .tabs{display:flex;gap:2px;background:var(--bar);border-top:1px solid var(--line);position:sticky;bottom:0;padding:0 18px}
 .tabs button{border:0;background:none;padding:9px 16px;font:inherit;cursor:pointer;color:var(--mut);border-top:3px solid transparent}
 .tabs button.on{background:var(--card);color:var(--ink);border-top-color:#f2c811;font-weight:600}
+.sl{display:grid;grid-template-columns:150px 1fr 60px;gap:10px;align-items:center;margin:9px 0}.sl input{accent-color:#f2c811}.sl b{text-align:right}
+.pre{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.pre button{background:#232833;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:4px 12px;font:inherit;cursor:pointer}
 .pg{display:none}.pg.on{display:contents}
 .msg{font-size:14px;line-height:1.55}
 .msg b{color:var(--ink)}
@@ -120,9 +122,23 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
  <p>PRs revisados pelo bot levaram <b>cerca de 5 vezes mais</b> até o merge (4,3 h contra 0,8 h no tempo típico). Para dados de tempo, que têm muitos casos rápidos e alguns muito lentos, o <b>Mann-Whitney é o teste recomendado</b>: acerta a taxa de alarmes falsos e encontra diferenças reais muito mais vezes que o t de Welch.</p>
  <p style="color:var(--mut)"><b>Cuidado:</b> o bot não foi sorteado entre os PRs. Isso mostra que as duas coisas andam juntas, não que o bot causa a demora. Os resultados valem para dados com esse formato e cerca de 30 PRs por grupo.</p></div>
 </div>
+<div class="pg" data-p="4">
+ <div class="c s5"><h3>Monte o seu cenário</h3><p class="sub">Cada experimento sorteia dois grupos de PRs, roda os dois testes e anota se cada um encontrou diferença. Tudo é calculado no seu navegador.</p>
+  <div class="pre"><button data-v="1,30,2.245,0">Sem diferença</button><button data-v="5.1,30,2.245,0">Igual aos dados reais (5×)</button><button data-v="2,30,2.245,0.1">Com outliers</button><button data-v="2,10,2.245,0">Só 10 PRs</button><button data-v="2,30,0.5,0">Quase sem casos extremos</button></div>
+  <div class="sl"><span>Com bot é quantas vezes mais lento</span><input type="range" id="sR" min="1" max="8" step="0.1" value="2"><b id="vR"></b></div>
+  <div class="sl"><span>PRs por grupo</span><input type="range" id="sN" min="5" max="120" step="5" value="30"><b id="vN"></b></div>
+  <div class="sl"><span>Casos extremos (σ do log)</span><input type="range" id="sS" min="0.3" max="3.5" step="0.05" value="2.245"><b id="vS"></b></div>
+  <div class="sl"><span>Outliers (×20)</span><input type="range" id="sO" min="0" max="0.3" step="0.01" value="0"><b id="vO"></b></div>
+  <button class="btn" id="go" style="margin-top:6px">▶ Rodar 1.000 experimentos</button>
+  <p class="sub" id="sinfo" style="margin-top:10px"></p></div>
+ <div class="c k" style="grid-column:span 7;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <div><div class="sub">Mann-Whitney encontrou diferença</div><div class="v" id="sm" style="color:var(--mw)">–</div><div class="l" id="sml"></div></div>
+  <div><div class="sub">t de Welch encontrou diferença</div><div class="v" id="sw" style="color:var(--wel)">–</div><div class="l" id="swl"></div></div>
+  <div style="grid-column:span 2;position:relative;height:300px"><canvas id="c7"></canvas></div></div>
+</div>
 </main>
 </div>
-<nav class="tabs"><button class="on" data-t="1">Os PRs</button><button data-t="2">Qual teste confiar</button><button data-t="3">Veredito</button></nav>
+<nav class="tabs"><button class="on" data-t="1">Os PRs</button><button data-t="2">Qual teste confiar</button><button data-t="4">Simulador</button><button data-t="3">Veredito</button></nav>
 <script>
 const D=[{"g":"com_bot","n":5671,"a":"chelojimenez","h":2.7967,"d":"2026-09-28"},{"g":"com_bot","n":5666,"a":"chelojimenez","h":0.1136,"d":"2026-09-28"},{"g":"com_bot","n":5649,"a":"chelojimenez","h":4.52,"d":"2026-09-27"},{"g":"com_bot","n":5597,"a":"ignaciojimenezr","h":6.3631,"d":"2026-09-25"},{"g":"com_bot","n":5555,"a":"sophiemarinavo","h":83.3358,"d":"2026-09-25"},{"g":"com_bot","n":5549,"a":"ignaciojimenezr","h":4.0214,"d":"2026-09-25"},{"g":"com_bot","n":5359,"a":"chelojimenez","h":2.1431,"d":"2026-09-21"},{"g":"com_bot","n":5333,"a":"olartgabo","h":123.1986,"d":"2026-09-18"},{"g":"com_bot","n":5332,"a":"olartgabo","h":98.3397,"d":"2026-09-18"},{"g":"com_bot","n":5298,"a":"ignaciojimenezr","h":7.4144,"d":"2026-09-17"},{"g":"com_bot","n":5287,"a":"chelojimenez","h":203.5128,"d":"2026-09-17"},{"g":"com_bot","n":5249,"a":"chelojimenez","h":0.0669,"d":"2026-09-17"},{"g":"com_bot","n":5243,"a":"chelojimenez","h":1.7172,"d":"2026-09-17"},{"g":"com_bot","n":5201,"a":"ignaciojimenezr","h":18.9508,"d":"2026-09-16"},{"g":"com_bot","n":5163,"a":"ignaciojimenezr","h":0.7728,"d":"2026-09-16"},{"g":"com_bot","n":5139,"a":"ozboms","h":32.3272,"d":"2026-09-16"},{"g":"com_bot","n":5125,"a":"ignaciojimenezr","h":3.4122,"d":"2026-09-15"},{"g":"com_bot","n":5092,"a":"ignaciojimenezr","h":1.1564,"d":"2026-09-15"},{"g":"com_bot","n":5085,"a":"ignaciojimenezr","h":1.4306,"d":"2026-09-15"},{"g":"com_bot","n":5070,"a":"chelojimenez","h":14.0919,"d":"2026-09-14"},{"g":"com_bot","n":5051,"a":"chelojimenez","h":16.755,"d":"2026-09-14"},{"g":"com_bot","n":5034,"a":"ignaciojimenezr","h":0.4753,"d":"2026-09-14"},{"g":"com_bot","n":5016,"a":"ZeHuari","h":3.7136,"d":"2026-09-13"},{"g":"com_bot","n":5002,"a":"ignaciojimenezr","h":13.1925,"d":"2026-09-13"},{"g":"com_bot","n":4985,"a":"chelojimenez","h":16.7764,"d":"2026-09-12"},{"g":"com_bot","n":4982,"a":"chelojimenez","h":17.0158,"d":"2026-09-12"},{"g":"com_bot","n":4892,"a":"chelojimenez","h":0.3444,"d":"2026-09-10"},{"g":"com_bot","n":4882,"a":"chelojimenez","h":0.5667,"d":"2026-09-10"},{"g":"com_bot","n":4842,"a":"SebasKoria","h":4.4933,"d":"2026-09-09"},{"g":"com_bot","n":4824,"a":"chelojimenez","h":1.6422,"d":"2026-09-09"},{"g":"sem_bot","n":5715,"a":"chelojimenez","h":27.0092,"d":"2026-09-29"},{"g":"sem_bot","n":5702,"a":"chelojimenez","h":3.0833,"d":"2026-09-28"},{"g":"sem_bot","n":5685,"a":"nachocossio","h":1.3611,"d":"2026-09-28"},{"g":"sem_bot","n":5665,"a":"chelojimenez","h":0.0522,"d":"2026-09-28"},{"g":"sem_bot","n":5646,"a":"chelojimenez","h":5.3639,"d":"2026-09-27"},{"g":"sem_bot","n":5627,"a":"chelojimenez","h":0.0183,"d":"2026-09-26"},{"g":"sem_bot","n":5564,"a":"chelojimenez","h":14.3394,"d":"2026-09-25"},{"g":"sem_bot","n":5558,"a":"ignaciojimenezr","h":0.0061,"d":"2026-09-25"},{"g":"sem_bot","n":5556,"a":"mintlify[bot]","h":0.1272,"d":"2026-09-25"},{"g":"sem_bot","n":5538,"a":"ignaciojimenezr","h":3.7017,"d":"2026-09-24"},{"g":"sem_bot","n":5534,"a":"ZeHuari","h":0.6947,"d":"2026-09-24"},{"g":"sem_bot","n":5508,"a":"chelojimenez","h":5.2467,"d":"2026-09-24"},{"g":"sem_bot","n":5461,"a":"chelojimenez","h":16.0217,"d":"2026-09-23"},{"g":"sem_bot","n":5456,"a":"ignaciojimenezr","h":0.0128,"d":"2026-09-23"},{"g":"sem_bot","n":5446,"a":"olartgabo","h":1.9658,"d":"2026-09-23"},{"g":"sem_bot","n":5391,"a":"mintlify[bot]","h":0.1061,"d":"2026-09-21"},{"g":"sem_bot","n":5352,"a":"mintlify[bot]","h":0.1275,"d":"2026-09-20"},{"g":"sem_bot","n":5345,"a":"olartgabo","h":30.0644,"d":"2026-09-19"},{"g":"sem_bot","n":5326,"a":"ignaciojimenezr","h":0.1936,"d":"2026-09-18"},{"g":"sem_bot","n":5322,"a":"chelojimenez","h":15.1628,"d":"2026-09-18"},{"g":"sem_bot","n":5310,"a":"chelojimenez","h":1.5064,"d":"2026-09-18"},{"g":"sem_bot","n":5301,"a":"ignaciojimenezr","h":0.5564,"d":"2026-09-17"},{"g":"sem_bot","n":5268,"a":"chelojimenez","h":0.9611,"d":"2026-09-17"},{"g":"sem_bot","n":5245,"a":"ignaciojimenezr","h":0.0064,"d":"2026-09-17"},{"g":"sem_bot","n":5195,"a":"SebasKoria","h":1.0094,"d":"2026-09-16"},{"g":"sem_bot","n":5181,"a":"chelojimenez","h":0.0919,"d":"2026-09-16"},{"g":"sem_bot","n":5179,"a":"mintlify[bot]","h":0.1336,"d":"2026-09-16"},{"g":"sem_bot","n":5130,"a":"chelojimenez","h":0.0564,"d":"2026-09-15"},{"g":"sem_bot","n":5116,"a":"nachocossio","h":1.6644,"d":"2026-09-15"},{"g":"sem_bot","n":5095,"a":"mintlify[bot]","h":0.1258,"d":"2026-09-15"}];
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -221,6 +237,48 @@ function waf(){
   :'Com o grupo do bot '+fmt(R[i])+'× mais lento, o Mann-Whitney percebe em '+m+' de 100 experimentos; o Welch, em '+w+'.';
 }
 document.getElementById('ws').oninput=waf;
+// simulador
+function lgam(x){const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];let y=x,t=x+5.5;t-=(x+.5)*Math.log(t);let s=1.000000000190015;for(const k of c)s+=k/++y;return -t+Math.log(2.5066282746310005*s/x)}
+function bcf(a,b,x){let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;d=1/(Math.abs(d)<1e-30?1e-30:d);let h=d;for(let m=1;m<200;m++){let m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;d=1/(Math.abs(d)<1e-30?1e-30:d);c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;h*=d*c;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;d=1/(Math.abs(d)<1e-30?1e-30:d);c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;const del=d*c;h*=del;if(Math.abs(del-1)<3e-7)break}return h}
+function ibeta(a,b,x){if(x<=0)return 0;if(x>=1)return 1;const bt=Math.exp(lgam(a+b)-lgam(a)-lgam(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*bcf(a,b,x)/a:1-bt*bcf(b,a,1-x)/b}
+const pT=(t,df)=>ibeta(df/2,.5,df/(df+t*t));
+function erfc(x){const z=Math.abs(x),t=1/(1+.5*z),r=t*Math.exp(-z*z-1.26551223+t*(1.00002368+t*(.37409196+t*(.09678418+t*(-.18628806+t*(.27886807+t*(-1.13520398+t*(1.48851587+t*(-.82215223+t*.17087277)))))))));return x>=0?r:2-r}
+const pZ=z=>erfc(Math.abs(z)/Math.SQRT2);
+function gauss(){let u=0,v=0;while(!u)u=Math.random();v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function welch(a,b){const m=x=>x.reduce((s,v)=>s+v,0)/x.length,va=x=>{const mu=m(x);return x.reduce((s,v)=>s+(v-mu)**2,0)/(x.length-1)};
+ const A=va(a)/a.length,B=va(b)/b.length,t=(m(a)-m(b))/Math.sqrt(A+B),df=(A+B)**2/(A*A/(a.length-1)+B*B/(b.length-1));return pT(t,df)}
+function mw(a,b){const all=a.map(v=>[v,0]).concat(b.map(v=>[v,1])).sort((x,y)=>x[0]-y[0]);let ra=0;all.forEach((e,i)=>{if(!e[1])ra+=i+1});
+ const n1=a.length,n2=b.length,U=ra-n1*(n1+1)/2,mu=n1*n2/2,sd=Math.sqrt(n1*n2*(n1+n2+1)/12);return pZ((Math.abs(U-mu)-.5)/sd)}
+const ids=['R','N','S','O'],val=k=>+document.getElementById('s'+k).value;
+function lab(){document.getElementById('vR').textContent=fmt(val('R'))+'×';document.getElementById('vN').textContent=val('N');
+ document.getElementById('vS').textContent=fmt(val('S'),2);document.getElementById('vO').textContent=Math.round(val('O')*100)+'%'}
+ids.forEach(k=>document.getElementById('s'+k).oninput=lab);
+document.querySelectorAll('.pre button').forEach(b=>b.onclick=()=>{b.dataset.v.split(',').forEach((v,i)=>document.getElementById('s'+ids[i]).value=v);lab();run()});
+let runId=0;
+function run(){
+ const id=++runId,R=val('R'),n=val('N'),sg=val('S'),po=val('O'),mu=-0.576,TOT=1000;
+ const draw1=m=>{let x=Math.exp(m+sg*gauss());if(Math.random()<po)x*=20;return x};
+ let k=0,hm=0,hw=0;const hist={m:[],w:[]};
+ const cm=Math.log(R);
+ function step(){if(id!==runId)return;
+  for(let j=0;j<50&&k<TOT;j++,k++){const a=Array.from({length:n},()=>draw1(mu+cm)),b=Array.from({length:n},()=>draw1(mu));
+   if(mw(a,b)<.05)hm++;if(welch(a,b)<.05)hw++}
+  hist.m.push(hm/k*100);hist.w.push(hw/k*100);
+  document.getElementById('sm').textContent=fmt(hm/k*100)+'%';document.getElementById('sw').textContent=fmt(hw/k*100)+'%';
+  const alvo=R===1?'alarmes falsos (o ideal é 5%)':'acertos';
+  document.getElementById('sml').textContent=hm+' de '+k+' '+alvo;document.getElementById('swl').textContent=hw+' de '+k+' '+alvo;
+  document.getElementById('sinfo').textContent=(k<TOT?'Rodando… ':'Pronto. ')+k+' de '+TOT+' experimentos.';
+  const lbl=hist.m.map((_,i)=>(i+1)*50);
+  if(ch.c7){ch.c7.data.labels=lbl;ch.c7.data.datasets[0].data=hist.m;ch.c7.data.datasets[1].data=hist.w;ch.c7.update('none')}
+  else draw('c7',{type:'line',data:{labels:lbl,datasets:[{label:'Mann-Whitney',data:hist.m,borderColor:css('--mw'),pointRadius:0,tension:.2},
+   {label:'t de Welch',data:hist.w,borderColor:css('--wel'),pointRadius:0,tension:.2}]},
+   options:{maintainAspectRatio:false,animation:false,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}},x:{title:{display:true,text:'experimentos rodados'}}},
+   plugins:{title:{display:true,text:'% dos experimentos em que cada teste encontrou diferença'}}}});
+  if(k<TOT)requestAnimationFrame(step)}
+ if(ch.c7){ch.c7.destroy();delete ch.c7}
+ step()}
+document.getElementById('go').onclick=run;
+lab();
 p1();p2();waf();
 </script>
 </body>
