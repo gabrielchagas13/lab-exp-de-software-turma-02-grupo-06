@@ -326,3 +326,47 @@ def g_violacoes(res, alfa):
                       margin=dict(t=60, l=50, r=20, b=40),
                       legend=dict(orientation="h", y=1.14, x=0))
     return fig
+
+
+# ---- G4 (#80) --------------------------------------------------------------
+
+def g4_poder(res, alfa, razao_observada=None, alvo=0.80):
+    """G4: curvas de poder dos dois testes no mesmo gráfico (Q2).
+
+    `res` é o DataFrame de `sim.simular_tudo()`; só o cenário `base` entra aqui
+    (as violações de pressupostos ficam no gráfico da seção 5). O eixo x é a
+    razão de medianas com_bot / sem_bot, que parte de 1,0 (efeito nulo): ali a
+    curva é o erro tipo I, e o que sobe a partir dela é o poder. Os bigodes são
+    o IC 95% de Wilson de cada proporção.
+    """
+    chave = {"welch": "welch", "mann_whitney": "mannwhitney"}
+    base = res[res.cenario == "base"]
+    fig = go.Figure()
+    for teste_sim, teste in chave.items():
+        s = base[base.teste == teste_sim].sort_values("efeito")
+        fig.add_trace(go.Scatter(
+            x=s.efeito, y=s.taxa, mode="lines+markers", name=NOMES_TESTE[teste],
+            line=dict(color=CORES_TESTE[teste], width=2.5), marker=dict(size=8),
+            error_y=dict(type="data", symmetric=False, array=s.ic_sup - s.taxa,
+                         arrayminus=s.taxa - s.ic_inf, color=CORES_TESTE[teste],
+                         thickness=1.2, width=4),
+            hovertemplate=(f"{NOMES_TESTE[teste]}<br>mediana × %{{x}}<br>"
+                           "rejeita H0 em %{y:.1%}<extra></extra>")))
+    fig.add_hline(y=alfa, line=dict(color=COR_MODELO, width=1.5, dash="dash"),
+                  annotation_text=f"α = {num(alfa * 100, 0)}% (sem efeito, é o erro tipo I)",
+                  annotation_position="bottom right")
+    fig.add_hline(y=alvo, line=dict(color=COR_MODELO, width=1.5, dash="dot"),
+                  annotation_text=f"poder-alvo de {num(alvo * 100, 0)}%",
+                  annotation_position="top left")
+    if razao_observada is not None:
+        fig.add_vline(x=razao_observada, line=dict(color=COR_REAL, width=1.5, dash="dash"),
+                      annotation_text=f"efeito observado ({num(razao_observada, 1)}×)",
+                      annotation_position="top right")
+    fig.update_xaxes(title_text="razão de medianas (com bot ÷ sem bot)",
+                     tickvals=sorted(base.efeito.unique()))
+    fig.update_yaxes(title_text="proporção de rejeições de H0", tickformat=".0%",
+                     range=[0, 1.05])
+    fig.update_layout(**{**LAYOUT_BASE, "margin": dict(l=60, r=20, t=40, b=70)},
+                      height=450, hovermode="x unified",
+                      legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center"))
+    return fig

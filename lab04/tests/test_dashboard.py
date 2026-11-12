@@ -7,7 +7,7 @@ from scipy import stats
 
 from dashboard.__main__ import gerar
 from dashboard.distribuicoes import gl_welch, nulas
-from dashboard.graficos import CORES_TESTE, g1_histogramas, g2_nula
+from dashboard.graficos import CORES_TESTE, g1_histogramas, g2_nula, g4_poder
 from dashboard.pagina import markdown_simples
 from simulacao import cenario as cen
 from simulacao.gerador import gerar_par
@@ -112,4 +112,39 @@ def test_html_tem_as_sete_secoes_e_e_reproduzivel(tmp_path):
                    "dados-reais", "conclusao"):
         assert f'id="{ancora}"' in html
     assert 'id="g1-histogramas"' in html and 'id="g2-nula"' in html
+    assert 'id="g4-poder"' in html
     assert html.count("cdn.plot.ly") == 1
+
+
+# ---- G4 e seção de poder (#80, #83) ----------------------------------------
+
+@pytest.fixture(scope="module")
+def simulados():
+    import sim
+    return sim.simular_tudo(reps=500, seed=42)
+
+
+def test_g4_tem_uma_curva_por_teste_com_a_cor_fixa(simulados):
+    fig = g4_poder(simulados, 0.05, 5.0)
+    assert {t.name: t.line.color for t in fig.data} == {
+        "t de Welch": CORES_TESTE["welch"],
+        "Mann-Whitney U": CORES_TESTE["mannwhitney"]}
+    # pelo menos 5 tamanhos de efeito, começando em 1,0 (efeito nulo)
+    x = list(fig.data[0].x)
+    assert len(x) >= 5 and x[0] == 1.0
+
+
+def test_g4_so_usa_o_cenario_base(simulados):
+    fig = g4_poder(simulados, 0.05)
+    base = simulados[(simulados.cenario == "base") & (simulados.teste == "welch")]
+    assert list(fig.data[0].y) == list(base.sort_values("efeito").taxa)
+
+
+def test_secao_poder_cita_o_n_real_e_nao_fica_pendente(simulados):
+    import sim
+    from dashboard.pagina import secao_poder
+    grade = sim.poder_por_n(ns=(10, 30), efeitos=(2.0, 4.0), reps=200)
+    c = {"n_por_grupo": 30, "razao_medianas_observada": 3.0}
+    html = secao_poder(simulados, grade, 0.05, "<div>G4</div>", c, 500)
+    assert "Em construção" not in html and "n = 30" in html
+    assert "mais de 30" in html or "n = 10" in html or "n = 30" in html

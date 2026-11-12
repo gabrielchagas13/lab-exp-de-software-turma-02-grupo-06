@@ -93,11 +93,28 @@ def secao_cenario(c, fig_g1):
 <h3>G1: dados reais × simulados</h3>
 <p class="legenda-grafico">Histograma do tempo até o merge em cada grupo: os 30 PRs
 coletados (cinza) e um conjunto de 30 gerado pela lognormal (verde), com a curva do
-modelo tracejada. O botão <em>Horas</em> troca para a escala linear.</p>
+modelo tracejada. O botão <em>Horas</em> troca para a escala linear. Em horas os
+dois grupos são muito assimétricos, com uma cauda longa de PRs demorados; em escala
+log o formato vira o de um sino, que é o que a lognormal prevê. Concluímos que o
+gerador reproduz bem os dados reais e que a assimetria forte é o traço que mais
+vai pesar no comportamento dos dois testes.</p>
 {fig_g1}
 <div class="previsao"><strong>Previsão registrada antes das simulações:</strong>
 {markdown_simples(c["previsao"])}</div>
 """)
+
+
+def _conclusao_g2(resultados):
+    """Frase final do G2: o que o exemplo mostra, a partir dos próprios p-valores."""
+    w, m = resultados["welch"], resultados["mannwhitney"]
+    if w.rejeita_h0 == m.rejeita_h0:
+        return ("Neste exemplo os dois testes chegam à mesma decisão; as seções "
+                "seguintes medem se isso se mantém em milhares de réplicas.")
+    quem, outro = (("o t de Welch", "o Mann-Whitney") if w.rejeita_h0
+                   else ("o Mann-Whitney", "o t de Welch"))
+    return (f"Concluímos que {quem} rejeita H0 e {outro} não: com os mesmos dados, "
+            "os testes discordam. Um único conjunto não diz quem está certo; "
+            "isso é medido nas seções 3 e 4.")
 
 
 def secao_nula(resultados, alfa, nulas, fig_g2):
@@ -115,7 +132,8 @@ def secao_nula(resultados, alfa, nulas, fig_g2):
 Cada painel mostra a distribuição da estatística quando H0 é verdadeira: a faixa
 sólida é a região de rejeição a {num(alfa * 100, 0)}% (as duas caudas, pois o teste
 é bicaudal) e a área hachurada é o p-valor, ou seja, a probabilidade de uma
-estatística pelo menos tão extrema quanto a observada se H0 fosse verdadeira.</p>
+estatística pelo menos tão extrema quanto a observada se H0 fosse verdadeira.
+{_conclusao_g2(resultados)}</p>
 {fig_g2}
 {tab}
 """)
@@ -184,6 +202,130 @@ normalidade, então a assimetria da lognormal não o afeta.</p>
 é "seguro". O preço aparece na Q2: quem rejeita de menos sob H0 também rejeita de
 menos quando existe efeito de verdade, e é por isso que o Welch não acusou a
 diferença do exemplo da seção 2 enquanto o Mann-Whitney acusou.</p>
+</div>
+""")
+
+
+def _poder(res, efeito, teste, cenario="base"):
+    linha = res[(res.cenario == cenario) & (res.efeito == efeito)
+                & (res.teste == teste)].iloc[0]
+    return linha.taxa
+
+
+def _pct(v, casas=1):
+    return f"{num(v * 100, casas)}%"
+
+
+def _n_para(grade, efeito, teste, alvo):
+    """Menor n da grade com poder ≥ alvo, ou None se nenhum chega lá."""
+    s = grade[(grade.efeito == efeito) & (grade.teste == teste)].sort_values("n")
+    ok = s[s.taxa >= alvo]
+    return int(ok.n.iloc[0]) if len(ok) else None
+
+
+def secao_poder(res, grade, alfa, fig_g4, c, repeticoes, alvo=0.80):
+    """Seção 4 (#80, #83): Q2, curvas de poder e discussão de tamanho de amostra."""
+    efeitos = sorted(res[res.cenario == "base"].efeito.unique())
+    reps = f"{repeticoes:,}".replace(",", ".")
+    linhas = []
+    for ef in efeitos:
+        w, m = _poder(res, ef, "welch"), _poder(res, ef, "mann_whitney")
+        linhas.append((f"{num(ef, 1)}×" + (" (H0 verdadeira)" if ef == 1.0 else ""),
+                       _pct(w), _pct(m), f"{num((m - w) * 100, 1)} p.p."))
+    tab = tabela(["Razão de medianas", "Poder t de Welch", "Poder Mann-Whitney",
+                  "Vantagem do Mann-Whitney"], linhas)
+
+    n = c["n_por_grupo"]
+    ef_ref = 2.0
+    w2, m2 = _poder(res, ef_ref, "welch"), _poder(res, ef_ref, "mann_whitney")
+    w3, m3 = _poder(res, 3.0, "welch"), _poder(res, 3.0, "mann_whitney")
+    maior = max((ef for ef in efeitos if _poder(res, ef, "welch") < alvo),
+                default=None)
+
+    primeiro_mw = next((ef for ef in efeitos
+                        if _poder(res, ef, "mann_whitney") >= alvo), max(efeitos))
+    if maior is None:
+        texto_welch = (f"O Welch já passa de {num(alvo * 100, 0)}% de poder em todos os "
+                       "efeitos simulados.")
+    elif maior == max(efeitos):
+        texto_welch = (f"O Welch não chega a {num(alvo * 100, 0)}% de poder em nenhum dos "
+                       f"efeitos simulados, nem com a mediana multiplicada por "
+                       f"{num(maior, 0)}; o Mann-Whitney passa dessa marca a partir de "
+                       f"{num(primeiro_mw, 0)}×. Na prática, efeitos moderados só são "
+                       "vistos pelo Mann-Whitney.")
+    else:
+        texto_welch = (f"O Welch só passa de {num(alvo * 100, 0)}% de poder acima de "
+                       f"{num(maior, 1)}×, enquanto o Mann-Whitney chega lá antes.")
+
+    # Tamanho de amostra: poder com o n real e n necessário na grade simulada.
+    ns = sorted(grade.n.unique())
+    efs_grade = sorted(grade.efeito.unique())
+    def rot(v):
+        return f"n = {v}" if v else f"mais de {max(ns)}"
+    linhas_n = [(f"{num(ef, 1)}×",
+                 _pct(grade[(grade.n == n) & (grade.efeito == ef)
+                            & (grade.teste == "welch")].taxa.iloc[0]),
+                 _pct(grade[(grade.n == n) & (grade.efeito == ef)
+                            & (grade.teste == "mann_whitney")].taxa.iloc[0]),
+                 rot(_n_para(grade, ef, "welch", alvo)),
+                 rot(_n_para(grade, ef, "mann_whitney", alvo)))
+                for ef in efs_grade] if n in ns else []
+    tab_n = tabela(["Razão de medianas", f"Poder Welch (n = {n})",
+                    f"Poder Mann-Whitney (n = {n})", f"n por grupo p/ {num(alvo * 100, 0)}%: Welch",
+                    f"n por grupo p/ {num(alvo * 100, 0)}%: Mann-Whitney"], linhas_n)
+    obs = c["razao_medianas_observada"]
+    abaixo = max((e for e in efs_grade if e <= obs), default=None)
+    acima = min((e for e in efs_grade if e >= obs), default=None)
+    if n in ns and abaixo is not None and acima is not None and abaixo != acima:
+        def mw_n(e):
+            return grade[(grade.n == n) & (grade.efeito == e)
+                         & (grade.teste == "mann_whitney")].taxa.iloc[0]
+        texto_obs = (f" O efeito observado ({num(obs, 1)}×) fica entre as linhas de "
+                     f"{num(abaixo, 0)}× e {num(acima, 0)}×: com n = {n}, o poder do "
+                     f"Mann-Whitney nele está entre {_pct(mw_n(abaixo), 0)} e "
+                     f"{_pct(mw_n(acima), 0)}.")
+    else:
+        texto_obs = ""
+    n_w4, n_m4 = _n_para(grade, 4.0, "welch", alvo), _n_para(grade, 4.0, "mann_whitney", alvo)
+    n_m2 = _n_para(grade, 2.0, "mann_whitney", alvo)
+
+    return secao(4, "poder", "Q2: poder", f"""
+<p>Agora há efeito de verdade: o grupo com bot tem a mediana multiplicada por um
+fator que vai de 1,0 (nenhum efeito) a {num(max(efeitos), 1)}. Para cada fator
+rodamos <strong>{reps} réplicas</strong> com n = {n} por grupo, aplicamos os dois
+testes às mesmas amostras e contamos a proporção de rejeições. Essa proporção é o
+<strong>poder</strong>: a chance de o teste perceber uma diferença que existe. Em 1,0
+a curva volta a ser o erro tipo I da seção 3.</p>
+{tab}
+<h3>G4: curvas de poder dos dois testes</h3>
+<p class="legenda-grafico">Cada ponto é a taxa de rejeição de H0 numa razão de
+medianas, com IC 95% de Wilson. Quanto mais alta e mais à esquerda a curva, mais
+cedo o teste detecta o efeito. A linha pontilhada marca o poder de {num(alvo * 100, 0)}%,
+convenção usual para um estudo planejado, e a tracejada vertical marca o efeito
+observado nos dados reais.</p>
+{fig_g4}
+<div class="achado">
+<p><strong>O Mann-Whitney tem mais poder que o t de Welch em todos os efeitos simulados.</strong>
+Com a mediana dobrada, ele detecta em {_pct(m2)} das réplicas e o Welch em {_pct(w2)};
+com o efeito triplicado, {_pct(m3)} contra {_pct(w3)}. A curva do Welch sobe devagar
+porque, com esta assimetria, a variância amostral é puxada por poucos PRs muito longos
+e o estatístico t raramente fica grande, o mesmo mecanismo que o deixou conservador
+sob H0.</p>
+<p>{texto_welch}</p>
+</div>
+<h3>Tamanho de amostra</h3>
+<p>O poder depende de n tanto quanto do efeito. A tabela mostra o poder com o
+n real do estudo (n = {n} por grupo) e o menor n da grade simulada
+({", ".join(str(v) for v in ns)}) em que cada teste chega a {num(alvo * 100, 0)}%,
+com {reps} réplicas por célula.</p>
+{tab_n}
+<div class="achado">
+<p>Com n = {n} por grupo, o estudo só tem poder confortável para efeitos grandes, e
+só no Mann-Whitney. Para detectar uma razão de 2× com {num(alvo * 100, 0)}% de poder
+o Mann-Whitney pede {rot(n_m2)} por grupo; para 4×, o Mann-Whitney pede {rot(n_m4)}
+e o Welch {rot(n_w4)}. Ou seja, para o mesmo efeito o Welch exige amostras bem maiores,
+e quando a coleta é cara (cada PR é um ponto) o teste que usa postos rende mais
+por observação.{texto_obs} Isso vale para esta lognormal; com σ menor a diferença encolhe.</p>
 </div>
 """)
 
@@ -301,7 +443,8 @@ uma associação, não um efeito causal do bot.</p>
 
 def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente,
            erros_tipo1=None, fig_g3=None, avaliacoes=None, contagem=None,
-           violacoes=None, fig_violacoes=None, reais=None):
+           violacoes=None, fig_violacoes=None, reais=None,
+           fig_g4=None, grade_n=None, repeticoes_poder=10_000):
     repo = dict(links).get("Repositório") or ""
     corpo = "".join([
         secao_cenario(c, grafico(fig_g1, "g1-histogramas", incluir_js=True)),
@@ -312,6 +455,9 @@ def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente,
         if erros_tipo1 else
         secao(3, "erro-tipo-1", "Q1: erro tipo I", pendente(
             repo, 79, "G3, proporção de rejeições com H0 verdadeira em 10.000 réplicas")),
+        secao_poder(violacoes, grade_n, c["alfa"],
+                    grafico(fig_g4, "g4-poder", incluir_js=False), c, repeticoes_poder)
+        if violacoes is not None and grade_n is not None and fig_g4 is not None else
         secao(4, "poder", "Q2: poder", pendente(
             repo, 80, "G4, curvas de poder dos dois testes")),
         secao_violacoes(violacoes, fig_violacoes) if violacoes is not None else
@@ -330,6 +476,8 @@ def montar(c, resultados, nulas, fig_g1, fig_g2, links, semente,
     # olhar só a barra do topo já diz o que está pronto.
     prontas = {1, 2,
                3 if erros_tipo1 else 0,
+               4 if (violacoes is not None and grade_n is not None
+                     and fig_g4 is not None) else 0,
                5 if violacoes is not None else 0,
                6 if reais else 0,
                7 if avaliacoes else 0}

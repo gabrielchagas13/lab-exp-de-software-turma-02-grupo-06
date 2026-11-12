@@ -157,12 +157,11 @@ def test_nav_marca_so_as_secoes_que_faltam(q1):
         html = open(destino, encoding="utf-8").read()
 
     nav = re.search(r"<nav>(.*?)</nav>", html, re.S).group(1)
-    for ancora in ("cenario", "nula", "erro-tipo-1", "violacoes",
+    for ancora in ("cenario", "nula", "erro-tipo-1", "poder", "violacoes",
                    "dados-reais", "conclusao"):
         assert f'href="#{ancora}" class=""' in nav
-    # A seção 4 (Q2) ainda não existe no dashboard: o G4 vive no painel (#80).
-    assert 'href="#poder" class="nav-pendente"' in nav
-    assert "1 seção em construção" in nav
+    # Com as sete seções montadas (G4 na seção 4, #80), nada fica pendente.
+    assert "nav-pendente" not in nav and "em construção" not in nav
     # E o corpo da seção 7 não pode conter o aviso de "Em construção".
     corpo = re.search(r'<section id="conclusao">(.*?)</section>', html, re.S).group(1)
     assert "Em construção" not in corpo

@@ -15,7 +15,7 @@ import sys
 from dashboard import pagina
 from dashboard.distribuicoes import nulas
 import sim
-from dashboard.graficos import g1_histogramas, g2_nula, g3_erro_tipo1, g_violacoes
+from dashboard.graficos import g1_histogramas, g2_nula, g3_erro_tipo1, g4_poder, g_violacoes
 from simulacao import cenario as cen
 from simulacao.__main__ import executar
 from simulacao.conclusao import avaliar, resumo
@@ -46,6 +46,10 @@ def gerar(config_path, saida=None):
     violacoes = sim.simular_tudo(reps=opcoes.get("repeticoes", REPETICOES),
                                  seed=cfg["seed"])
 
+    # Q2 (#80) e tamanho de amostra (#83): mesma grade do painel, mesma semente.
+    reps = opcoes.get("repeticoes", REPETICOES)
+    grade_n = sim.poder_por_n(reps=reps, seed=cfg["seed"])
+
     links = [("Repositório", opcoes.get("repo_url")),
              ("GitHub Projects", opcoes.get("projects_url")),
              ("Dashboard publicado", opcoes.get("pages_url"))]
@@ -58,6 +62,9 @@ def gerar(config_path, saida=None):
                          avaliacoes=avaliacoes, contagem=resumo(avaliacoes),
                          violacoes=violacoes,
                          fig_violacoes=g_violacoes(violacoes, c["alfa"]),
+                         fig_g4=g4_poder(violacoes, c["alfa"],
+                                         c["razao_medianas_observada"]),
+                         grade_n=grade_n, repeticoes_poder=reps,
                          reais=sim.testes_reais(sim.carregar_reais(
                              os.path.join(raiz, cfg["coleta"]["saida"]))).to_dict("records"))
 
