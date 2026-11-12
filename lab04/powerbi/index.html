@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel CodeRabbit</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#0f1115;--card:#1a1d23;--ink:#f3f2f1;--mut:#a19f9d;--line:#2d313a;--bar:#07080a;
+--bot:#3aa0ff;--sem:#ff8a50;--ok:#6ccb5f;--bad:#ff6b6b;--wel:#ff8a50;--mw:#3aa0ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:13px}
+header{background:var(--bar);color:#fff;display:flex;align-items:center;gap:12px;padding:10px 18px}
+header b{font-size:15px;font-weight:600}
+header span{color:#c8c6c4;font-size:12px}
+.wrap{display:grid;grid-template-columns:210px 1fr;gap:12px;padding:12px;max-width:1400px;margin:0 auto}
+aside{background:var(--card);padding:14px;border-radius:4px;align-self:start;position:sticky;top:12px}
+aside h4{margin:0 0 8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+aside label{display:flex;gap:8px;align-items:center;padding:5px 0;cursor:pointer}
+aside .sw{width:12px;height:12px;border-radius:2px}
+aside p{color:var(--mut);font-size:12px;line-height:1.45;margin:14px 0 0;border-top:1px solid var(--line);padding-top:12px}
+main{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;align-content:start}
+.c{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;min-width:0}
+.c h3{margin:0 0 2px;font-size:14px;font-weight:600}
+.c .sub{color:var(--mut);font-size:12px;margin:0 0 8px}
+.k{grid-column:span 3}
+.k .v{font-size:30px;font-weight:600;line-height:1.1;margin-top:6px}
+.k .l{color:var(--mut);font-size:12px;margin-top:4px}
+.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+.ch{position:relative;height:260px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-weight:600;border-bottom:2px solid var(--ink);padding:6px}
+td{padding:6px;border-bottom:1px solid var(--line)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:600}
+.y{background:#1e3a1c;color:var(--ok)}.no{background:#fde7e9;color:var(--bad)}
+.tabs{display:flex;gap:2px;background:var(--bar);border-top:1px solid var(--line);position:sticky;bottom:0;padding:0 18px}
+.tabs button{border:0;background:none;padding:9px 16px;font:inherit;cursor:pointer;color:var(--mut);border-top:3px solid transparent}
+.tabs button.on{background:var(--card);color:var(--ink);border-top-color:#f2c811;font-weight:600}
+.pg{display:none}.pg.on{display:contents}
+.msg{font-size:14px;line-height:1.55}
+.msg b{color:var(--ink)}
+.guess{display:flex;flex-wrap:wrap;gap:18px;align-items:center;background:linear-gradient(100deg,#232833,#141820);color:#fff}
+.guess h3{font-size:16px}.guess .sub{color:#c8c6c4}
+.guess input[type=range]{flex:1;min-width:200px;accent-color:#f2c811}
+.guess .gv{font-size:34px;font-weight:600;min-width:90px;color:#f2c811}
+.guess button,.btn{background:#f2c811;border:0;border-radius:3px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+.guess #res{flex-basis:100%;font-size:14px;min-height:20px}
+.blur .v{filter:blur(9px);transition:filter .8s}
+.waf{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+.waf h4{margin:0 0 6px;font-size:13px}.waf h4 b{font-size:22px}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.grid i{aspect-ratio:1;border-radius:50%;background:#2d313a;transition:background .35s,transform .35s}
+.grid i.on{transform:scale(1.08)}
+.ctl{display:flex;gap:10px;align-items:center;margin:4px 0 10px}
+.ctl input{flex:1;accent-color:var(--ink)}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;padding:12px 16px}aside{position:static}
+ .k{grid-column:span 6}.s4,.s5,.s6,.s7,.s8{grid-column:span 12}}
+</style>
+</head>
+<body>
+<header><b>O CodeRabbit atrasa o merge?</b><span>MCPJam/inspector · 60 PRs · jul–set 2026 · Lab 04, grupo 06</span></header>
+<div class="wrap">
+<aside>
+ <h4>Filtro: grupo</h4>
+ <label><input type="checkbox" class="f" value="com_bot" checked><i class="sw" style="background:var(--bot)"></i>Com review do bot</label>
+ <label><input type="checkbox" class="f" value="sem_bot" checked><i class="sw" style="background:var(--sem)"></i>Sem review do bot</label>
+ <h4 style="margin-top:14px">Simulação: cenário</h4>
+ <select id="cen" style="width:100%;padding:5px;font:inherit;background:#0f1115;color:var(--ink);border:1px solid var(--line);border-radius:3px">
+  <option value="0">Base (igual aos dados reais)</option>
+  <option value="1">Mais casos extremos</option>
+  <option value="2">Com outliers</option>
+  <option value="3">Só 10 PRs por grupo</option>
+ </select>
+ <p><b>Como ler.</b> Medimos quanto tempo cada PR levou da abertura ao merge. Comparamos PRs que o bot revisou com PRs que ele não revisou, e testamos qual de dois métodos estatísticos é mais confiável para esse tipo de dado.</p>
+</aside>
+<main>
+<!-- página 1 -->
+<div class="pg on" data-p="1">
+ <div class="c s12 guess"><div style="flex-basis:100%"><h3>Antes de olhar: dê seu palpite</h3><p class="sub">Comparando o tempo típico até o merge, PRs revisados pelo bot demoram quantas vezes o tempo dos PRs sem bot?</p></div>
+  <span class="gv" id="gv">1×</span><input type="range" id="gs" min="-2" max="3.3" step="0.01" value="0"><button id="gb">Revelar</button><div id="res"></div></div>
+ <div class="c k"><div class="sub">PRs analisados</div><div class="v" id="k1"></div><div class="l" id="k1l"></div></div>
+ <div class="c k blur"><div class="sub">Tempo típico com bot (mediana)</div><div class="v" id="k2" style="color:var(--bot)"></div><div class="l">metade dos PRs fecha antes disso</div></div>
+ <div class="c k blur"><div class="sub">Tempo típico sem bot (mediana)</div><div class="v" id="k3" style="color:var(--sem)"></div><div class="l">metade dos PRs fecha antes disso</div></div>
+ <div class="c k blur"><div class="sub">Com bot demora</div><div class="v" id="k4"></div><div class="l">mais, no tempo típico</div></div>
+ <div class="c s6"><h3>Tempo típico × tempo médio</h3><p class="sub">A média é puxada por poucos PRs muito demorados. Por isso o típico (mediana) conta melhor a história.</p><div class="ch"><canvas id="c1"></canvas></div></div>
+ <div class="c s6"><h3>Em quanto tempo os PRs fecham</h3><p class="sub">Quantidade de PRs por faixa de tempo até o merge.</p><div class="ch"><canvas id="c2"></canvas></div></div>
+ <div class="c s12"><h3>Cada PR, do mais rápido ao mais lento</h3><p class="sub">Horas até o merge (escala log: cada linha da grade é 10× a anterior). Passe o mouse para ver o PR.</p><div class="ch" style="height:240px"><canvas id="c3"></canvas></div></div>
+</div>
+<!-- página 2 -->
+<div class="pg" data-p="2">
+ <div class="c k"><div class="sub">Alarmes falsos: Mann-Whitney</div><div class="v" id="t1" style="color:var(--mw)"></div><div class="l">o certo seria 5%</div></div>
+ <div class="c k"><div class="sub">Alarmes falsos: t de Welch</div><div class="v" id="t2" style="color:var(--wel)"></div><div class="l">o certo seria 5%</div></div>
+ <div class="c k"><div class="sub">Acerta diferença de 2×: Mann-Whitney</div><div class="v" id="t3" style="color:var(--mw)"></div><div class="l">das vezes</div></div>
+ <div class="c k"><div class="sub">Acerta diferença de 2×: t de Welch</div><div class="v" id="t4" style="color:var(--wel)"></div><div class="l">das vezes</div></div>
+ <div class="c s7"><h3>Quantas vezes cada teste encontra a diferença</h3><p class="sub">10.000 simulações por ponto, 30 PRs por grupo. Quanto mais alto, melhor. A linha cinza é a meta usual de 80%.</p><div class="ch" style="height:300px"><canvas id="c4"></canvas></div></div>
+ <div class="c s5"><h3>100 experimentos, quantos acertos?</h3><p class="sub">Cada bolinha é um experimento simulado com 30 PRs por grupo. Arraste para mudar o tamanho da diferença real. Bolinha colorida = o teste percebeu.</p>
+ <div class="ctl"><span>diferença</span><input type="range" id="ws" min="0" max="6" value="2"><b id="wl"></b></div>
+ <div class="waf"><div><h4 style="color:var(--mw)">Mann-Whitney <b id="wm"></b></h4><div class="grid" id="gm"></div></div>
+ <div><h4 style="color:var(--wel)">t de Welch <b id="ww"></b></h4><div class="grid" id="gw"></div></div></div>
+ <p class="sub" id="wt" style="margin-top:10px"></p></div>
+ <div class="c s6"><h3>Alarmes falsos e acertos por cenário</h3><p class="sub">Escolha o cenário no filtro à esquerda. Alarme falso: o teste diz que há diferença quando não há (o ideal é 5%).</p><div class="ch" style="height:300px"><canvas id="c5"></canvas></div></div>
+ <div class="c s6"><h3>Quantos PRs seriam necessários?</h3><p class="sub">Menor número de PRs por grupo para encontrar a diferença em 80% das vezes.</p>
+ <table><thead><tr><th>Diferença real</th><th>Mann-Whitney</th><th>t de Welch</th></tr></thead><tbody id="tam"></tbody></table></div>
+</div>
+<!-- página 3 -->
+<div class="pg" data-p="3">
+ <div class="c k"><div class="sub">Veredito</div><div class="v" style="font-size:22px">Com bot demora mais</div><div class="l">os dois testes concordam</div></div>
+ <div class="c k"><div class="sub">p-valor Mann-Whitney</div><div class="v" style="color:var(--mw)">0,0019</div><div class="l">evidência forte</div></div>
+ <div class="c k"><div class="sub">p-valor t de Welch</div><div class="v" style="color:var(--wel)">0,037</div><div class="l">passa raspando no limite de 0,05</div></div>
+ <div class="c k"><div class="sub">Tamanho da diferença (delta de Cliff)</div><div class="v">0,47</div><div class="l">quase “grande”</div></div>
+ <div class="c s6"><h3>Força da evidência</h3><p class="sub">p-valor de cada teste (escala log). Abaixo da linha de 0,05 = diferença confirmada. Quanto menor, mais forte.</p><div class="ch"><canvas id="c6"></canvas></div></div>
+ <div class="c s6"><h3>O que previmos × o que encontramos</h3><p class="sub">Previsões registradas antes de simular.</p>
+ <table><thead><tr><th>Previsão</th><th>Resultado</th></tr></thead><tbody>
+  <tr><td>Mann-Whitney encontra diferenças com mais frequência</td><td><span class="pill y">confirmada</span></td></tr>
+  <tr><td>t de Welch erra a taxa de alarmes falsos com 30 PRs</td><td><span class="pill y">parcial</span> erra para menos</td></tr>
+  <tr><td>Mann-Whitney acerta os 5% de alarmes falsos</td><td><span class="pill y">confirmada</span></td></tr>
+ </tbody></table></div>
+ <div class="c s12 msg"><h3>Em resumo</h3>
+ <p>PRs revisados pelo bot levaram <b>cerca de 5 vezes mais</b> até o merge (4,3 h contra 0,8 h no tempo típico). Para dados de tempo, que têm muitos casos rápidos e alguns muito lentos, o <b>Mann-Whitney é o teste recomendado</b>: acerta a taxa de alarmes falsos e encontra diferenças reais muito mais vezes que o t de Welch.</p>
+ <p style="color:var(--mut)"><b>Cuidado:</b> o bot não foi sorteado entre os PRs. Isso mostra que as duas coisas andam juntas, não que o bot causa a demora. Os resultados valem para dados com esse formato e cerca de 30 PRs por grupo.</p></div>
+</div>
+</main>
+</div>
+<nav class="tabs"><button class="on" data-t="1">Os PRs</button><button data-t="2">Qual teste confiar</button><button data-t="3">Veredito</button></nav>
+<script>
+const D=[{"g":"com_bot","n":5671,"a":"chelojimenez","h":2.7967,"d":"2026-09-28"},{"g":"com_bot","n":5666,"a":"chelojimenez","h":0.1136,"d":"2026-09-28"},{"g":"com_bot","n":5649,"a":"chelojimenez","h":4.52,"d":"2026-09-27"},{"g":"com_bot","n":5597,"a":"ignaciojimenezr","h":6.3631,"d":"2026-09-25"},{"g":"com_bot","n":5555,"a":"sophiemarinavo","h":83.3358,"d":"2026-09-25"},{"g":"com_bot","n":5549,"a":"ignaciojimenezr","h":4.0214,"d":"2026-09-25"},{"g":"com_bot","n":5359,"a":"chelojimenez","h":2.1431,"d":"2026-09-21"},{"g":"com_bot","n":5333,"a":"olartgabo","h":123.1986,"d":"2026-09-18"},{"g":"com_bot","n":5332,"a":"olartgabo","h":98.3397,"d":"2026-09-18"},{"g":"com_bot","n":5298,"a":"ignaciojimenezr","h":7.4144,"d":"2026-09-17"},{"g":"com_bot","n":5287,"a":"chelojimenez","h":203.5128,"d":"2026-09-17"},{"g":"com_bot","n":5249,"a":"chelojimenez","h":0.0669,"d":"2026-09-17"},{"g":"com_bot","n":5243,"a":"chelojimenez","h":1.7172,"d":"2026-09-17"},{"g":"com_bot","n":5201,"a":"ignaciojimenezr","h":18.9508,"d":"2026-09-16"},{"g":"com_bot","n":5163,"a":"ignaciojimenezr","h":0.7728,"d":"2026-09-16"},{"g":"com_bot","n":5139,"a":"ozboms","h":32.3272,"d":"2026-09-16"},{"g":"com_bot","n":5125,"a":"ignaciojimenezr","h":3.4122,"d":"2026-09-15"},{"g":"com_bot","n":5092,"a":"ignaciojimenezr","h":1.1564,"d":"2026-09-15"},{"g":"com_bot","n":5085,"a":"ignaciojimenezr","h":1.4306,"d":"2026-09-15"},{"g":"com_bot","n":5070,"a":"chelojimenez","h":14.0919,"d":"2026-09-14"},{"g":"com_bot","n":5051,"a":"chelojimenez","h":16.755,"d":"2026-09-14"},{"g":"com_bot","n":5034,"a":"ignaciojimenezr","h":0.4753,"d":"2026-09-14"},{"g":"com_bot","n":5016,"a":"ZeHuari","h":3.7136,"d":"2026-09-13"},{"g":"com_bot","n":5002,"a":"ignaciojimenezr","h":13.1925,"d":"2026-09-13"},{"g":"com_bot","n":4985,"a":"chelojimenez","h":16.7764,"d":"2026-09-12"},{"g":"com_bot","n":4982,"a":"chelojimenez","h":17.0158,"d":"2026-09-12"},{"g":"com_bot","n":4892,"a":"chelojimenez","h":0.3444,"d":"2026-09-10"},{"g":"com_bot","n":4882,"a":"chelojimenez","h":0.5667,"d":"2026-09-10"},{"g":"com_bot","n":4842,"a":"SebasKoria","h":4.4933,"d":"2026-09-09"},{"g":"com_bot","n":4824,"a":"chelojimenez","h":1.6422,"d":"2026-09-09"},{"g":"sem_bot","n":5715,"a":"chelojimenez","h":27.0092,"d":"2026-09-29"},{"g":"sem_bot","n":5702,"a":"chelojimenez","h":3.0833,"d":"2026-09-28"},{"g":"sem_bot","n":5685,"a":"nachocossio","h":1.3611,"d":"2026-09-28"},{"g":"sem_bot","n":5665,"a":"chelojimenez","h":0.0522,"d":"2026-09-28"},{"g":"sem_bot","n":5646,"a":"chelojimenez","h":5.3639,"d":"2026-09-27"},{"g":"sem_bot","n":5627,"a":"chelojimenez","h":0.0183,"d":"2026-09-26"},{"g":"sem_bot","n":5564,"a":"chelojimenez","h":14.3394,"d":"2026-09-25"},{"g":"sem_bot","n":5558,"a":"ignaciojimenezr","h":0.0061,"d":"2026-09-25"},{"g":"sem_bot","n":5556,"a":"mintlify[bot]","h":0.1272,"d":"2026-09-25"},{"g":"sem_bot","n":5538,"a":"ignaciojimenezr","h":3.7017,"d":"2026-09-24"},{"g":"sem_bot","n":5534,"a":"ZeHuari","h":0.6947,"d":"2026-09-24"},{"g":"sem_bot","n":5508,"a":"chelojimenez","h":5.2467,"d":"2026-09-24"},{"g":"sem_bot","n":5461,"a":"chelojimenez","h":16.0217,"d":"2026-09-23"},{"g":"sem_bot","n":5456,"a":"ignaciojimenezr","h":0.0128,"d":"2026-09-23"},{"g":"sem_bot","n":5446,"a":"olartgabo","h":1.9658,"d":"2026-09-23"},{"g":"sem_bot","n":5391,"a":"mintlify[bot]","h":0.1061,"d":"2026-09-21"},{"g":"sem_bot","n":5352,"a":"mintlify[bot]","h":0.1275,"d":"2026-09-20"},{"g":"sem_bot","n":5345,"a":"olartgabo","h":30.0644,"d":"2026-09-19"},{"g":"sem_bot","n":5326,"a":"ignaciojimenezr","h":0.1936,"d":"2026-09-18"},{"g":"sem_bot","n":5322,"a":"chelojimenez","h":15.1628,"d":"2026-09-18"},{"g":"sem_bot","n":5310,"a":"chelojimenez","h":1.5064,"d":"2026-09-18"},{"g":"sem_bot","n":5301,"a":"ignaciojimenezr","h":0.5564,"d":"2026-09-17"},{"g":"sem_bot","n":5268,"a":"chelojimenez","h":0.9611,"d":"2026-09-17"},{"g":"sem_bot","n":5245,"a":"ignaciojimenezr","h":0.0064,"d":"2026-09-17"},{"g":"sem_bot","n":5195,"a":"SebasKoria","h":1.0094,"d":"2026-09-16"},{"g":"sem_bot","n":5181,"a":"chelojimenez","h":0.0919,"d":"2026-09-16"},{"g":"sem_bot","n":5179,"a":"mintlify[bot]","h":0.1336,"d":"2026-09-16"},{"g":"sem_bot","n":5130,"a":"chelojimenez","h":0.0564,"d":"2026-09-15"},{"g":"sem_bot","n":5116,"a":"nachocossio","h":1.6644,"d":"2026-09-15"},{"g":"sem_bot","n":5095,"a":"mintlify[bot]","h":0.1258,"d":"2026-09-15"}];
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const C={com_bot:css('--bot'),sem_bot:css('--sem')},N={com_bot:'Com bot',sem_bot:'Sem bot'};
+const fmt=(x,d=1)=>x.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const hrs=h=>h<1?Math.round(h*60)+' min':fmt(h)+' h';
+const med=a=>{a=[...a].sort((x,y)=>x-y);const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2};
+const mean=a=>a.reduce((s,x)=>s+x,0)/a.length;
+Chart.defaults.font.family='"Segoe UI",system-ui,sans-serif';Chart.defaults.color='#a19f9d';Chart.defaults.borderColor='#2d313a';
+Chart.defaults.plugins.legend.labels.boxWidth=12;
+const ch={};
+function draw(id,cfg){ch[id]&&ch[id].destroy();ch[id]=new Chart(document.getElementById(id),cfg)}
+const pct=v=>fmt(v)+'%';
+
+// página 1
+function p1(){
+ const gs=[...document.querySelectorAll('.f:checked')].map(e=>e.value);
+ const by=g=>D.filter(d=>d.g===g).map(d=>d.h);
+ const rows=D.filter(d=>gs.includes(d.g));
+ document.getElementById('k1').textContent=rows.length;
+ document.getElementById('k1l').textContent=gs.map(g=>by(g).length+' '+N[g].toLowerCase()).join(' · ');
+ const mc=med(by('com_bot')),ms=med(by('sem_bot'));
+ document.getElementById('k2').textContent=hrs(mc);document.getElementById('k3').textContent=hrs(ms);
+ document.getElementById('k4').textContent=fmt(mc/ms)+'×';
+ draw('c1',{type:'bar',data:{labels:['Tempo típico (mediana)','Tempo médio'],
+  datasets:gs.map(g=>({label:N[g],data:[med(by(g)),mean(by(g))],backgroundColor:C[g]}))},
+  options:{maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+hrs(c.raw)}}},scales:{y:{title:{display:true,text:'horas'}}}}});
+ const B=[['até 1 h',0,1],['1 a 6 h',1,6],['6 a 24 h',6,24],['1 a 3 dias',24,72],['mais de 3 dias',72,1e9]];
+ draw('c2',{type:'bar',data:{labels:B.map(b=>b[0]),datasets:gs.map(g=>({label:N[g],backgroundColor:C[g],
+  data:B.map(b=>by(g).filter(h=>h>=b[1]&&h<b[2]).length)}))},
+  options:{maintainAspectRatio:false,scales:{y:{ticks:{precision:0},title:{display:true,text:'PRs'}}}}});
+ draw('c3',{type:'scatter',data:{datasets:gs.map(g=>({label:N[g],backgroundColor:C[g],pointRadius:5,
+  data:D.filter(d=>d.g===g).sort((a,b)=>a.h-b.h).map((d,i)=>({x:i+1,y:d.h,pr:d.n,a:d.a}))}))},
+  options:{maintainAspectRatio:false,animation:{delay:c=>c.type==='data'?c.dataIndex*45+c.datasetIndex*20:0,duration:500},plugins:{tooltip:{callbacks:{label:c=>'#'+c.raw.pr+' ('+c.raw.a+'): '+hrs(c.raw.y)}}},
+  scales:{y:{type:'logarithmic',title:{display:true,text:'horas até o merge'},ticks:{callback:v=>[0.01,0.1,1,10,100,1000].includes(v)?String(v).replace('.',','):''}},
+   x:{title:{display:true,text:'posição do PR no grupo (1 = mais rápido)'},min:0,max:31}}}});
+}
+
+// página 2: números do dashboard (seções 3, 4 e 5)
+const R=[1,1.5,2,3,4,6,8],PW=[1.7,2.9,4.8,10.1,15.5,24.1,30.7],PM=[4.7,9.9,20.4,44.2,62.4,84.3,93.0];
+const CEN=[['Base',1.7,4.7,4.8,20.4],['Mais casos extremos',0.7,4.7,1.2,11.2],['Com outliers',1.2,4.7,3.2,19.0],['Só 10 PRs por grupo',0.9,4.3,1.3,8.4]];
+const TAM=[['1,5×','mais de 120','mais de 120'],['2×','mais de 120','mais de 120'],['3×','80','mais de 120'],['4×','50','mais de 120'],['6×','30','mais de 120']];
+document.getElementById('tam').innerHTML=TAM.map(r=>`<tr><td>${r[0]} mais demorado</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+draw('c4',{type:'line',data:{labels:R.map(r=>fmt(r)+'×'),datasets:[
+ {label:'Mann-Whitney',data:PM,borderColor:css('--mw'),backgroundColor:css('--mw'),tension:.25},
+ {label:'t de Welch',data:PW,borderColor:css('--wel'),backgroundColor:css('--wel'),tension:.25},
+ {label:'meta 80%',data:R.map(()=>80),borderColor:'#6b6a69',borderDash:[4,4],pointRadius:0}]},
+ options:{maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+pct(c.raw)}}},
+ scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}},x:{title:{display:true,text:'quantas vezes o grupo com bot é mais lento'}}}}});
+function p2(){
+ const c=CEN[+document.getElementById('cen').value];
+ ['t1','t2','t3','t4'].forEach((id,i)=>document.getElementById(id).textContent=pct([c[2],c[1],c[4],c[3]][i]));
+ draw('c5',{type:'bar',data:{labels:['Alarmes falsos','Acerta diferença de 2×'],datasets:[
+  {label:'Mann-Whitney',data:[c[2],c[4]],backgroundColor:css('--mw')},
+  {label:'t de Welch',data:[c[1],c[3]],backgroundColor:css('--wel')}]},
+  options:{maintainAspectRatio:false,plugins:{title:{display:true,text:'Cenário: '+c[0]},tooltip:{callbacks:{label:x=>x.dataset.label+': '+pct(x.raw)}}},
+  scales:{y:{min:0,max:25,ticks:{callback:v=>v+'%'}}}}});
+}
+
+// página 3
+draw('c6',{type:'bar',data:{labels:['Mann-Whitney','t de Welch'],datasets:[{data:[0.0019,0.0368],backgroundColor:[css('--mw'),css('--wel')]}]},
+ options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'p = '+String(c.raw).replace('.',',')}}},
+ scales:{x:{type:'logarithmic',min:0.001,max:0.1,ticks:{callback:v=>[0.001,0.01,0.05,0.1].includes(v)?String(v).replace('.',','):''}}}},
+ plugins:[{id:'lim',afterDraw(c){const x=c.scales.x.getPixelForValue(0.05),a=c.chartArea,g=c.ctx;g.save();g.strokeStyle='#ff6b6b';g.setLineDash([5,4]);
+  g.beginPath();g.moveTo(x,a.top);g.lineTo(x,a.bottom);g.stroke();g.fillStyle='#ff6b6b';g.fillText('limite 0,05',x+4,a.top+10);g.restore()}}]});
+
+document.querySelectorAll('.f').forEach(e=>e.onchange=p1);
+document.getElementById('cen').onchange=p2;
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+ document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.dataset.p===b.dataset.t));
+ Object.values(ch).forEach(c=>c.resize());});
+// palpite
+const gs=document.getElementById('gs'),gv=document.getElementById('gv');
+const gx=()=>Math.pow(2,+gs.value);
+gs.oninput=()=>gv.textContent=fmt(gx(),gx()<10?1:0)+'×';
+document.getElementById('gb').onclick=()=>{
+ const real=med(D.filter(d=>d.g==='com_bot').map(d=>d.h))/med(D.filter(d=>d.g==='sem_bot').map(d=>d.h)),g=gx();
+ const err=Math.abs(Math.log2(g/real));
+ document.getElementById('res').innerHTML='Resposta: <b style="color:#f2c811">'+fmt(real)+'×</b>. '+
+  (err<0.5?'Na mosca!':err<1.3?'Chegou perto.':g<real?'Bem mais do que você imaginou.':'Menos do que você imaginou.')+
+  ' Mas atenção: a média engana. Pela média, a diferença parece outra (veja o gráfico abaixo).';
+ document.querySelectorAll('.blur').forEach(e=>e.classList.remove('blur'));
+};
+// waffle
+const ord=[...Array(100).keys()].map(i=>[i,(i*73+19)%100]).sort((a,b)=>a[1]-b[1]).map(a=>a[0]);
+['gm','gw'].forEach(id=>document.getElementById(id).innerHTML='<i></i>'.repeat(100));
+function waf(){
+ const i=+document.getElementById('ws').value,m=Math.round(PM[i]),w=Math.round(PW[i]);
+ document.getElementById('wl').textContent=i?fmt(R[i])+'×':'nenhuma';
+ document.getElementById('wm').textContent=m;document.getElementById('ww').textContent=w;
+ [['gm',m,css('--mw')],['gw',w,css('--wel')]].forEach(([id,k,col])=>{
+  const cells=document.getElementById(id).children;
+  ord.forEach((c,j)=>{const on=j<k;cells[c].style.background=on?col:'';cells[c].classList.toggle('on',on);cells[c].style.transitionDelay=(j*6)+'ms'})});
+ document.getElementById('wt').textContent=i===0?'Sem diferença real: toda bolinha colorida é um alarme falso. O ideal são 5 em 100.'
+  :'Com o grupo do bot '+fmt(R[i])+'× mais lento, o Mann-Whitney percebe em '+m+' de 100 experimentos; o Welch, em '+w+'.';
+}
+document.getElementById('ws').oninput=waf;
+p1();p2();waf();
+</script>
+</body>
+</html>
