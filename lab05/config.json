@@ -1,0 +1,19 @@
+{
+  "intervalo_min_requisicoes_s": 1.0,
+  "user_agent": "PUC-Minas-LabExp-Grupo06/1.0 (pesquisa academica; 1 req/s)",
+  "paginas": {
+    "dv_inicio": "https://www.delegaciavirtual.sids.mg.gov.br/sxgn/",
+    "mg_servico_reds": "https://www.mg.gov.br/servico/registrar-ocorrencia-policial-reds",
+    "mg_servico_perda_doc": "https://www.mg.gov.br/servico/solicitar-registro-de-ocorrencia-de-perda-de-documentos-e-objetos-pessoais"
+  },
+  "lighthouse": {
+    "versao": "13.6.0",
+    "dispositivos": ["mobile", "desktop"],
+    "categorias": ["performance", "accessibility", "best-practices", "seo"]
+  },
+  "sejusp": {
+    "arquivo": "data/sejusp/ocorrencias.csv",
+    "separador": ";",
+    "encoding": "latin-1"
+  }
+}

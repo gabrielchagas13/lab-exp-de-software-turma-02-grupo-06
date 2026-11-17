@@ -1,0 +1,4 @@
+timestamp_utc,pagina,url,status_http,ok,tempo_s,bytes,erro
+2026-11-17T18:49:14+00:00,dv_inicio,https://www.delegaciavirtual.sids.mg.gov.br/sxgn/,200,1,0.066,37372,
+2026-11-17T18:49:15+00:00,mg_servico_reds,https://www.mg.gov.br/servico/registrar-ocorrencia-policial-reds,200,1,2.305,129324,
+2026-11-17T18:49:18+00:00,mg_servico_perda_doc,https://www.mg.gov.br/servico/solicitar-registro-de-ocorrencia-de-perda-de-documentos-e-objetos-pessoais,200,1,1.576,94218,

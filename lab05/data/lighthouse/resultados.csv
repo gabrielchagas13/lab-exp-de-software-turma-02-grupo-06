@@ -1,0 +1,7 @@
+timestamp_utc,pagina,dispositivo,repeticao,nota_performance,nota_acessibilidade,nota_boas_praticas,nota_seo,lcp_ms,fcp_ms,tbt_ms,cls,speed_index_ms,peso_total_kb,violacoes_acessibilidade,erro
+2026-11-17T18:49:20+00:00,dv_inicio,mobile,1,94,77,96,91,2446.022,2446.022,0,0,2446.022,356.9,color-contrast|html-has-lang|image-alt|link-name|tabindex,
+2026-11-17T18:49:37+00:00,dv_inicio,desktop,1,98,77,100,91,457.982,457.982,0,0.086,457.982,346.4,color-contrast|html-has-lang|image-alt|link-name|tabindex,
+2026-11-17T18:49:50+00:00,mg_servico_reds,mobile,1,59,96,88,100,7203.156,7203.156,29,0.019,7203.156,2105.1,aria-required-children,
+2026-11-17T18:50:05+00:00,mg_servico_reds,desktop,1,92,96,92,92,1294.5,1294.5,0,0.064,1294.5,2146.2,aria-required-children,
+2026-11-17T18:50:21+00:00,mg_servico_perda_doc,mobile,1,53,92,88,100,6912.996,6912.996,43.5,0.168,6912.996,1945.7,aria-required-children|color-contrast,
+2026-11-17T18:50:34+00:00,mg_servico_perda_doc,desktop,1,94,93,92,100,1171.792,1171.792,0,0.061,1171.792,1986.9,aria-required-children|color-contrast,
