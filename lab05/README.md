@@ -67,6 +67,8 @@ Papéis: **Gabriel Chagas** (A: planejamento, método e dashboard), **Marcus Vin
 | Validação dos dados coletados | Marcus Vinicius | `coleta/validar.py` | ⬜ A fazer |
 | Descritiva + Wilcoxon pareado celular × computador + tamanho do efeito (RQ2) | Guilherme Lana | `analise/desempenho.py` | ⬜ A fazer |
 | Ameaças à validade (4 tipos) | Guilherme Lana | `docs/proposta_s01.md` §6 | ⬜ A fazer |
+| Plano de análise detalhado: teste por hipótese, escalas, α e efeito | Guilherme Lana | `docs/proposta_s01.md` §9 | ✅ Pronto |
+| Simulação de poder para o nº de rodadas do Lighthouse | Guilherme Lana | `analise/poder.py`, `data/poder/poder_rodadas.csv`, `docs/proposta_s01.md` §8 | ✅ Pronto (5 rodadas mantidas; σ entre rodadas a confirmar na S02) |
 
 ### Semana 2: impacto, conclusões e entrega (Lab05S03 + Final)
 | Tarefa | Responsável | Código / artefato | Status |
