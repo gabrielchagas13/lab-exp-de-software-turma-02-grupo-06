@@ -62,8 +62,8 @@ Papéis: **Gabriel Chagas** (A: planejamento, método e dashboard), **Marcus Vin
 |---|---|---|---|
 | Proposta com as RQ1–RQ5, GQM, hipóteses e 7 categorias (1ª versão) | Gabriel Chagas | `docs/proposta_s01.md` | ✅ Pronto |
 | Série mensal da SEJUSP: pandemia, sazonalidade, RMBH × interior (RQ4) | Gabriel Chagas | `analise/sejusp.py` | ✅ Pronto |
-| Dashboard com as seções de todas as RQs | Gabriel Chagas | `dashboard/gerar.py` → `dashboard/index.html` | ✅ Pronto (seções de outros marcadas "em construção") |
-| Protocolar o pedido LAI | Gabriel Chagas | `docs/pedido_lai.md` | ⬜ A fazer (texto pronto; protocolar no Fala.BR) |
+| Dashboard com as seções de todas as RQs | Gabriel Chagas | `dashboard/gerar.py` → `dashboard/index.html` | ✅ Pronto |
+| Protocolar o pedido LAI | Gabriel Chagas | `docs/pedido_lai.md` | ⬜ A fazer (texto pronto; protocolar no e-SIC MG) |
 | Teste manual com teclado e VoiceOver (RQ1) | Gabriel Chagas | `data/acessibilidade/checklist.csv` + `analise/checklist_wcag.py` | 🟨 Checklist (4 telas × 14 critérios) e script prontos; falta o teste manual |
 | Mapear as telas do fluxo "perda de documento" até a revisão (sem enviar) | Marcus Vinicius | `config.json` | ✅ Pronto (alerta → identificação; para antes do POST com dados pessoais) |
 | Lighthouse com 4G/3G e 5 rodadas por tela (RQ1, RQ2) | Marcus Vinicius | `coleta/lighthouse.py` | ✅ Pronto |
@@ -75,15 +75,18 @@ Papéis: **Gabriel Chagas** (A: planejamento, método e dashboard), **Marcus Vin
 ### Semana 2: impacto, conclusões e entrega (Lab05S03 + Final)
 | Tarefa | Responsável | Código / artefato | Status |
 |---|---|---|---|
-| 7 categorias revisadas, conclusões e limitações | Gabriel Chagas | `docs/relatorio_final.md` | ⬜ A fazer |
-| Resposta da LAI na série de demanda (se chegar) | Gabriel Chagas | `analise/lai.py` | ⬜ A fazer |
-| Dashboard final (preencher as seções "em construção") | Gabriel Chagas | `dashboard/gerar.py` | ⬜ A fazer |
-| Rodada final de coleta e pipeline de um comando | Marcus Vinicius | `run_all.sh` | ⬜ A fazer |
-| Análise de segurança (RQ3) e testes automatizados | Marcus Vinicius | `analise/seguranca.py`, `tests/` | ⬜ A fazer |
-| Impacto: horas de espera/ano e população com deficiência (RQ5) + sensibilidade | Guilherme Lana | `analise/impacto.py` | ⬜ A fazer |
-| Roteiro da apresentação de 10 min | Todo o grupo | `docs/roteiro_apresentacao.md` | ⬜ A fazer |
+| 7 categorias revisadas, conclusões e limitações | Gabriel Chagas | `docs/relatorio_final.md` | ✅ Pronto (atualizar RQ1 após o teste manual) |
+| Resposta da LAI na série de demanda (se chegar) | Gabriel Chagas | `analise/lai.py` | ⏳ Aguardando resposta da LAI |
+| Dashboard final (preencher as seções "em construção") | Gabriel Chagas | `dashboard/gerar.py` | ✅ Pronto (RQ1 manual e LAI como pendentes) |
+| Rodada final de coleta e pipeline de um comando | Marcus Vinicius | `run_all.sh` | ✅ Pronto |
+| Análise de segurança (RQ3) e testes automatizados | Marcus Vinicius | `analise/seguranca.py`, `tests/` | ✅ Pronto |
+| Impacto: horas de espera/ano e população com deficiência (RQ5) + sensibilidade | Guilherme Lana | `analise/impacto.py` | ✅ Pronto |
+| Roteiro da apresentação de 10 min | Todo o grupo | `docs/roteiro_apresentacao.md` | ✅ Pronto |
 
 ### Dashboard
 ```bash
 python -m dashboard.gerar   # gera dashboard/index.html a partir de data/
+./run_all.sh --sem-coleta  # valida, testa, reanalisa e regera o dashboard
 ```
+
+Relatório: [docs/relatorio_final.md](docs/relatorio_final.md) · Roteiro: [docs/roteiro_apresentacao.md](docs/roteiro_apresentacao.md)

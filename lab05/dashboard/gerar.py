@@ -12,7 +12,8 @@ from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
 
-from analise import sejusp
+from analise import checklist_wcag, desempenho, impacto, sejusp
+from analise import seguranca as an_seg
 
 RAIZ = Path(__file__).resolve().parent.parent
 SAIDA = RAIZ / "dashboard" / "index.html"
@@ -23,10 +24,14 @@ COR_NEUTRA = "#475569"
 COR_DESTAQUE = "#b91c1c"
 
 NOMES_PAGINA = {
-    "dv_inicio": "Delegacia Virtual (início)",
-    "mg_servico_reds": "mg.gov.br: serviço REDS",
     "mg_servico_perda_doc": "mg.gov.br: perda de documento",
+    "dv_inicio": "Delegacia Virtual (início)",
+    "dv_perda_alerta": "DV: alerta (perda de doc.)",
+    "dv_perda_identificacao": "DV: identificação",
+    "mg_servico_reds": "mg.gov.br: serviço REDS",
 }
+PERFIS = [("desktop", COR_DESKTOP, "Computador"), ("mobile_4g", COR_MOBILE, "Celular 4G"),
+          ("mobile_3g", "#7c2d12", "Celular 3G")]
 
 # Uso da Delegacia Virtual (fonte: Tribuna de Minas, 30/04/2021): 205,8 mil
 # registros de jan. a nov. de 2020, levado para 12 meses.
@@ -63,7 +68,7 @@ def secao(num, ancora, titulo, corpo):
 
 
 def pendente(texto, quem):
-    return f'<p class="pendente">Em construção: {esc(texto)} <strong>({esc(quem)})</strong></p>'
+    return f'<p class="pendente">Pendente: {esc(texto)} <strong>({esc(quem)})</strong></p>'
 
 
 def tabela(cab, linhas):
@@ -91,42 +96,40 @@ def sec_software():
 
 def sec_perguntas():
     linhas = [
-        ["RQ1", "A Delegacia Virtual é acessível?", "Qualidade do produto", "Piloto feito"],
-        ["RQ2", "O sistema é rápido no celular?", "Qualidade do produto", "Piloto feito"],
-        ["RQ3", "O sistema é seguro?", "Qualidade do produto", "A coletar"],
-        ["RQ4", "Qual demanda ele atende e como ela mudou?", "Dados de operação", "Série SEJUSP pronta"],
-        ["RQ5", "Quanto isso custa ao cidadão?", "Impacto", "Estimativa preliminar"],
+        ["RQ1", "A Delegacia Virtual é acessível?", "Qualidade do produto", "Automático pronto; teste manual pendente"],
+        ["RQ2", "O sistema é rápido no celular?", "Qualidade do produto", "H2 confirmada"],
+        ["RQ3", "O sistema é seguro?", "Qualidade do produto", "H3 confirmada"],
+        ["RQ4", "Qual demanda ele atende e como ela mudou?", "Dados de operação", "Série SEJUSP pronta; LAI aguardando"],
+        ["RQ5", "Quanto isso custa ao cidadão?", "Impacto", "Cenários com sensibilidade"],
     ]
     return secao("02", "perguntas", "Perguntas de pesquisa",
                  tabela(["", "Pergunta", "Caminho", "Situação"], linhas))
 
 
 def sec_qualidade():
-    lh = pd.read_csv(RAIZ / "data/lighthouse/resultados.csv")
-    lh = lh[lh.erro.isna()]
-    agg = lh.groupby(["pagina", "dispositivo"]).agg(
-        lcp=("lcp_ms", "median"), acess=("nota_acessibilidade", "median"),
-        perf=("nota_performance", "median"), peso=("peso_total_kb", "median"),
-        n=("lcp_ms", "size")).reset_index()
-    paginas = [p for p in NOMES_PAGINA if p in set(agg.pagina)]
+    lh = desempenho.carregar()
+    desc = desempenho.descritiva(lh)
+    testes = [desempenho.comparar(lh, "mobile_4g", "desktop"), desempenho.comparar(lh, "mobile_3g", "mobile_4g")]
+    paginas = [p for p in NOMES_PAGINA if p in set(lh.pagina)]
     nomes = [NOMES_PAGINA[p] for p in paginas]
 
     f1 = go.Figure()
-    for disp, cor, rot in (("mobile", COR_MOBILE, "Celular"), ("desktop", COR_DESKTOP, "Computador")):
-        d = agg[agg.dispositivo == disp].set_index("pagina").reindex(paginas)
-        f1.add_bar(x=nomes, y=d.lcp / 1000, name=rot, marker_color=cor,
-                   text=[f"{v/1000:.1f} s" for v in d.lcp], textposition="outside")
+    for perfil, cor, rot in PERFIS:
+        d = lh[lh.perfil == perfil]
+        f1.add_box(x=[NOMES_PAGINA[p] for p in d.pagina], y=d.lcp_ms / 1000, name=rot, marker_color=cor,
+                   boxpoints="all", jitter=.3, pointpos=0)
     f1.add_hline(y=2.5, line_dash="dash", line_color=COR_NEUTRA,
-                 annotation_text="limite \"bom\" do Core Web Vitals (2,5 s)", annotation_position="top right")
-    f1.update_layout(title="RQ2: tempo até o conteúdo principal aparecer (LCP)", yaxis_title="segundos", barmode="group")
+                 annotation_text="limite \"bom\" (2,5 s)", annotation_position="top left")
+    f1.update_layout(title="RQ2: LCP por tela e perfil (5 rodadas cada)", yaxis_title="segundos", boxmode="group",
+                     xaxis=dict(categoryorder="array", categoryarray=nomes))
 
     f2 = go.Figure()
-    d = agg[agg.dispositivo == "mobile"].set_index("pagina").reindex(paginas)
-    f2.add_bar(x=nomes, y=d.acess, marker_color=[COR_DESTAQUE if p == "dv_inicio" else COR_NEUTRA for p in paginas],
-               text=d.acess.astype(int), textposition="outside")
+    d = desc[desc.perfil == "mobile_4g"].set_index("pagina").reindex(paginas)
+    f2.add_bar(x=nomes, y=d.acess_mediana, text=d.acess_mediana.astype(int), textposition="outside",
+               marker_color=[COR_DESTAQUE if p.startswith("dv_") else COR_NEUTRA for p in paginas])
     f2.update_layout(title="RQ1: nota de acessibilidade (Lighthouse, 0–100)", yaxis_range=[0, 105], showlegend=False)
 
-    viol = lh[lh.pagina == "dv_inicio"].violacoes_acessibilidade.dropna()
+    viol = lh[lh.pagina.str.startswith("dv_")].violacoes_acessibilidade.dropna()
     ids = sorted({v for linha in viol for v in linha.split("|")})
     explic = {
         "color-contrast": "texto com pouco contraste: difícil de ler com baixa visão",
@@ -134,24 +137,65 @@ def sec_qualidade():
         "image-alt": "imagens sem descrição: invisíveis para quem usa leitor de tela",
         "link-name": "links sem nome: o leitor de tela anuncia só \"link\"",
         "tabindex": "ordem de tabulação forçada: navegar pelo teclado fica confuso",
+        "label": "campos de formulário sem rótulo: o leitor de tela não diz o que preencher",
+        "button-name": "botões sem nome acessível",
+        "select-name": "listas de seleção sem rótulo",
     }
-    lista = "".join(f"<li><code>{esc(i)}</code>: {esc(explic.get(i, ''))}</li>" for i in ids)
+    por_tela = {p: sorted({v for l in lh[lh.pagina == p].violacoes_acessibilidade.dropna() for v in l.split("|")})
+                for p in paginas if p.startswith("dv_")}
+    lista = "".join(f"<li><code>{esc(i)}</code>: {esc(explic.get(i, ''))} "
+                    f"<em>({sum(i in v for v in por_tela.values())}/{len(por_tela)} telas)</em></li>" for i in ids)
 
-    n_med = int(agg.n.max()) if len(agg) else 0
-    corpo = (f'<p class="aviso">Piloto de 17/11/2026: {n_med} medição por página e dispositivo. '
-             "Os números vão mudar com as repetições da semana 1.</p>"
-             f'<div class="grade2"><div>{fig_html(f1)}</div><div>{fig_html(f2)}</div></div>'
-             f"<h3>Barreiras encontradas na Delegacia Virtual</h3><ul>{lista}</ul>"
-             "<p><strong>Primeira leitura:</strong> a Delegacia Virtual carrega rápido, mas é a menos acessível. "
-             "As páginas do mg.gov.br que levam o cidadão até ela são acessíveis, mas lentas no celular (~7 s).</p>")
-    corpo += pendente("telas internas do fluxo \"perda de documento\", 3G, 5 rodadas por tela e Wilcoxon celular × computador", "Marcus / Guilherme")
-    corpo += pendente("teste manual com teclado e VoiceOver (RQ1)", "Gabriel")
+    t = testes[0]
+    kpis = '<div class="kpis">' + "".join([
+        kpi(f"{t['razao_medianas']:.1f}×".replace(".", ","), "LCP no celular 4G ÷ computador",
+            f"mediana {t['mediana_a']/1000:.1f} s × {t['mediana_b']/1000:.1f} s".replace(".", ",")),
+        kpi(f"p = {t['p_valor']:.1g}", "Wilcoxon pareado (unilateral)", f"n = {t['n_pares']} pares, r = {t['r']}"),
+        kpi(f"δ = {t['cliff_delta']:.2f}".replace(".", ","), "delta de Cliff", f"efeito {t['magnitude']}; {t['paginas_na_direcao']} telas"),
+        kpi(f"{testes[1]['razao_medianas']:.1f}×".replace(".", ","), "3G ÷ 4G no celular", f"p = {testes[1]['p_valor']:.1g}"),
+    ]) + "</div>"
+    linhas = [[esc(NOMES_PAGINA[r.pagina]), esc(dict((a, c) for a, _, c in PERFIS)[r.perfil]),
+               f"{r.lcp_mediana_ms/1000:.1f} s".replace(".", ","), f"{int(r.perf_mediana)}", f"{int(r.acess_mediana)}",
+               f"{r.peso_kb_mediana:.0f} KB", "✅" if r.lcp_bom else "❌"]
+              for r in desc.itertuples() if r.pagina in NOMES_PAGINA]
+
+    ck = checklist_wcag.resumir(checklist_wcag.carregar())
+    corpo = (kpis + f'<div class="grade2"><div>{fig_html(f1)}</div><div>{fig_html(f2)}</div></div>'
+             "<p><strong>H2 confirmada:</strong> em todas as telas o celular é mais lento, com efeito grande. "
+             "As telas da Delegacia Virtual ficam perto de 2 s no 4G, dentro do limite; as páginas do mg.gov.br "
+             "que levam o cidadão até ela passam de 6 s no 4G e de 10 s no 3G.</p>"
+             f"<h3>Barreiras automáticas nas telas da Delegacia Virtual (axe-core)</h3><ul>{lista}</ul>"
+             "<details><summary>Tabela completa (medianas de 5 rodadas)</summary>"
+             + tabela(["Tela", "Perfil", "LCP", "Perf.", "Acess.", "Peso", "LCP ≤ 2,5 s"], linhas) + "</details>")
+    if ck["completo"]:
+        corpo += (f"<p><strong>Teste manual:</strong> tarefa só com teclado: {'sim' if ck['tarefa_so_teclado'] else 'não'}. "
+                  f"H1 {'confirmada' if ck['h1_todas_telas_falham'] else 'não confirmada'}.</p>")
+    else:
+        corpo += pendente(f"teste manual com teclado e VoiceOver (RQ1): {ck['progresso']} itens preenchidos", "Gabriel")
     return secao("03", "qualidade", "Qualidade do produto (RQ1 e RQ2)", corpo)
 
 
 def sec_seguranca():
-    return secao("04", "seguranca", "Segurança (RQ3)",
-                 pendente("cabeçalhos HTTP, TLS e bibliotecas JS com CVEs conhecidas (coleta/seguranca.py)", "Marcus"))
+    r = an_seg.resumo_hosts()
+    libs = an_seg.bibliotecas()
+    dv = r[r.host.str.contains("delegaciavirtual")].iloc[0]
+    kpis = '<div class="kpis">' + "".join([
+        kpi(str(dv.n_cves), "CVEs conhecidas nas bibliotecas JS", "Delegacia Virtual"),
+        kpi(f"{dv.n_cabecalhos_ausentes}/6", "cabeçalhos de segurança ausentes", "Delegacia Virtual"),
+        kpi("TLS 1.0", "ainda aceito", "obsoleto desde 2021 (RFC 8996); sem TLS 1.3"),
+    ]) + "</div>"
+    ok = lambda b: "✅" if b else "❌"
+    t1 = tabela(["Host", "CSP", "HSTS", "Sem TLS 1.0/1.1", "TLS 1.3", "Cabeçalhos ausentes"],
+                [[esc(x.host), ok(x.tem_csp), ok(x.tem_hsts), ok(not x.aceita_tls_obsoleto), ok(x.aceita_tls1_3),
+                  esc(x.cabecalhos_ausentes.replace("|", ", "))] for x in r.itertuples()])
+    t2 = tabela(["Host", "Biblioteca", "Versão", "CVEs"],
+                [[esc(x.host), esc(x.biblioteca), esc(x.versao), esc(x.cves.replace("|", ", ")) or "—"] for x in libs.itertuples()])
+    corpo = (kpis + t1 + "<h3>Bibliotecas JavaScript carregadas</h3>" + t2 +
+             "<p><strong>H3 confirmada:</strong> nenhum dos dois sites usa CSP, o mg.gov.br não usa HSTS e a Delegacia "
+             "Virtual carrega jQuery 1.x, jQuery UI 1.10 e Bootstrap 4.0, todas com CVEs públicas (XSS).</p>"
+             '<p class="aviso">Coleta só passiva (GET, como um navegador): mostra <em>exposição</em>, não uma falha '
+             "explorada. Nenhum teste de intrusão foi feito.</p>")
+    return secao("04", "seguranca", "Segurança (RQ3)", corpo)
 
 
 def sec_demanda():
@@ -199,21 +243,22 @@ def sec_demanda():
 
 
 def sec_impacto():
-    lh = pd.read_csv(RAIZ / "data/lighthouse/resultados.csv")
-    lcp_mob = lh[(lh.pagina == "dv_inicio") & (lh.dispositivo == "mobile")].lcp_ms.median() / 1000
+    fl = impacto.lcp_fluxo()
+    lcp_mob = fl["mobile_4g"]["soma_s"] / fl["mobile_4g"]["n_telas"]
+    c = impacto.cenarios()
     corpo = f"""
 <p>Quantas horas por ano os cidadãos passam esperando a Delegacia Virtual carregar no celular?
 Ajuste as suposições: o resultado muda na hora.</p>
 <div class="calc">
   <label>Registros online por ano <input id="c-reg" type="number" value="{REGISTROS_ANO_2020}" step="1000"></label>
-  <label>Telas até concluir o boletim <input id="c-telas" type="number" value="5" min="1" max="20"></label>
+  <label>Telas até concluir o boletim <input id="c-telas" type="number" value="{fl['mobile_4g']['n_telas']}" min="1" max="20"></label>
   <label>Segundos de espera por tela (celular) <input id="c-seg" type="number" value="{lcp_mob:.1f}" step="0.1"></label>
 </div>
 <div class="kpis"><div class="kpi grande"><div class="kpi-valor" id="c-res">–</div>
 <div class="kpi-rot">horas por ano esperando a tela carregar</div><div class="kpi-nota" id="c-dias"></div></div></div>
 <p class="aviso"><strong>O que não dá para afirmar:</strong> não sabemos a fração de acessos pelo celular,
-o número de telas é suposto e o tempo de preenchimento (o maior) fica de fora. O valor padrão de espera
-é o LCP da página inicial no piloto; será trocado pela mediana medida em cada tela do fluxo.</p>
+as telas depois da identificação não foram medidas (exigem dados pessoais) e o tempo de preenchimento (o maior) fica
+de fora. O valor padrão é a média do LCP mediano das 4 telas do fluxo no celular 4G.</p>
 <script>
 (function(){{
   const f = id => document.getElementById(id);
@@ -226,7 +271,25 @@ o número de telas é suposto e o tempo de preenchimento (o maior) fica de fora.
   calc();
 }})();
 </script>"""
-    corpo += pendente("cenários com o tempo medido em cada tela, 3G × 4G, e população com deficiência visual em MG (IBGE)", "Guilherme")
+    f = go.Figure()
+    for rede, cor in (("4g", COR_MOBILE), ("3g", "#7c2d12")):
+        d = c[(c.rede_celular == rede) & (c.telas == fl["mobile_4g"]["n_telas"])]
+        f.add_scatter(x=d.fracao_celular * 100, y=d.horas_ano, mode="lines+markers", name=f"celular {rede.upper()}",
+                      line_color=cor)
+    d = c[(c.rede_celular == "4g") & (c.telas == fl["mobile_4g"]["n_telas"])]
+    f.add_scatter(x=d.fracao_celular * 100, y=d.horas_se_tudo_no_computador, mode="lines", name="se todos usassem computador",
+                  line=dict(color=COR_DESKTOP, dash="dash"))
+    f.update_layout(title="Sensibilidade: horas/ano de espera × fração de acessos no celular",
+                    xaxis_title="% dos registros feitos no celular", yaxis_title="horas por ano")
+    br = lambda n: f"{int(n):,}".replace(",", ".")
+    corpo += (f"<h3>Cenários</h3>{fig_html(f)}"
+              f"<p>Faixa de todos os 18 cenários (fração no celular 50–90%, 4G ou 3G, 4 a 8 telas): "
+              f"<strong>{br(c.horas_ano.min())} a {br(c.horas_ano.max())} horas por ano</strong> só esperando as telas aparecerem.</p>"
+              '<div class="kpis">' + kpi(f"≈ {impacto.populacao_def_visual_mg()/1000:.0f} mil", "pessoas com deficiência visual em MG",
+                                        "estimativa: taxa nacional do Censo 2022 (3,9%) × população de MG") +
+              kpi(f"{br(impacto.PCD_MG)}", "pessoas com deficiência em MG", "Censo 2022, qualquer tipo") + "</div>"
+              "<p>Para esse público, as barreiras da RQ1 (imagens sem descrição, página sem idioma, links sem nome) "
+              "pesam mais do que o tempo de carregamento.</p>")
     return secao("06", "impacto", "Impacto para o cidadão (RQ5)", corpo)
 
 

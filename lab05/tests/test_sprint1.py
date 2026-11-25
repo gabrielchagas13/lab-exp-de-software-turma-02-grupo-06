@@ -60,3 +60,20 @@ def test_checklist_h1():
                        "resultado": ["passa", "falha", "falha"]})
     r = resumir(df)
     assert r["completo"] and r["h1_todas_telas_falham"] and r["tarefa_so_teclado"]
+
+
+def test_impacto_cenarios_monotonicos():
+    from analise.impacto import cenarios, populacao_def_visual_mg
+    c = cenarios(100_000)
+    assert len(c) == 18
+    assert (c.horas_ano >= c.horas_se_tudo_no_computador).all()
+    g = c[(c.rede_celular == "4g") & (c.telas == 4)].sort_values("fracao_celular")
+    assert g.horas_ano.is_monotonic_increasing
+    assert 700_000 < populacao_def_visual_mg() < 900_000
+
+
+def test_resumo_seguranca():
+    from analise.seguranca import resumo_hosts
+    r = resumo_hosts()
+    assert set(r.columns) >= {"host", "tem_csp", "n_cves"}
+    assert (r.n_cves >= 0).all()

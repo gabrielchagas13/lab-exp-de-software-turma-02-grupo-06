@@ -1,0 +1,3 @@
+host,cabecalhos_ausentes,n_cabecalhos_ausentes,tem_csp,tem_hsts,aceita_tls_obsoleto,aceita_tls1_3,bibliotecas,bibliotecas_vulneraveis,cves,n_cves,cert_dias_para_expirar
+www.delegaciavirtual.sids.mg.gov.br,content-security-policy|permissions-policy|referrer-policy|x-content-type-options|x-frame-options,5,False,True,True,False,jquery 1.11.1|jquery-ui 1.10.3|jquery 1.9.1|bootstrap 4.0.0,4,CVE-2015-9251|CVE-2018-14041|CVE-2019-11358|CVE-2019-8331|CVE-2020-11022|CVE-2020-11023|CVE-2021-41182|CVE-2021-41183|CVE-2021-41184|CVE-2022-31160,10,169
+www.mg.gov.br,content-security-policy|permissions-policy|referrer-policy|strict-transport-security,4,False,False,True,False,jquery 3.7.1|jquery 1.9.1,1,CVE-2015-9251|CVE-2019-11358|CVE-2020-11022|CVE-2020-11023,4,183
