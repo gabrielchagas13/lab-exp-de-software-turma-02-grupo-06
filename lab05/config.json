@@ -3,17 +3,60 @@
   "user_agent": "PUC-Minas-LabExp-Grupo06/1.0 (pesquisa academica; 1 req/s)",
   "paginas": {
     "dv_inicio": "https://www.delegaciavirtual.sids.mg.gov.br/sxgn/",
+    "dv_perda_alerta": "https://www.delegaciavirtual.sids.mg.gov.br/sxgn/ocorrencia/renderAlerta?tipoNatureza=2",
+    "dv_perda_identificacao": "https://www.delegaciavirtual.sids.mg.gov.br/sxgn/ocorrenciaPerdaDocumentosObjetos/renderIdentificacao",
     "mg_servico_reds": "https://www.mg.gov.br/servico/registrar-ocorrencia-policial-reds",
     "mg_servico_perda_doc": "https://www.mg.gov.br/servico/solicitar-registro-de-ocorrencia-de-perda-de-documentos-e-objetos-pessoais"
   },
   "lighthouse": {
     "versao": "13.6.0",
-    "dispositivos": ["mobile", "desktop"],
-    "categorias": ["performance", "accessibility", "best-practices", "seo"]
+    "categorias": [
+      "performance",
+      "accessibility",
+      "best-practices",
+      "seo"
+    ],
+    "perfis": {
+      "mobile_4g": {
+        "preset": "mobile",
+        "rtt_ms": 150,
+        "kbps": 1638.4,
+        "cpu": 4
+      },
+      "mobile_3g": {
+        "preset": "mobile",
+        "rtt_ms": 300,
+        "kbps": 700,
+        "cpu": 4
+      },
+      "desktop": {
+        "preset": "desktop"
+      }
+    },
+    "repeticoes": 5
   },
   "sejusp": {
     "arquivo": "data/sejusp/ocorrencias.csv",
     "separador": ";",
     "encoding": "latin-1"
+  },
+  "fluxo_perda_documento": {
+    "telas": [
+      "mg_servico_perda_doc",
+      "dv_inicio",
+      "dv_perda_alerta",
+      "dv_perda_identificacao"
+    ],
+    "parada": "A tela seguinte (POST de identificacaoForm) exige nome, CPF, RG e e-mail reais; o fluxo é medido só até a identificação, sem preencher nem enviar nada."
+  },
+  "seguranca": {
+    "cabecalhos": [
+      "strict-transport-security",
+      "content-security-policy",
+      "x-frame-options",
+      "x-content-type-options",
+      "referrer-policy",
+      "permissions-policy"
+    ]
   }
 }

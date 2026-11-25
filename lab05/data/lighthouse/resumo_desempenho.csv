@@ -1,0 +1,16 @@
+pagina,perfil,n,lcp_mediana_ms,lcp_q1_ms,lcp_q3_ms,perf_mediana,acess_mediana,peso_kb_mediana,lcp_bom
+dv_inicio,desktop,5,469.3,465.1,473.6,100.0,77.0,346.4,True
+dv_inicio,mobile_3g,5,3938.3,3920.8,3938.5,77.0,77.0,346.4,False
+dv_inicio,mobile_4g,5,1833.2,1825.5,1838.9,97.0,77.0,346.4,True
+dv_perda_alerta,desktop,5,471.7,464.9,530.0,100.0,77.0,403.7,True
+dv_perda_alerta,mobile_3g,5,3925.2,3919.9,3925.9,78.0,77.0,403.7,False
+dv_perda_alerta,mobile_4g,5,1890.0,1833.0,1890.0,98.0,77.0,403.7,True
+dv_perda_identificacao,desktop,5,504.9,498.5,570.0,99.0,79.0,342.8,True
+dv_perda_identificacao,mobile_3g,5,4279.1,4276.2,4290.0,75.0,80.0,329.3,False
+dv_perda_identificacao,mobile_4g,5,2040.0,1979.1,2080.0,97.0,80.0,329.3,True
+mg_servico_perda_doc,desktop,5,1314.3,1197.4,1433.4,91.0,93.0,1986.8,True
+mg_servico_perda_doc,mobile_3g,5,14472.8,10828.6,14625.9,55.0,92.0,1946.1,False
+mg_servico_perda_doc,mobile_4g,5,6506.5,6498.7,6631.4,60.0,92.0,1945.8,False
+mg_servico_reds,desktop,5,1286.3,1284.4,1363.5,91.0,96.0,2146.3,True
+mg_servico_reds,mobile_3g,5,10431.1,10207.6,15048.3,56.0,96.0,2105.4,False
+mg_servico_reds,mobile_4g,5,6709.0,4837.1,6756.6,60.0,96.0,2105.5,False

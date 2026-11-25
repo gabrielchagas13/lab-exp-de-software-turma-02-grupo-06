@@ -1,0 +1,3 @@
+comparacao,metrica,n_pares,mediana_a,mediana_b,razao_medianas,W,p_valor,r,cliff_delta,magnitude,paginas_na_direcao
+mobile_4g × desktop,lcp_ms,25,2080.0,570.0,3.65,325.0,6.15e-06,0.87,1.0,grande,5/5
+mobile_3g × mobile_4g,lcp_ms,25,4279.1,2080.0,2.06,325.0,6.15e-06,0.87,0.52,grande,5/5

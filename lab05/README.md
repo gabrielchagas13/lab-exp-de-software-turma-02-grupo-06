@@ -19,8 +19,13 @@ pytest -q
 ## Coleta
 ```bash
 python -m coleta.disponibilidade   # 1 GET por página, ≥ 1 s entre elas
-python -m coleta.lighthouse        # mobile + desktop, Lighthouse 13.6.0 fixado
+python -m coleta.lighthouse        # 5 rodadas × (mobile 4G, mobile 3G, desktop), Lighthouse 13.6.0 fixado
+python -m coleta.seguranca         # cabeçalhos HTTP, versões TLS, bibliotecas JS com CVE (só GET)
+python -m coleta.validar           # confere os dados coletados
+python -m analise.desempenho       # RQ2: descritiva + Wilcoxon pareado + delta de Cliff
+python -m analise.checklist_wcag   # RQ1: resumo do teste manual (teclado + VoiceOver)
 ```
+Fluxo medido ("perda de documento"): página do serviço no mg.gov.br → início da Delegacia Virtual → alerta → identificação. A tela seguinte exige nome, CPF e e-mail reais, então a medição para na identificação (nada é preenchido nem enviado).
 As páginas medidas ficam em `config.json`. Para o estudo longitudinal, agende com cron (a partir de `lab05/`):
 ```
 */15 * * * *    cd <caminho>/lab05 && .venv/bin/python -m coleta.disponibilidade
@@ -40,8 +45,10 @@ Nenhum boletim é enviado (comunicação falsa de crime é crime, CP art. 340). 
 | Arquivo | Conteúdo |
 |---|---|
 | `data/disponibilidade/checagens.csv` | timestamp, página, status HTTP, ok, tempo (s), bytes, erro |
-| `data/lighthouse/resultados.csv` | notas (perf., acess., boas práticas, SEO), LCP, FCP, TBT, CLS, peso, violações de acessibilidade |
+| `data/lighthouse/resultados.csv` | perfil (dispositivo + rede), repetição (0 = piloto), notas (perf., acess., boas práticas, SEO), LCP, FCP, TBT, CLS, peso, violações de acessibilidade |
 | `data/lighthouse/raw/` | JSON bruto do Lighthouse (não versionado: é grande) |
+| `data/seguranca/` | cabeçalhos, TLS e bibliotecas JS (com CVEs) |
+| `data/acessibilidade/checklist.csv` | teste manual WCAG por tela (preenchido à mão) |
 | `data/sejusp/` | CSV da SEJUSP baixado manualmente |
 
 ## Processo de desenvolvimento (2 semanas)
@@ -56,14 +63,14 @@ Papéis: **Gabriel Chagas** (A: planejamento, método e dashboard), **Marcus Vin
 | Proposta com as RQ1–RQ5, GQM, hipóteses e 7 categorias (1ª versão) | Gabriel Chagas | `docs/proposta_s01.md` | ✅ Pronto |
 | Série mensal da SEJUSP: pandemia, sazonalidade, RMBH × interior (RQ4) | Gabriel Chagas | `analise/sejusp.py` | ✅ Pronto |
 | Dashboard com as seções de todas as RQs | Gabriel Chagas | `dashboard/gerar.py` → `dashboard/index.html` | ✅ Pronto (seções de outros marcadas "em construção") |
-| Protocolar o pedido LAI | Gabriel Chagas | `docs/pedido_lai.md` | ⬜ A fazer |
-| Teste manual com teclado e VoiceOver (RQ1) | Gabriel Chagas | `data/acessibilidade/checklist.csv` + `analise/checklist_wcag.py` | ⬜ A fazer |
-| Mapear as telas do fluxo "perda de documento" até a revisão (sem enviar) | Marcus Vinicius | `config.json` | ⬜ A fazer |
-| Lighthouse com 4G/3G e 5 rodadas por tela (RQ1, RQ2) | Marcus Vinicius | `coleta/lighthouse.py` | ⬜ A fazer |
-| Coleta de segurança: cabeçalhos HTTP, TLS, bibliotecas JS (RQ3) | Marcus Vinicius | `coleta/seguranca.py` | ⬜ A fazer |
-| Validação dos dados coletados | Marcus Vinicius | `coleta/validar.py` | ⬜ A fazer |
-| Descritiva + Wilcoxon pareado celular × computador + tamanho do efeito (RQ2) | Guilherme Lana | `analise/desempenho.py` | ⬜ A fazer |
-| Ameaças à validade (4 tipos) | Guilherme Lana | `docs/proposta_s01.md` §6 | ⬜ A fazer |
+| Protocolar o pedido LAI | Gabriel Chagas | `docs/pedido_lai.md` | ⬜ A fazer (texto pronto; protocolar no Fala.BR) |
+| Teste manual com teclado e VoiceOver (RQ1) | Gabriel Chagas | `data/acessibilidade/checklist.csv` + `analise/checklist_wcag.py` | 🟨 Checklist (4 telas × 14 critérios) e script prontos; falta o teste manual |
+| Mapear as telas do fluxo "perda de documento" até a revisão (sem enviar) | Marcus Vinicius | `config.json` | ✅ Pronto (alerta → identificação; para antes do POST com dados pessoais) |
+| Lighthouse com 4G/3G e 5 rodadas por tela (RQ1, RQ2) | Marcus Vinicius | `coleta/lighthouse.py` | ✅ Pronto |
+| Coleta de segurança: cabeçalhos HTTP, TLS, bibliotecas JS (RQ3) | Marcus Vinicius | `coleta/seguranca.py` | ✅ Pronto |
+| Validação dos dados coletados | Marcus Vinicius | `coleta/validar.py` | ✅ Pronto |
+| Descritiva + Wilcoxon pareado celular × computador + tamanho do efeito (RQ2) | Guilherme Lana | `analise/desempenho.py` | ✅ Pronto |
+| Ameaças à validade (4 tipos) | Guilherme Lana | `docs/proposta_s01.md` §6 | ✅ Pronto |
 
 ### Semana 2: impacto, conclusões e entrega (Lab05S03 + Final)
 | Tarefa | Responsável | Código / artefato | Status |

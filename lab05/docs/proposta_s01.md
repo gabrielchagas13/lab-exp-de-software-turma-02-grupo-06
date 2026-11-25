@@ -49,11 +49,29 @@ A coleta contínua a cada 15 min foi retirada: depende de uma máquina ligada po
 | Controle | Observacional, com parte quase-experimental | Não controlamos o sistema. Mobile × desktop é manipulado na medição, mas sem aleatorizar o servidor. A série interrompida é quase-experimento |
 | Nível de evidência | Moderado | Correlacional e quase-experimental; não permite causalidade forte |
 
-## 6. Ameaças à validade (1ª versão)
-- **Conclusão:** notas do Lighthouse variam entre execuções. *Mitigação:* repetições em vários horários, testes não paramétricos, tamanho do efeito.
-- **Interna:** a rede e a máquina do grupo influenciam o tempo. *Mitigação:* mesma máquina e rede, throttling simulado do Lighthouse, registro do horário.
-- **Construto:** a nota automática não é igual à experiência real; o axe detecta só parte dos problemas de WCAG (*Goodhart*: um site pode "jogar" a nota). *Mitigação:* olhar as violações concretas e, se der, fazer o estudo com pessoas.
-- **Externa:** resultado vale para MG e para as páginas públicas (o formulário interno não é medido). *Mitigação:* declarar o limite e comparar com o portal mg.gov.br.
+## 6. Ameaças à validade (versão S02)
+Classificação de Wohlin et al. (2012). Cada ameaça tem a mitigação adotada e o que fica como limitação.
+
+### 6.1 Validade de conclusão
+- **Variabilidade do Lighthouse:** a nota e o LCP mudam entre execuções (rede, carga do servidor). *Mitigação:* 5 repetições por tela e perfil, mediana e IQR em vez de média, testes não paramétricos (Wilcoxon pareado) e tamanho do efeito (r, delta de Cliff), não só o p-valor.
+- **Pares não independentes:** as 5 repetições da mesma tela são correlacionadas, então o n = 25 do Wilcoxon superestima a informação. *Mitigação:* também reportamos em quantas das 5 telas a mediana segue a direção da hipótese.
+- **Baixo poder:** só 4–5 telas. *Limitação:* o resultado vale como evidência descritiva forte, não como generalização estatística para todo o sistema.
+
+### 6.2 Validade interna
+- **Rede e máquina do grupo:** influenciam o tempo. *Mitigação:* throttling *simulado* do Lighthouse (o mesmo perfil 4G/3G para todas as telas), mesma máquina, horário registrado em cada linha.
+- **Mudança do sistema durante a coleta:** um deploy no meio da coleta mudaria o objeto medido. *Mitigação:* a coleta de cada rodada é feita em uma sessão curta; scripts e bibliotecas detectados ficam salvos (`data/seguranca/bibliotecas.csv`) para comparar.
+- **Cache/CDN:** a primeira carga pode ser mais lenta. *Mitigação:* o Lighthouse sempre inicia com cache limpo, e todas as telas recebem o mesmo tratamento.
+
+### 6.3 Validade de construto
+- **Nota automática ≠ experiência real:** o axe-core detecta só uma parte dos problemas WCAG, e um site pode "jogar" a nota (Goodhart). *Mitigação:* olhamos as violações concretas e fazemos o teste manual com teclado e VoiceOver (`data/acessibilidade/checklist.csv`).
+- **LCP como proxy de "espera":** o LCP mede quando o maior elemento aparece, não quando o cidadão consegue agir. *Mitigação:* reportamos também TBT e Speed Index; na RQ5 o custo é tratado como estimativa com análise de sensibilidade.
+- **Segurança só passiva:** cabeçalhos, TLS e versões de bibliotecas mostram *exposição*, não uma vulnerabilidade explorável. Não fazemos testes de intrusão (ética). As CVEs vêm de uma tabela de versões conhecidas, e a detecção depende do banner da biblioteca no arquivo minificado (falsos negativos possíveis).
+- **SEJUSP como demanda:** são crimes registrados por qualquer canal, não boletins da Delegacia Virtual. *Mitigação:* tratados como demanda potencial; o número real de uso depende da resposta da LAI.
+
+### 6.4 Validade externa
+- **Só as telas públicas:** o fluxo é medido até a identificação; as telas seguintes exigem dados pessoais reais e não são acessadas (ética, CP art. 340). O resultado não cobre o formulário interno.
+- **Só MG e uma janela curta de tempo:** não generaliza para outros estados nem para o sistema ao longo dos anos. *Mitigação:* comparação com as páginas do portal mg.gov.br que levam o cidadão até a Delegacia Virtual.
+- **Aparelho simulado:** o perfil "mobile" do Lighthouse é um Moto G Power emulado; aparelhos mais baratos seriam mais lentos (o resultado é conservador).
 
 ## 7. Ética
 - No máximo 1 requisição/s (o script impõe isso) e user-agent identificado. O `robots.txt` da Delegacia Virtual retorna 404, sem restrição publicada.
