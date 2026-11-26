@@ -10,7 +10,7 @@ Apresentar com o dashboard aberto (`dashboard/index.html`), rolando seção por 
 | 3:30–5:00 | RQ2 desempenho | Guilherme | Boxplot da seção 03. Celular 4G 3,6× mais lento, p < 0,001, δ = 1,0, 5/5 telas. **Recado:** a DV é rápida; o portal mg.gov.br é que pesa 2 MB e leva 6–14 s |
 | 5:00–6:00 | RQ1 acessibilidade | Gabriel | Nota 77–80 na DV contra 92–96 no portal. As 5 violações e o que significam para quem usa leitor de tela. Resultado do teste com VoiceOver (se feito, mostrar um trecho de vídeo) |
 | 6:00–7:00 | RQ3 segurança | Marcus | Tabela da seção 04: jQuery 1.9/1.11, jQuery UI 1.10, Bootstrap 4.0, 10 CVEs, sem CSP, aceita TLS 1.0. Deixar claro: exposição, não ataque |
-| 7:00–8:00 | RQ4 demanda | Gabriel | Série SEJUSP: −32% no isolamento, sazonalidade ±5%. LAI: status do pedido |
+| 7:00–8:00 | RQ4 demanda | Gabriel | Série SEJUSP: −32% no isolamento, sazonalidade ±5%. LAI protocolada em 17/11 (nº 1510.000360/2026-61), prazo 07/12 |
 | 8:00–9:00 | RQ5 impacto | Guilherme | Calculadora ao vivo: mudar o % no celular e a rede. 469–2.484 h/ano. ≈ 800 mil com deficiência visual em MG |
 | 9:00–10:00 | Conclusão | Todos | 3 recomendações baratas (lang/alt, atualizar bibliotecas + CSP, aliviar o portal). Principais ameaças: 5 telas, segurança passiva, % no celular desconhecido |
 

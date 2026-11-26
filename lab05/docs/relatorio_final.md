@@ -67,7 +67,7 @@ As CVEs são de XSS (por exemplo, CVE-2020-11022/11023 no jQuery < 3.5 e CVE-202
 - No isolamento (abr–jul/2020), a média mensal ficou **31,9% abaixo** do mesmo período de 2019. A queda é atribuída ao isolamento, não ao sistema.
 - Sazonalidade fraca: o maior desvio mensal é de **+5,3%** (março). **H4 confirmada.**
 - A região metropolitana de BH responde por 11% a 14% dos furtos da série, com tendência de alta (10,9% em 2012 e 13,7% em 2025).
-- Limitação: são crimes registrados por qualquer canal. O número de boletins da DV depende da resposta da LAI, ainda não recebida.
+- Limitação: são crimes registrados por qualquer canal. O número de boletins da DV depende da resposta da LAI (protocolo nº 1510.000360/2026-61, de 17/11/2026; prazo 07/12/2026), ainda não recebida.
 
 ### RQ5: impacto
 - Espera por registro, somando o LCP das 4 telas do fluxo: **12,3 s no celular 4G**, 26,6 s no 3G e 2,8 s no computador.

@@ -26,8 +26,8 @@ COR_DESTAQUE = "#b91c1c"
 NOMES_PAGINA = {
     "mg_servico_perda_doc": "mg.gov.br: perda de documento",
     "dv_inicio": "Delegacia Virtual (início)",
-    "dv_perda_alerta": "DV: alerta (perda de doc.)",
-    "dv_perda_identificacao": "DV: identificação",
+    "dv_alerta_perda_doc": "DV: alerta (perda de doc.)",
+    "dv_identificacao_perda_doc": "DV: identificação",
     "mg_servico_reds": "mg.gov.br: serviço REDS",
 }
 PERFIS = [("desktop", COR_DESKTOP, "Computador"), ("mobile_4g", COR_MOBILE, "Celular 4G"),

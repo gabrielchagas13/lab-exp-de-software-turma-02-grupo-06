@@ -3,238 +3,112 @@
 Par P1: **t de Welch × Mann-Whitney**. Cenário: tempo até o merge de PRs com e
 sem review do CodeRabbit.
 
-Duração alvo: **15 minutos** de fala + 5 de perguntas. A apresentação é feita
-**navegando o painel interativo**, não slides separados — cada bloco abaixo
-corresponde a uma seção dele, com navegação por ← →.
+**Duração total: 6 minutos** (limite duro), apresentados no **dashboard estilo
+Power BI**, trocando entre as 4 abas: **Os PRs → Qual teste confiar →
+Simulador → Veredito**. Cada um fala do que implementou.
 
-> **Página da apresentação:** [painel interativo](https://gabrielchagas13.github.io/lab-exp-de-software-turma-02-grupo-06/lab04/painel/)
-> (navegar com ← → como slides). O [dashboard estático](https://gabrielchagas13.github.io/lab-exp-de-software-turma-02-grupo-06/lab04/dashboard/)
-> fica como material de apoio/entrega.
+> **Dashboard:** https://gabrielchagas13.github.io/lab-exp-de-software-turma-02-grupo-06/lab04/powerbi/
 
-Regra de divisão: **quem fechou a issue apresenta o bloco correspondente**.
-
-| # | Bloco | Quem | Tempo | Seção do painel | Issue |
+| # | Bloco | Quem | Tempo | Aba e elemento | Issue |
 |---|---|---|---|---|---|
-| 1 | Abertura e pergunta | Gabriel Chagas | 1 min | topo + 01 (os 60 PRs) | #76 |
-| 2 | Dados e por que lognormal | Gabriel Chagas | 2 min | 02 (G1, botão “sortear”) | #76 |
-| 3 | Hipóteses: os dois testes não testam a mesma coisa | Marcus Vinicius | 2 min | 01 (hipóteses e previsões) | #77 |
-| 4 | De onde vem o p-valor | Guilherme Lana | 2 min | 03 (G2, permutações ao vivo) | #78 |
-| 5 | Q1: erro tipo I | Marcus Vinicius | 3 min | 04 (laboratório, preset “H0 base”) + 05 (G3) | #79 |
-| 6 | Q2: poder | Guilherme Lana\* | 2 min | 04 (preset “efeito real”) + 06 (G4) + 07 | #80 |
-| 7 | Q3: violações de pressupostos | Gabriel Chagas | 1 min | 04 (presets “outliers”, “n = 10”) + abas do G4 | #81 |
-| 8 | Os testes nos dados reais | Gabriel Chagas | 1 min | 08 (veredito) | #82 |
-| 9 | Conclusão e recomendação | Marcus Vinicius | 1 min | 09 (esperado × encontrado) | #84 |
+| 1 | Pergunta, palpite e dados | Gabriel | 0:45 | Os PRs (palpite, medianas, gráficos) | #76 |
+| 2 | Hipóteses e por que simular | Marcus | 0:30 | Os PRs (“Como ler”) | #77 |
+| 3 | Q1: alarmes falsos | Marcus | 0:50 | Qual teste confiar (cartões de alarmes falsos) | #79 |
+| 4 | Q2: poder e tamanho de amostra | Guilherme | 1:00 | Qual teste confiar (curva, 100 experimentos, “Quantos PRs”) | #80 #83 |
+| 5 | Q3: dados mais bagunçados | Gabriel | 0:30 | Qual teste confiar (filtro “Simulação: cenário”) | #81 |
+| 6 | Simulação ao vivo | Guilherme | 0:45 | Simulador | #78 |
+| 7 | Testes nos dados reais | Gabriel | 0:40 | Veredito (cartões de p-valor) | #82 |
+| 8 | Conclusão e recomendação | Marcus | 0:30 | Veredito (previsto × encontrado, resumo) | #84 |
 
-Tempo por pessoa: Marcus 6 min, Gabriel 5 min, Guilherme 4 min.
+Total: **5:30** (30 s de folga para as trocas). Gabriel 1:55, Marcus 1:50,
+Guilherme 1:45.
 
-\* A #80 é a única sem dono registrado em commit; o bloco 6 está com o Guilherme
-só para equilibrar o tempo. Quem fechar a issue assume o bloco.
-
+**Regra de ouro:** se estourar o tempo, corte o número secundário, nunca a
+conclusão. Cada fala termina passando a vez ao próximo.
 
 ---
 
-## 1. Abertura e pergunta (1 min)
+## 1. Pergunta, palpite e dados (Gabriel, 0:45) — aba Os PRs
 
-> "A pergunta é simples: **PRs revisados por um bot demoram mais ou menos até o
-> merge do que PRs sem review de bot?** Nos 60 PRs que coletamos, os dois testes
-> que aplicamos concordam: ambos rejeitam H0. Só que um deles passa raspando —
-> **p = 0,037 contra p = 0,0019** — e essa diferença de margem não é detalhe.
-> Mostramos ao longo da apresentação que, nesse tipo de dado, basta pouca coisa
-> para o teste de margem apertada deixar de enxergar um efeito que está lá: em
-> dados simulados **com efeito colocado por nós**, ele não enxerga. O trabalho é
-> entender por que isso acontece e decidir em qual dos dois confiar."
+Começar pelo **palpite**: pedir à plateia que chute quantas vezes o PR com bot
+demora mais, e só depois clicar em **Revelar**.
 
-Mostrar a pergunta no topo da seção 1.
+> "O CodeRabbit atrasa o merge? Coletei 60 PRs de um projeto real, 30 com
+> review do bot e 30 sem. Antes de ver: quantas vezes mais demora o PR com bot?
+> [Revelar] Cerca de 5 vezes no tempo típico: 4,3 horas contra 0,8. Repare no
+> gráfico de cada PR: quase todos fecham rápido, mas alguns demoram dias, e
+> esses poucos puxam a média para cima. Por isso olhamos o tempo típico, a
+> mediana. Esse formato vai ser a chave da conversa. Marcus."
 
-Cuidado com a formulação: **nos dados reais os dois testes concordam.** A
-discordância aparece no exemplo simulado da seção 2, onde a verdade é conhecida.
-Dizer que "os testes dão respostas opostas" sem essa distinção contradiz a
-seção 6 do dashboard.
+## 2. Hipóteses e por que simular (Marcus, 0:30) — aba Os PRs
 
-## 2. Dados e por que lognormal (2 min)
+> "Vamos comparar dois testes que respondem perguntas diferentes: o t de Welch
+> compara a média dos grupos, o Mann-Whitney compara quem costuma demorar mais.
+> Nos dados reais ninguém sabe a resposta certa, então não dá para dizer qual
+> teste acertou. Por isso criamos dados simulados com esse mesmo formato: nós
+> decidimos se existe diferença e conferimos qual teste acerta."
 
-Números a dizer:
+## 3. Q1: alarmes falsos (Marcus, 0:50) — aba Qual teste confiar
 
-- 60 PRs do repositório **MCPJam/inspector**, 30 por grupo, mergeados entre
-  julho e setembro de 2026.
-- `com_bot`: mediana **4,26 h**, média **22,82 h**. `sem_bot`: mediana
-  **0,83 h**, média **4,36 h**.
+Apontar os dois cartões de **alarmes falsos**.
 
-> "Repare na distância entre média e mediana: a média é cinco vezes a mediana.
-> Isso é a assinatura de uma distribuição assimétrica à direita — a maioria dos
-> PRs fecha rápido e alguns ficam esquecidos por dias. O Shapiro-Wilk rejeita
-> normalidade com p da ordem de 10⁻⁸ nos dois grupos. **Mas em escala log a
-> assimetria some** e o Shapiro não rejeita (p = 0,93 e p = 0,31). Isso é a
-> definição de uma lognormal, e é ela que o gerador usa."
+> "Primeira pergunta: se não existe diferença nenhuma, quantas vezes o teste
+> acusa uma por engano? Esse é o alarme falso, e o certo seria 5 em 100. Em 10
+> mil simulações, o Mann-Whitney errou 4,7%, certinho. O Welch errou só 1,7%.
+> Parece bom, mas significa que o Welch é tímido demais: ele quase nunca acusa
+> diferença, nem quando ela existe. Guilherme mostra isso."
 
-No **G1**, clicar no botão **Horas** para mostrar a cauda longa e voltar para
-**Escala log** para mostrar o ajuste. É o momento mais visual da apresentação —
-vale a pena fazer a troca devagar.
+## 4. Q2: poder e tamanho de amostra (Guilherme, 1:00) — aba Qual teste confiar
 
-> "E essa escolha não é detalhe de implementação: é justamente o tipo de
-> distribuição em que um teste de médias e um teste de postos discordam. Se a
-> gente tivesse simulado com normal, os dois concordariam sempre e não haveria
-> trabalho nenhum."
+Apontar a curva "Quantas vezes cada teste encontra a diferença" e a linha de 80%.
+Depois, arrastar o controle dos **100 experimentos** até a diferença de 2×.
 
-## 3. Hipóteses (2 min)
+> "Segunda pergunta: quando a diferença existe de verdade, o teste percebe?
+> Quanto mais alta a curva, melhor. A do Mann-Whitney sobe muito antes. Aqui
+> cada bolinha é um experimento: com o tempo dobrado, o Mann-Whitney percebe
+> em 20 de 100 e o Welch em menos de 5. No efeito que observamos, de 5 vezes,
+> o Mann-Whitney percebe em cerca de 3 de cada 4 e o Welch em 1 de cada 5. E
+> quantos PRs precisaríamos? Olhem a tabela: o Welch pede bem mais PRs que o
+> Mann-Whitney para achar o mesmo efeito. Gabriel."
 
-Este é o ponto conceitual da apresentação. Mostrar a tabela de hipóteses.
+## 5. Q3: dados mais bagunçados (Gabriel, 0:30) — aba Qual teste confiar
 
-> "Quase todo mundo escreve 'H0: os grupos são iguais' e aplica os dois testes.
-> Isso está errado. O **t de Welch** testa se as **médias** são iguais. O
-> **Mann-Whitney** testa se um PR sorteado de um grupo tem a mesma chance de
-> demorar mais que um PR do outro — ele compara **postos**, não médias. São
-> hipóteses diferentes, então os dois podem discordar sem que nenhum esteja
-> com defeito."
+No filtro **Simulação: cenário**, trocar para **Com outliers** e depois
+**Só 10 PRs por grupo**, mostrando "Alarmes falsos e acertos por cenário".
 
-Mencionar também que o teste é **bicaudal**: um review automático pode tanto
-adiantar o merge quanto atrasá-lo, e não havia base para descartar uma direção
-antes de olhar os dados.
+> "Terceira pergunta: e se os dados ficarem ainda mais bagunçados, com casos
+> extremos ou poucos PRs? Olhem as barras mudando: o Welch fica ainda mais
+> tímido e acerta menos. O Mann-Whitney continua perto de 5% de alarme falso,
+> porque só olha a ordem dos PRs, não o tamanho dos números. Guilherme."
 
-## 4. De onde vem o p-valor (2 min)
+## 6. Simulação ao vivo (Guilherme, 0:45) — aba Simulador
 
-Mostrar o **G2** e apontar os três elementos: a curva sob H0, a região de
-rejeição sólida nas duas caudas e a área hachurada do p-valor.
+Clicar em **Igual aos dados reais (5×)** e depois em **Rodar 1.000
+experimentos**. Se der tempo, repetir com **Sem diferença**.
 
-> "Num conjunto simulado com o efeito que observamos na coleta — mediana oito
-> vezes maior no grupo tratado — o **Mann-Whitney rejeita com p = 0,00002** e o
-> **Welch não rejeita, p = 0,10**. O efeito existe, foi colocado por nós, e um
-> dos dois não viu."
+> "Aqui vocês mesmos montam o cenário. Eu escolho 'igual aos dados reais', onde
+> o bot deixa o PR 5 vezes mais lento, e rodo mil experimentos aqui no
+> navegador. O Mann-Whitney encontra a diferença na maior parte das vezes; o
+> Welch, na minoria. Com 'sem diferença', os dois ficam perto dos 5% de alarme
+> falso, ou menos, no caso do Welch. Gabriel."
 
-Mostrar os tamanhos de efeito na tabela: delta de Cliff **+0,636** (grande)
-contra d de Cohen **+0,436** (pequeno).
+## 7. Testes nos dados reais (Gabriel, 0:40) — aba Veredito
 
-> "Olhando só esta amostra não dá para saber qual dos dois acertou, porque num
-> estudo real ninguém conhece a verdade. É exatamente por isso que a gente
-> simula: na simulação a verdade é conhecida por construção."
+> "Nos dados reais, os dois testes concordam: PRs com bot demoram mais. Mas
+> olhem a força da evidência: o Mann-Whitney vai a p = 0,0019, bem forte, e o
+> Welch passa raspando, p = 0,037, no limite de 0,05. É o que a simulação
+> avisava. Cuidado: o bot não foi sorteado, então isso mostra que as duas coisas
+> andam juntas, não que o bot causa a demora. Marcus."
 
-## 5. Q1: erro tipo I (3 min)
+## 8. Conclusão e recomendação (Marcus, 0:30) — aba Veredito
 
-O bloco mais importante. Mostrar a seção 3 e o **G3**.
+Apontar a tabela **O que previmos × o que encontramos** e o **Em resumo**.
 
-> "Rodamos **10.000 réplicas** em que os dois grupos saem da mesma distribuição.
-> H0 é verdadeira por construção, então **toda rejeição é um falso positivo**.
-> Um teste honesto a 5% deveria rejeitar em 5% das réplicas."
-
-Números a dizer:
-
-| | Erro tipo I observado | IC 95% | Veredito |
-|---|---|---|---|
-| t de Welch | **1,68%** | 1,45% – 1,95% | conservador |
-| Mann-Whitney | **4,74%** | 4,34% – 5,17% | calibrado |
-
-> "O Welch rejeita **três vezes menos** do que promete. E o histograma da
-> esquerda mostra por quê: os p-valores dele deveriam ser uniformes sob H0, mas
-> se amontoam entre 0,2 e 0,4. **Em 10.000 réplicas, o menor p-valor que o
-> Welch conseguiu produzir foi 0,0045.** Ou seja, com dados desta assimetria,
-> um resultado a 1% de significância é literalmente inalcançável para ele."
-
-Apontar no painel da direita que a curva azul fica abaixo da diagonal em toda a
-faixa de α, enquanto a laranja a acompanha.
-
-**Antecipar a pergunta óbvia:** "conservador não é bom? não dá falso positivo."
-
-> "Dá para pensar assim, mas conservador tem preço: quem rejeita de menos
-> quando não há efeito também rejeita de menos quando há. É o que vamos ver na
-> Q2 — e é exatamente o que aconteceu no exemplo da seção 2, onde ele não viu um
-> efeito que nós mesmos colocamos. Nos dados reais ele até rejeita, mas com
-> p = 0,037, raspando no limite, enquanto o Mann-Whitney vai a 0,0019."
-
-Se alguém perguntar se não é bug no código: temos um teste automatizado que
-roda o mesmo experimento com σ baixo (quase normal) e confirma que aí o Welch
-volta aos 5%. A conservadoria vem da assimetria, não da implementação.
-
-## 6. Q2: poder (2 min) — issue #80
-
-Mesma máquina da Q1, agora com efeito **presente e conhecido**: a mediana do
-grupo tratado é multiplicada por um fator, e contamos quantas vezes cada teste
-consegue detectá-lo. Isso é o poder.
-
-| Efeito (razão de medianas) | Poder do t de Welch | Poder do Mann-Whitney |
-|---|---|---|
-| 1,0× (H0 verdadeira — é a Q1) | 1,7% | 4,7% |
-| 2,0× | 4,8% | 20,4% |
-| **5,14× (o observado na coleta)** | **20,9%** | **76,4%** |
-
-> "No efeito que a gente realmente observou na coleta, o **Mann-Whitney detecta
-> em 3 de cada 4 experimentos e o Welch em 1 de cada 5**. É a contrapartida
-> direta da Q1: o Welch economiza em falsos positivos e paga em efeitos reais
-> não detectados."
-
-O número mais forte para fechar o bloco:
-
-> "Com a mediana **dobrada** — um efeito enorme para qualquer padrão de
-> engenharia de software — o Welch acerta em 4,8% das vezes. Isso é *menos* do
-> que um teste calibrado rejeitaria por puro acaso quando não há efeito nenhum.
-> Na prática, nesse cenário o t de Welch não enxerga."
-
-Mostrar o G4 e apontar que a curva do Mann-Whitney sobe muito antes da do Welch.
-
-Para conferir o número do efeito observado (IC 95%: 20,1%–21,7% e 75,6%–77,3%;
-trocar a semente move cerca de meio ponto percentual):
-
-```bash
-python -c "import numpy as np, sim; m,s=sim.parametros_base(); print(sim.taxa_rejeicao(5.14,'base',10000,np.random.default_rng(42),mediana=m,sigma=s))"
-```
-
-## 7. Q3: violações de pressupostos (1 min) — issue #81
-
-Mostrar o laboratório ao vivo do painel interativo (`painel/index.html`, botões
-**outliers** e **n = 10**) ou a tabela abaixo (10.000 réplicas, seed 42).
-
-| Cenário | Tipo I Welch | Tipo I MW | Poder Welch (razão 2×) | Poder MW (razão 2×) |
-|---|---|---|---|---|
-| Base (σ log ≈ 2,24, n=30) | 1,7% | 4,7% | 4,8% | 20,4% |
-| Assimetria forte (σ ×1,5) | 0,7% | 4,7% | 1,2% | 11,2% |
-| Outliers (10% ×20) | 1,2% | 4,7% | 3,2% | 19,0% |
-| Amostra pequena (n=10) | 0,9% | 4,3% | 1,3% | 8,4% |
-
-> "Quanto mais a gente viola o que o t assume, mais o Welch fica conservador e
-> perde poder: com assimetria forte ele rejeita 0,7% sob H0 e só 1,2% com a
-> mediana dobrada. O Mann-Whitney fica em ~5% sob H0 em todos os cenários,
-> porque só usa a ordem dos dados: assimetria e tamanho de outlier não mudam
-> os postos."
-
-## 8. Os testes nos dados reais (1 min) — issue #82
-
-| Teste | Estatística | p-valor | Tamanho de efeito | Conclusão (α=5%) |
-|---|---|---|---|---|
-| t de Welch | t = 2,18 (gl = 30,8) | 0,037 | Cohen d = 0,56 | Rejeita H0 |
-| Mann-Whitney | U = 661 | 0,002 | Cliff δ = 0,47; razão de medianas = 5,14 | Rejeita H0 |
-
-> "Nos 60 PRs os dois testes rejeitam H0: PRs revisados pelo CodeRabbit levam
-> mais tempo até o merge, com mediana cerca de 5× maior. Mas a evidência do
-> Mann-Whitney é ~20× mais forte (p = 0,002 contra 0,037). É exatamente o que a
-> simulação previa: com essa assimetria o Welch quase não tem poder, e aqui ele
-> passou raspando. O Cliff δ de 0,47 está no limite de um efeito grande; o
-> Cohen d não é confiável porque a média é puxada por um PR de 203 h."
-
-Repetir a limitação: **o bot não foi sorteado**, então nada disso é causal.
-PRs que o bot revisa podem ser maiores ou de outros autores.
-
-## 9. Conclusão e recomendação (1 min)
-
-Mostrar a tabela "previsto × encontrado" da seção 7.
-
-> "A gente registrou as previsões **antes** de rodar qualquer simulação, e elas
-> estão versionadas no código. Isso não é formalidade: com o resultado na mão é
-> fácil contar uma história em que tudo era esperado."
-
-- Previmos que o Welch ficaria longe dos 5% → **ficou** (1,68%), mas para o lado
-  conservador, que não é o que normalmente se teme. Veredito honesto:
-  **parcial**, porque a previsão não dizia a direção.
-- Previmos que o Mann-Whitney ficaria perto dos 5% → **confirmada** (4,74%).
-- Previmos que o Mann-Whitney teria mais poder → **confirmada**, e com folga:
-  76,4% contra 20,9% no efeito observado na coleta.
-
-Fechar com a recomendação:
-
-> "Para comparar duração em engenharia de software — tempo de merge, tempo de
-> build, tempo de resolução de issue, que são quase sempre assimétricos — use o
-> **Mann-Whitney** e relate o **delta de Cliff** junto com o p-valor. Se a média
-> for mesmo o que interessa, transforme em log antes; aí o t volta a ser
-> adequado, mas o resultado passa a ser sobre a mediana, não sobre a média em
-> horas."
+> "Resumindo: nossas previsões, feitas antes de simular, se confirmaram quase
+> todas, e uma foi parcial: o Welch errou para o lado tímido. Para medir tempo
+> em engenharia de software, use o Mann-Whitney e mostre também o tamanho da
+> diferença. Isso vale para dados assimétricos como esses, com cerca de 30 PRs
+> por grupo. Obrigado."
 
 ---
 
@@ -274,13 +148,10 @@ dados dobraria artificialmente a significância.
 
 ## Checklist antes de apresentar
 
-- [ ] `python -m pytest tests -q` passando.
-- [ ] `python -m dashboard --config config.json` e o gerador do painel rodados
-      com a versão mais recente do código, e os HTML commitados.
-- [ ] `dashboard.projects_url` preenchido em `config.json` (ainda aparece como
-      "(pendente)" no topo da página).
-- [ ] Painel e dashboard abertos **pelo GitHub Pages** antes de começar — não
-      abrir o arquivo local na hora.
-- [ ] Navegação por ← → do painel testada na máquina da apresentação, e o botão
-      **Horas / Escala log** do G1.
-- [ ] Bloco 6 confirmado com quem fechar a #80.
+- [ ] Dashboard aberto **pelo GitHub Pages** antes de começar, não o arquivo local.
+- [ ] Testado na máquina da apresentação: as 4 abas, o botão **Revelar** do
+      palpite, o filtro **Simulação: cenário**, o controle deslizante dos
+      100 experimentos e os botões do **Simulador**.
+- [ ] Filtro de grupo e de cenário na posição inicial (**Base**) antes de começar.
+- [ ] Combinar quem segura o mouse em cada troca de aba.
+- [ ] Cada um ensaiou seu bloco com cronômetro (total máximo: 6 min).

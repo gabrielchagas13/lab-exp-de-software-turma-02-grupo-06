@@ -29,7 +29,9 @@ PCD_MG = 1_472_199  # Censo 2022, total de pessoas com deficiência em MG (qualq
 
 def lcp_fluxo() -> dict:
     """Σ das medianas de LCP (s) das telas do fluxo, por perfil; e LCP mediano da última tela medida."""
-    telas = json.loads((RAIZ / "config.json").read_text(encoding="utf-8"))["fluxo_perda_documento"]["telas"]
+    fluxo = json.loads((RAIZ / "config.json").read_text(encoding="utf-8"))["fluxo_perda_documento"]["telas"]
+    # porta de entrada (portal mg.gov.br) + telas da DV alcançáveis por GET
+    telas = ["mg_servico_perda_doc"] + [t["id"] for t in fluxo if t["mapeavel"]]
     med = carregar().groupby(["perfil", "pagina"])["lcp_ms"].median().unstack() / 1000
     return {p: {"soma_s": float(med.loc[p, telas].sum()), "ultima_s": float(med.loc[p, telas[-1]]),
                 "n_telas": len(telas)} for p in med.index}

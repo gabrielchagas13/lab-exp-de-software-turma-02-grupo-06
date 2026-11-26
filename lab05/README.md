@@ -5,7 +5,8 @@ Experimento sobre um software real, em operação e de alto impacto: a **Delegac
 **Pergunta:** a Delegacia Virtual atende bem, em acessibilidade, desempenho e disponibilidade, a demanda que absorveu? Quanto isso custa ao cidadão?
 
 - Proposta completa (critérios, GQM, hipóteses, 7 categorias, ameaças, plano, piloto): [docs/proposta_s01.md](docs/proposta_s01.md)
-- Texto do pedido pela LAI: [docs/pedido_lai.md](docs/pedido_lai.md)
+- Mapa do fluxo "perda de documento": [docs/fluxo_perda_documento.md](docs/fluxo_perda_documento.md)
+- Texto do pedido pela LAI: [docs/pedido_lai.md](docs/pedido_lai.md) e acompanhamento em [docs/protocolo_lai.md](docs/protocolo_lai.md)
 
 ## Requisitos
 - Python 3.12+, Node.js 18+ e Google Chrome (para o Lighthouse)
@@ -24,6 +25,7 @@ python -m coleta.seguranca         # cabeçalhos HTTP, versões TLS, bibliotecas
 python -m coleta.validar           # confere os dados coletados
 python -m analise.desempenho       # RQ2: descritiva + Wilcoxon pareado + delta de Cliff
 python -m analise.checklist_wcag   # RQ1: resumo do teste manual (teclado + VoiceOver)
+python -m coleta.mapa_fluxo        # telas do fluxo perda de documento (GET apenas)
 ```
 Fluxo medido ("perda de documento"): página do serviço no mg.gov.br → início da Delegacia Virtual → alerta → identificação. A tela seguinte exige nome, CPF e e-mail reais, então a medição para na identificação (nada é preenchido nem enviado).
 As páginas medidas ficam em `config.json`. Para o estudo longitudinal, agende com cron (a partir de `lab05/`):
@@ -39,7 +41,7 @@ python -m analise.perfil_sejusp
 ```
 
 ## Ética
-Nenhum boletim é enviado (comunicação falsa de crime é crime, CP art. 340). Nenhum formulário é preenchido automaticamente, nenhum dado pessoal é coletado, e o limite é de 1 requisição/s.
+Nenhum boletim é enviado (comunicação falsa de crime é crime, CP art. 340). Nenhum formulário é preenchido automaticamente, nenhum dado pessoal é coletado, e o limite é de 1 requisição/s. No mapeamento do fluxo a proibição está no código: `SessaoSomenteLeitura` recusa POST, e um teste automatizado verifica isso.
 
 ## Dados
 | Arquivo | Conteúdo |
@@ -47,6 +49,8 @@ Nenhum boletim é enviado (comunicação falsa de crime é crime, CP art. 340). 
 | `data/disponibilidade/checagens.csv` | timestamp, página, status HTTP, ok, tempo (s), bytes, erro |
 | `data/lighthouse/resultados.csv` | perfil (dispositivo + rede), repetição (0 = piloto), notas (perf., acess., boas práticas, SEO), LCP, FCP, TBT, CLS, peso, violações de acessibilidade |
 | `data/lighthouse/raw/` | JSON bruto do Lighthouse (não versionado: é grande) |
+python -m coleta.lighthouse        # mobile + desktop, Lighthouse 13.6.0 fixado
+python -m coleta.mapa_fluxo        # telas do fluxo perda de documento (GET apenas)
 | `data/seguranca/` | cabeçalhos, TLS e bibliotecas JS (com CVEs) |
 | `data/acessibilidade/checklist.csv` | teste manual WCAG por tela (preenchido à mão) |
 | `data/sejusp/` | CSV da SEJUSP baixado manualmente |
@@ -63,14 +67,16 @@ Papéis: **Gabriel Chagas** (A: planejamento, método e dashboard), **Marcus Vin
 | Proposta com as RQ1–RQ5, GQM, hipóteses e 7 categorias (1ª versão) | Gabriel Chagas | `docs/proposta_s01.md` | ✅ Pronto |
 | Série mensal da SEJUSP: pandemia, sazonalidade, RMBH × interior (RQ4) | Gabriel Chagas | `analise/sejusp.py` | ✅ Pronto |
 | Dashboard com as seções de todas as RQs | Gabriel Chagas | `dashboard/gerar.py` → `dashboard/index.html` | ✅ Pronto |
-| Protocolar o pedido LAI | Gabriel Chagas | `docs/pedido_lai.md` | ⬜ A fazer (texto pronto; protocolar no e-SIC MG) |
+| Protocolar o pedido LAI | Marcus Vinicius | `docs/pedido_lai.md`, `docs/protocolo_lai.md` | ✅ Protocolado em 17/11/2026 (nº 1510.000360/2026-61); prazo 07/12 |
 | Teste manual com teclado e VoiceOver (RQ1) | Gabriel Chagas | `data/acessibilidade/checklist.csv` + `analise/checklist_wcag.py` | 🟨 Checklist (4 telas × 14 critérios) e script prontos; falta o teste manual |
-| Mapear as telas do fluxo "perda de documento" até a revisão (sem enviar) | Marcus Vinicius | `config.json` | ✅ Pronto (alerta → identificação; para antes do POST com dados pessoais) |
+| Mapear as telas do fluxo "perda de documento" até a revisão (sem enviar) | Marcus Vinicius | `coleta/mapa_fluxo.py`, `docs/fluxo_perda_documento.md`, `config.json` | ✅ Pronto (3 de 5 telas medíveis por GET; as 2 seguintes exigem dados pessoais) |
 | Lighthouse com 4G/3G e 5 rodadas por tela (RQ1, RQ2) | Marcus Vinicius | `coleta/lighthouse.py` | ✅ Pronto |
 | Coleta de segurança: cabeçalhos HTTP, TLS, bibliotecas JS (RQ3) | Marcus Vinicius | `coleta/seguranca.py` | ✅ Pronto |
 | Validação dos dados coletados | Marcus Vinicius | `coleta/validar.py` | ✅ Pronto |
 | Descritiva + Wilcoxon pareado celular × computador + tamanho do efeito (RQ2) | Guilherme Lana | `analise/desempenho.py` | ✅ Pronto |
 | Ameaças à validade (4 tipos) | Guilherme Lana | `docs/proposta_s01.md` §6 | ✅ Pronto |
+| Plano de análise detalhado: teste por hipótese, escalas, α e efeito | Guilherme Lana | `docs/proposta_s01.md` §9 | ✅ Pronto |
+| Simulação de poder para o nº de rodadas do Lighthouse | Guilherme Lana | `analise/poder.py`, `data/poder/poder_rodadas.csv`, `docs/proposta_s01.md` §8 | ✅ Pronto (5 rodadas mantidas; σ entre rodadas a confirmar na S02) |
 
 ### Semana 2: impacto, conclusões e entrega (Lab05S03 + Final)
 | Tarefa | Responsável | Código / artefato | Status |

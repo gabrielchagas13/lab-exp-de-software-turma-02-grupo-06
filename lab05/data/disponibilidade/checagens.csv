@@ -2,3 +2,8 @@ timestamp_utc,pagina,url,status_http,ok,tempo_s,bytes,erro
 2026-11-17T18:49:14+00:00,dv_inicio,https://www.delegaciavirtual.sids.mg.gov.br/sxgn/,200,1,0.066,37372,
 2026-11-17T18:49:15+00:00,mg_servico_reds,https://www.mg.gov.br/servico/registrar-ocorrencia-policial-reds,200,1,2.305,129324,
 2026-11-17T18:49:18+00:00,mg_servico_perda_doc,https://www.mg.gov.br/servico/solicitar-registro-de-ocorrencia-de-perda-de-documentos-e-objetos-pessoais,200,1,1.576,94218,
+2026-11-17T20:40:30+00:00,dv_inicio,https://www.delegaciavirtual.sids.mg.gov.br/sxgn/,200,1,0.513,37373,
+2026-11-17T20:40:31+00:00,dv_alerta_perda_doc,https://www.delegaciavirtual.sids.mg.gov.br/sxgn/ocorrencia/renderAlerta?tipoNatureza=2,200,1,0.495,12051,
+2026-11-17T20:40:33+00:00,dv_identificacao_perda_doc,https://www.delegaciavirtual.sids.mg.gov.br/sxgn/ocorrenciaPerdaDocumentosObjetos/renderIdentificacao,200,1,0.449,45558,
+2026-11-17T20:40:34+00:00,mg_servico_reds,https://www.mg.gov.br/servico/registrar-ocorrencia-policial-reds,200,1,0.525,129324,
+2026-11-17T20:40:36+00:00,mg_servico_perda_doc,https://www.mg.gov.br/servico/solicitar-registro-de-ocorrencia-de-perda-de-documentos-e-objetos-pessoais,200,1,0.509,94218,

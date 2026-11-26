@@ -86,8 +86,44 @@ Classificação de Wohlin et al. (2012). Cada ameaça tem a mitigação adotada 
 | SEJUSP | download manual de dados.mg.gov.br | S01 | `data/sejusp/` |
 | PCMG | pedido LAI | protocolar na S01 (prazo 20 + 10 dias) | `data/lai/` |
 
+**Por que 5 rodadas por tela e dispositivo.** Simulação de poder em `analise/poder.py` (reaproveita a ideia do Lab04: repetir o experimento 1.000 vezes com a verdade conhecida e contar as rejeições). Modelo em escala log: diferença celular − computador = efeito + variação entre telas + ruído de rodada; teste: Wilcoxon pareado unilateral (H2), α = 0,05, poder-alvo 80%. Do piloto de 17/11 saem o efeito (razão celular/computador de 5,6×, o que é enorme) e a variação entre telas (σ = 0,05 em log). A variância **entre rodadas não saiu do piloto**: cada tela foi medida uma vez por dispositivo. Por isso ela entra como grade (σ_rodada de 0,05 a 0,30), e a primeira rodada da S02 deve substituí-la pelo valor medido.
+
+Rodadas mínimas para poder ≥ 80% (teste sobre as rodadas pareadas; tabela completa em `data/poder/poder_rodadas.csv`):
+
+| Telas | Efeito | σ_rodada 0,05 | 0,10 | 0,20 | 0,30 |
+|---|---|---|---|---|---|
+| 5 | 1,25× | 1 | 2 | 3 | 5 |
+| 5 | 1,5× | 1 | 1 | 2 | 2 |
+| 5 | piloto (5,6×) | 1 | 1 | 1 | 1 |
+| 3 | 1,25× | 2 | 2 | 5 | 10 |
+| 3 | 1,5× | 2 | 2 | 2 | 5 |
+| 3 | piloto (5,6×) | 2 | 2 | 2 | 2 |
+
+Decisão: **manter 5 rodadas.** Com as 5 telas do fluxo, 5 rodadas dão poder ≥ 80% até para um efeito de 1,25× com a pior variância da grade. Com apenas as 3 telas medíveis (`docs/fluxo_perda_documento.md`), 5 rodadas cobrem efeitos de 1,5× ou mais; para detectar 1,25× com σ_rodada = 0,30 seriam 10. Regra de revisão: se a σ_rodada medida na S02 passar de 0,20 e só houver 3 telas, subir para 10 rodadas.
+
+Duas ressalvas, ambas viram ameaça à validade (§6):
+1. Tratar cada rodada como um par independente é pseudo-replicação: rodadas da mesma tela não são independentes. Por isso o teste por tela (mediana das rodadas, k pares) é reportado ao lado. Com k = 3 o menor p-valor unilateral possível é 0,125, então **esse teste nunca rejeita a 5%**; com k = 5 é 0,031 e só rejeita se as 5 telas forem no mesmo sentido.
+2. O efeito do piloto (5,6×) é tão grande que 1 ou 2 rodadas bastariam para H2. As 5 rodadas existem para estimar a variância, para as notas (M1, M6) e para o horário, não só para H2.
+
 ## 9. Plano de análise
-Descritiva (mediana, IQR, boxplots) → testes das H1 a H4 → tamanho do efeito → impacto (M12) → dashboard reaproveitando o do Lab04 (abas Demanda, Território, Qualidade, Impacto).
+Ordem: descritiva (mediana, IQR, boxplots) → testes das H1 a H4 → tamanho do efeito → impacto (M13) → dashboard reaproveitando o do Lab04 (abas Demanda, Território, Qualidade, Impacto).
+
+**Regras gerais.** α = 0,05 por hipótese, bilateral salvo onde a hipótese tem direção (H2, H4-queda). Como são 4 hipóteses, o p-valor reportado também vem com a correção de Holm (família de 4); a conclusão só muda se as duas leituras discordarem, e aí as duas aparecem. Testes não paramétricos, porque LCP e peso são assimétricos e a nota do Lighthouse é ordinal (nota da §3). Todo teste vem com tamanho do efeito e intervalo de confiança, nunca só com o p-valor (lição do Lab04).
+
+| Hip. | Métrica e escala | Teste | α | Tamanho do efeito | Efeito mínimo de interesse |
+|---|---|---|---|---|---|
+| H1 | M2 nº de violações A/AA por tela (razão); M1 nota de acessibilidade (ordinal); M3 conclui só com teclado (nominal) | Binomial exato unilateral sobre a proporção de telas com ≥ 1 violação A/AA (H0: ≤ 50%). M1 e M3 só descritivas | 0,05 | Proporção de telas com violação e IC de Clopper-Pearson. Com 5 telas e 5 violando: p = 0,031 | Proporção > 50% |
+| H2 | M4 LCP em ms (razão); M5 peso em KB (razão); M6 nota de performance (ordinal) | Wilcoxon de postos sinalizados pareado, unilateral (celular > computador). Par = mesma tela e mesma rodada. Confirmação por tela (mediana das rodadas) | 0,05 | r = Z/√N; delta de Cliff; razão de medianas de Hodges-Lehmann (em log) com IC | Razão ≥ 1,25× no LCP (a simulação da §8 usa esse valor) |
+| H3 | M7 nota SSL Labs (ordinal); M8 cabeçalhos ausentes (razão); M9 bibliotecas com CVE (razão) | Sem teste inferencial: o sistema é medido inteiro, não é amostra. Reporta presença/ausência de CSP e HSTS e contagens, com a versão e a data da medição | não se aplica | Contagem e lista | CSP ou HSTS ausente, ou ≥ 1 biblioteca com CVE |
+| H4 | M11 ocorrências/mês (razão); M12 desvio sazonal em % (razão) | Queda: série interrompida (OLS com dummies de mês e erros robustos HAC) para abr–jul/2020. Sazonalidade: Kruskal-Wallis do mês do ano (teste) e amplitude do índice sazonal comparada a 10% | 0,05 | Queda em % contra o contrafactual da tendência, com IC; amplitude sazonal em pontos percentuais | Queda ≥ 10% e amplitude sazonal < 10% |
+
+Observações:
+- **Escalas.** Notas do Lighthouse e SSL Labs são ordinais: mediana e IQR, nunca média. LCP, peso, contagens e ocorrências são razão: podem usar razão entre medianas.
+- **H1** é quase uma verificação, não um teste estatístico clássico: o resultado vem das violações concretas (axe/Lighthouse). A binomial só dá o nível de confiança de generalizar de 5 telas para o fluxo.
+- **H2** usa as 5 rodadas por tela definidas pelo poder (§8). O teste por rodada tem poder, mas supõe rodadas independentes; o teste por tela é o conservador e, com 3 telas, não consegue rejeitar (p mínimo 0,125). Se só as 3 telas forem medíveis, a conclusão de H2 se apoia no teste por rodada e no tamanho do efeito, e isso é declarado como limitação.
+- **H4** trata o isolamento (abr–jul/2020) como intervenção: é quase-experimento, sem grupo de controle, e a queda pode misturar pandemia com outras causas.
+
+**Impacto (M13).** Horas de espera/ano = registros/ano (M10) × nº de telas do fluxo × LCP mediano (M4). Entra como análise de sensibilidade: o LCP varia entre o celular e o computador, e os registros entre a imprensa e a resposta da LAI, então o resultado é uma faixa, e não um número só. M14 (população com deficiência visual em MG, IBGE) vem de fonte externa e só entra como contexto.
 
 ## 10. Piloto (17/11/2026)
 | Página | Disp. | Perf. | Acess. | LCP (s) |
